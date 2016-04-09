@@ -1,0 +1,19 @@
+{
+	"nativescript": {
+		"id": "com.wwwalkerrun.ShoutOutPlay",
+		"tns-ios": {
+			"version": "1.7.0"
+		},
+    "tns-android": {
+      "version": "1.7.1"
+    }
+	},
+	"dependencies": {
+		"nativescript-angular": "0.0.38",
+		"tns-core-modules": "^2.0.0-angular-3"
+	},
+	"devDependencies": {
+		"nativescript-dev-typescript": "^0.3.1",
+		"typescript": "^1.8.9"
+	}
+}
