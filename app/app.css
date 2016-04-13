@@ -1,5 +1,42 @@
-﻿.title {
-    font-size: 30;
-    horizontal-align: center;
-    margin:20;
+﻿ActionBar {
+  background-color: #000;
+  color:white;
+}
+
+SearchBar {
+  padding:5;
+}
+
+.fa {
+  font-family: FontAwesome, fontawesome-webfont;
+  font-size:20;
+}
+
+.instruction {
+  font-size:16;
+  font-style: italic;
+  horizontal-align:center;
+  color:#555;
+  margin:8;
+}
+
+.list-item {
+  padding:5;
+}
+
+.odd {
+  background-color: #efefef;
+}
+
+.even {
+  background-color: #fff;
+}
+
+.search {
+  background-color: #BABAC1;
+  padding:5;
+}
+
+.record-view {
+  background-color:#000;
 }

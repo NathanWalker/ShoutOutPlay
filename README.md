@@ -1,5 +1,16 @@
 # ShoutOutPlay
 
+## Setup
+
+```
+brew install xcproj  // tmp until {N} 1.7.2 supports XCode 7.3 cocoapods issue
+
+npm install
+
+// run app (recommend using npm script since it handles things like above XCode 7.3 issue
+npm run start.ios
+```
+
 ShoutOutPlay is a music app allowing live shout outs to be recorded and mixed in with your favorite music playlists for corporate events, parties, weddings and get togethers.
 
 It allows users to search for any music track via Spotify integration. They can preview/play the tracks and then choose to add them to a new or existing playlist they create. What makes ShoutOutPlay unique is it's ability to allow users to record "Shout Outs" which will mix into the music and play on a specific track they choose or can be played at random during the playlist playback if they choose.
