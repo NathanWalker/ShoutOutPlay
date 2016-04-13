@@ -20,3 +20,7 @@ When the "Shout Out" plays, the currently playing track volume will fade down ab
 Imagine you are at a corporate event for Telerik and the Vice President of Technology, Hristo Kosev, loves Michael Jackson's "Wanna Be Startin' Somethin'", so during the event or after-party, music is playing and then you hear "Wanna Be Startin' Somethin'" start playing, then Hristo's voice fades in, "This goes out to all our developers to say thanks that you all have truly started something special here with NativeScript. Thank You."
 
 The beauty of this is it makes the party take on a whole new meaning with personalized dedications and give the guests as a way to participate as an iPad with the app running could be setup in an area that would allow guest to walk up to it and record their own "Shout Outs" to people at the event.
+
+UI Comp
+
+![Comp](resources/comp.jpg)
