@@ -10,7 +10,12 @@ brew install xcproj  // tmp until {N} 1.7.2 supports XCode 7.3 cocoapods issue
 
 tns install
 
-// run app (recommend using npm script since it handles things like above XCode 7.3 issue
+// run it
+tns emulate ios
+
+
+// All subsequest times, you should use this instead
+// (handles the XCode 7.3 CocoaPods issue)
 npm run start.ios
 ```
 
@@ -26,4 +31,4 @@ The beauty of this is it makes the party take on a whole new meaning with person
 
 UI Comp
 
-![Comp](resources/comp.jpg)
+![Comp](https://cdn.filestackcontent.com/NiGHnUhTQuqp4KUxsRlr?v=0)
