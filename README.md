@@ -1,5 +1,8 @@
 # ShoutOutPlay
 
+Join the Waffle Board here to track progress:
+https://waffle.io/NathanWalker/ShoutOutPlay/join
+
 ## Setup
 
 ```
