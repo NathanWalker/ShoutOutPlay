@@ -8,7 +8,7 @@ https://waffle.io/NathanWalker/ShoutOutPlay/join
 ```
 brew install xcproj  // tmp until {N} 1.7.2 supports XCode 7.3 cocoapods issue
 
-npm install
+tns install
 
 // run app (recommend using npm script since it handles things like above XCode 7.3 issue
 npm run start.ios

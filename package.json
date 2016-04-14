@@ -3,9 +3,6 @@
     "id": "com.wwwalkerrun.ShoutOutPlay",
     "tns-ios": {
       "version": "1.7.0"
-    },
-    "tns-android": {
-      "version": "1.7.1"
     }
   },
   "scripts": {
