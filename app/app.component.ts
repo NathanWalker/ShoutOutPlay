@@ -8,7 +8,7 @@ import {registerElement} from "nativescript-angular/element-registry"
 registerElement("CardView", () => require("nativescript-cardview").CardView);
 
 // libs
-import {TNSFontIconService} from 'nativescript-ng2-fonticon';
+import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 // app
 import {ActionBarUtil} from './frameworks/core.framework/index';

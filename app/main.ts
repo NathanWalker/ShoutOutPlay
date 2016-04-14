@@ -9,7 +9,7 @@ import {provide} from 'angular2/core';
 // libs
 import {provideStore} from '@ngrx/store';
 import {routerReducer, routerMiddleware} from 'ngrx-store-router';
-import {TNSFontIconService} from 'nativescript-ng2-fonticon';
+import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 // app
 import {CORE_PROVIDERS, SpotifyAppDelegate} from './frameworks/core.framework/index';

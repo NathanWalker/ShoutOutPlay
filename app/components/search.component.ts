@@ -6,7 +6,7 @@ import {NS_ROUTER_DIRECTIVES} from 'nativescript-angular/router';
 import {NS_DIRECTIVES} from "nativescript-angular/directives";
 
 // libs
-import {TNSFontIconPipe} from 'nativescript-ng2-fonticon';
+import {TNSFontIconPipe} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 @Component({
   selector: 'search',
