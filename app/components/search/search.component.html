@@ -1,0 +1,43 @@
+<ActionBar title="ShoutOutPlay"> 
+  <StackLayout orientation="horizontal"
+    ios:horizontalAlignment="center"
+    android:horizontalAlignment="left">
+    <!--<Image src="res://nativescript_logo" class="action-image"/>-->
+    <Label text="ShoutOutPlay"  class="logo-text"></Label>
+  </StackLayout>
+  <ActionItem (tap)="toggleMenu()">
+    <Button class="fa" [text]="'fa-bars' | fonticon"></Button>
+  </ActionItem>
+  <ActionItem [nsRouterLink]="['/Record']" ios.position="right" android.position="popup">
+    <Button class="fa" [text]="'fa-microphone' | fonticon"></Button>
+  </ActionItem>
+</ActionBar>
+<StackLayout>
+  
+  <!-- unauth -->
+  <StackLayout [visibility]="(authService.state$ | async)?.loggedIn ? 'collapsed' : 'visible'">
+    <Label text="Get ready to play!" class="instruction heading-1"></Label>
+    <Image src="~/assets/login-btn.png" (tap)="authService.login()" class="login-btn"></Image> 
+  </StackLayout>
+  
+  <!-- auth -->
+  <StackLayout [visibility]="(authService.state$ | async)?.loggedIn ? 'visible' : 'collapsed'" class="full-page">
+    <Label text="Search by track name to add to a playlist..." class="instruction"></Label>
+    <CardView margin="5" radius="5">
+      <SearchBar (submit)="search($event)" (clear)="clear()"></SearchBar>
+    </CardView>
+    <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333">
+      <template #item="item" #odd="odd" #even="even">
+        <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
+          <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="searchService.togglePreview(item.id)"></Button>
+          <StackLayout row="0" col="1">
+            <Label [text]="item.name" textWrap="true" class="title"></Label> 
+            <Label [text]="item.artist.name" textWrap="true" class="title-sub"></Label> 
+          </StackLayout>
+          <Button row="0" col="2" [text]="'fa-plus-circle' | fonticon" class="add-btn fa" (tap)="playlistService.addPrompt(item)"></Button>
+        </GridLayout>
+      </template>
+    </ListView>
+  </StackLayout>
+  
+<StackLayout>

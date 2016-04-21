@@ -1,5 +1,7 @@
 node_modules
 platforms
 hooks
+lib
 *.js
-*.js.map
+*.map
+*.log

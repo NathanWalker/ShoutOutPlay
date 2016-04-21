@@ -7,7 +7,6 @@ https://waffle.io/NathanWalker/ShoutOutPlay/join
 
 ```
 brew install xcproj  // tmp until {N} 1.7.2 supports XCode 7.3 cocoapods issue
-
 tns install
 
 // run it
@@ -30,5 +29,7 @@ Imagine you are at a corporate event for Telerik and the Vice President of Techn
 The beauty of this is it makes the party take on a whole new meaning with personalized dedications and give the guests as a way to participate as an iPad with the app running could be setup in an area that would allow guest to walk up to it and record their own "Shout Outs" to people at the event.
 
 UI Comp
+
+![Status](https://cdn.filestackcontent.com/fUIprzd9RLGopahjPzpo?v=0)
 
 ![Comp](https://cdn.filestackcontent.com/NiGHnUhTQuqp4KUxsRlr?v=0)

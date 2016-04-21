@@ -8,12 +8,13 @@ import {TNSFontIconPipe} from 'nativescript-ng2-fonticon/nativescript-ng2-fontic
   selector: 'record',
   template: `
     <ActionBar title="Record"> 
+      <NavigationButton text="Back" android.systemIcon="ic_menu_back"></NavigationButton>
       <ActionItem (tap)="record()" ios.position="right" android.position="popup">
-        <Button class="fa" [text]="'fa-circle' | fonticon"></Button>
+        <Button class="fa record-btn" [text]="'fa-circle' | fonticon"></Button>
       </ActionItem>
     </ActionBar>
-    <StackLayout class="record-view">
-      <Label text="TODO: Record"></Label>
+    <StackLayout class="record-view full-page">
+      <Label text="TODO: Wire up Record View" color="#fff" padding="20"></Label>
     </StackLayout>
   `,
   pipes: [TNSFontIconPipe]

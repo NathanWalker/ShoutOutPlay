@@ -2,7 +2,7 @@
 import {Injectable} from 'angular2/core';
 
 // libs
-import {LoadingIndicator} from 'nativescript-loading-indicator';
+import {LoadingIndicator, OptionsCommon} from 'nativescript-loading-indicator';
 
 @Injectable()
 export class ProgressService {
@@ -12,8 +12,8 @@ export class ProgressService {
     this.loader = new LoadingIndicator();
   }
 
-  public show() {
-    this.loader.show();
+  public show(options?: OptionsCommon) {
+    this.loader.show(options);
   }
 
   public hide() {

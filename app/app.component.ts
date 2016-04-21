@@ -12,10 +12,11 @@ import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fon
 
 // app
 import {ActionBarUtil} from './frameworks/core.framework/index';
-import {SearchComponent} from './components/search.component';
-import {RecordComponent} from './components/record.component';
-import {PlaylistComponent} from './components/playlist.component';
-import {RecordlistComponent} from './components/recordlist.component';
+import {PlayerService} from './frameworks/shoutoutplay.framework/index';
+import {SearchComponent} from './components/search/search.component';
+import {RecordComponent} from './components/record/record.component';
+import {RecordlistComponent} from './components/record/recordlist.component';
+import {PlaylistComponent} from './components/playlist/playlist.component';
 
 @Component({
   selector: 'my-app',
@@ -32,7 +33,7 @@ import {RecordlistComponent} from './components/recordlist.component';
 ])  
 export class AppComponent {
 
-  constructor(private pluginService: TNSFontIconService) {
+  constructor(private pluginService: TNSFontIconService, private player: PlayerService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
   }
 }

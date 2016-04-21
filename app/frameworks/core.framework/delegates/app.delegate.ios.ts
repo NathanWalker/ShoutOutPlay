@@ -1,4 +1,4 @@
-import {TNSSpotifyConstants} from 'nativescript-spotify';
+import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
 
 declare var UIApplicationDelegate: any;
 
@@ -8,7 +8,7 @@ export class SpotifyAppDelegate extends UIResponder {
   public applicationDidFinishLaunchingWithOptions(application: UIApplication, launchOptions: NSDictionary): boolean {
     
     TNSSpotifyConstants.CLIENT_ID = '1acac12e7fc448e188d8d70aa14249df';
-    // TNSSpotifyAuth.REDIRECT_URL = 'tnsspotify://spotifylogin';
+    TNSSpotifyAuth.REDIRECT_URL = 'shoutoutplay://spotifylogin';
     return true;
   }
   

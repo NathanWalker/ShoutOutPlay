@@ -6,6 +6,7 @@
 		}
 	},
 	"scripts": {
+		"clean": "rm -rf platforms node_modules lib",
 		"start.ios": "npm run prepareapp && tns emulate ios",
 		"prepareapp": "xcproj --project 'platforms/ios/ShoutOutPlay.xcodeproj' touch && xcproj --project 'platforms/ios/Pods/Pods.xcodeproj' touch"
 	},
@@ -20,7 +21,7 @@
 		"nativescript-cardview": "^1.1.0",
 		"nativescript-loading-indicator": "^2.0.1",
 		"nativescript-ng2-fonticon": "^1.0.5",
-		"nativescript-spotify": "^1.1.0",
+		"nativescript-spotify": "^1.2.1",
 		"ngrx-store-router": "0.0.7",
 		"rxjs": "5.0.0-beta.2",
 		"tns-core-modules": "^2.0.0-angular-4"
