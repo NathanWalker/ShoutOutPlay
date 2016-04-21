@@ -30,6 +30,6 @@ The beauty of this is it makes the party take on a whole new meaning with person
 
 UI Comp
 
-![Status](https://cdn.filestackcontent.com/fUIprzd9RLGopahjPzpo?v=0)
+![Status](https://cdn.filestackcontent.com/RqD32VFSlWM1vLBPrgpg?v=0)
 
 ![Comp](https://cdn.filestackcontent.com/NiGHnUhTQuqp4KUxsRlr?v=0)
