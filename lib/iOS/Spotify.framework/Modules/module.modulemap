@@ -1,6 +1,0 @@
-framework module Spotify {
-  umbrella header "Spotify.h"
-
-  export *
-  module * { export * }
-}
