@@ -9,7 +9,7 @@ https://waffle.io/NathanWalker/ShoutOutPlay/join
 brew install xcproj  // tmp until {N} 1.7.2 supports XCode 7.3 cocoapods issue
 tns install
 
-// run it
+// run it (you will see TS warnings/errors)..it's ok, proceed)
 tns emulate ios
 
 

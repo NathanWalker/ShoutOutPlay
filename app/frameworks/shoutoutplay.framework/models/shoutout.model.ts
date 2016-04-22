@@ -4,6 +4,7 @@ export class ShoutoutModel {
   public author: string;
   public trackId: string;
   public recordingPath: string;
+  public type: string = 'shoutout';
   
   constructor(model?: any) {
     if (model) {

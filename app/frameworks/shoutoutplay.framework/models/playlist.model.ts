@@ -2,18 +2,24 @@
 import {TrackModel} from './track.model';
 
 export class PlaylistModel {
-  public id: number;
+  public id: string;
   public name: string;
   public tracks: Array<TrackModel>;
+  public type: string = 'playlist';
   
   constructor(model?: any) {
     if (model) {
       for (let key in model) {
-        this[key] = model[key];
+        if (key === '_id') {
+          this.id = model[key];
+        } else {
+          this[key] = model[key];  
+        }
       }
     }
     if (!this.id) {
-      this.id = Math.floor(Math.random()*100000000000000000);  
+      // couchbase id's are strings
+      this.id = Math.floor(Math.random()*100000000000000000).toString();  
     }
   }
   

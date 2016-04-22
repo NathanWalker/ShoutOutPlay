@@ -85,72 +85,83 @@ export class CouchbaseService {
     this.database = new Couchbase('shoutoutplay');
 
     this.database.createView('playlists', '1', (document, emitter) => {
-      emitter.emit(JSON.parse(document)._id, document);
-    });
-
-    this.database.createView('shoutouts', '1', (document, emitter) => {
-      emitter.emit(JSON.parse(document)._id, document);
-    });
-
-    this.database.addDatabaseChangeListener((changes) => {
-      this.logger.debug(changes);
-
-      var changeIndex = -1;
-      for (let change of changes) {
-        
-        let documentId = change.getDocumentId();
-        // changeIndex = this.indexOfObjectId(documentId, this.personList);
-        let document = this.database.getDocument(documentId);
-        this.logger.debug(document);
-
-        if (changeIndex == -1) {
-          // this.personList.push(document);
-        } else {
-          // this.personList.setItem(changeIndex, document);
-        }
+      let doc = JSON.parse(document);
+      if (doc.type === 'playlist') {
+        let playlist = new PlaylistModel(doc);
+        emitter.emit(playlist.id, playlist);
       }
     });
 
-    this.refresh();
+    this.database.createView('shoutouts', '1', (document, emitter) => {
+      let doc = JSON.parse(document);
+      if (doc.type === 'shoutout') {
+        let shoutout = new ShoutoutModel(doc);
+        emitter.emit(shoutout.id, shoutout);
+      }
+    });
 
+    // react to database changes    
+    this.setupChangeHandler();
 
+    // restore state from couchbase    
     // let playlists = [];
     // let shoutouts = [];
-    // this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
-  }
 
-  private refresh() {
-    var rows = this.database.executeQuery('playlists');
+    let rows = this.database.executeQuery('playlists');
     this.logger.debug(`executeQuery('playlists')`);
     this.logger.debug(typeof rows);
     this.logger.debug(rows);
-    for (var i in rows) {
+    for (let i in rows) {
       this.logger.debug(i);
       if (rows.hasOwnProperty(i)) {
         this.logger.debug(rows[i]);
-        // this.personList.push(JSON.parse(rows[i]));
+        // playlists.push(rows[i]);
       }
     }
 
     rows = this.database.executeQuery('shoutouts');
     this.logger.debug(`executeQuery('shoutouts')`);
-    for (var i in rows) {
+    for (let i in rows) {
       this.logger.debug(i);
       if (rows.hasOwnProperty(i)) {
         this.logger.debug(rows[i]);
-        // this.personList.push(JSON.parse(rows[i]));
+        // shoutouts.push(rows[i]);
       }
     }
+
+    // this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
   }
 
-  private indexOfObjectId(needle, haystack) {
-    for (var i = 0; i < haystack.length; i++) {
-      if (haystack.getItem(i) !== undefined && haystack.getItem(i).hasOwnProperty('_id')) {
-        if (haystack.getItem(i)._id === needle) {
-          return i;
-        }
+  private setupChangeHandler() {
+    this.database.addDatabaseChangeListener((changes) => {
+      this.logger.debug('Changes occured, firing addDatabaseChangeListener ---');
+      this.logger.debug(changes);
+
+      // used to process changes before dispatching to store      
+      let rawPlaylists = this.store.getState().couchbase.playlists;
+      let rawShoutouts = this.store.getState().couchbase.shoutouts;
+      
+      for (let change of changes) {
+        this.logger.debug(change);
+
+        // this should be the underlying record https://github.com/couchbaselabs/nativescript-couchbase/blob/master/couchbase.ios.ts#L194
+        this.logger.debug(change.change); 
+        
+        let documentId = change.getDocumentId();
+        let document = this.database.getDocument(documentId);
+
+        // update or insert document
+        this.changeHandler(document, rawPlaylists, rawShoutouts);
       }
-    }
-    return -1;
+
+      this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists: rawPlaylists, shoutouts: rawShoutouts } });
+    });
+  }
+
+  private changeHandler(document: any, playlists: Array<PlaylistModel>, shoutouts: Array<ShoutoutModel>) {
+    // TODO: modify
+    this.logger.debug(document);
+    
+
   }
 }
