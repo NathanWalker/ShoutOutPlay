@@ -1,10 +1,9 @@
-// libs
-import {TrackModel} from './track.model';
-
-export class PlaylistModel {
+export class ShoutoutModel {
   public id: number;
   public name: string;
-  public tracks: Array<TrackModel>;
+  public author: string;
+  public trackId: string;
+  public recordingPath: string;
   
   constructor(model?: any) {
     if (model) {
@@ -15,12 +14,5 @@ export class PlaylistModel {
     if (!this.id) {
       this.id = Math.floor(Math.random()*100000000000000000);  
     }
-  }
-  
-  public addTrack(track: TrackModel) {
-    if (!this.tracks) {
-      this.tracks = [];
-    }
-    this.tracks.push(track);
   }
 }

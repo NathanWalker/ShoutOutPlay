@@ -23,6 +23,7 @@ import {ANALYTICS_PROVIDERS} from './frameworks/analytics.framework/index';
 import {
   SHOUTOUTPLAY_PROVIDERS,
   authReducer,
+  couchbaseReducer,
   playerReducer,
   playlistReducer,
   searchReducer,
@@ -51,10 +52,11 @@ nativeScriptBootstrap(AppComponent, [
   provideStore({
     auth: authReducer,
     router: routerReducer,
+    couchbase: couchbaseReducer,
     player: playerReducer,
     playlist: playlistReducer,
     search: searchReducer,
-    shoutOut: shoutoutReducer
+    shoutout: shoutoutReducer
   }),
   routerMiddleware
 ], { startPageActionBarHidden: false }); // https://github.com/NativeScript/nativescript-angular/issues/121

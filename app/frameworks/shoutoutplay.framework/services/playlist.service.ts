@@ -21,17 +21,21 @@ const CATEGORY: string = 'Playlist';
  * ngrx setup start --
  */
 export interface PlaylistStateI {
-  lists: Array<PlaylistModel>
+  list: Array<PlaylistModel>
 }
 
 const initialState: PlaylistStateI = {
-  lists: []
+  list: []
 };
 
-export const PLAYLIST_ACTIONS: any = {
-  INIT: `[${CATEGORY}] INIT`,
-  UPDATE: `[${CATEGORY}] UPDATE`,
-  CREATE: `[${CATEGORY}] CREATE`
+interface PLAYLIST_ACTIONSI {
+  CREATE: string;
+  UPDATE: string;
+}
+
+export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
+  CREATE: `[${CATEGORY}] CREATE`,
+  UPDATE: `[${CATEGORY}] UPDATE`
 };
 
 export const playlistReducer: Reducer<PlaylistStateI> = (state: PlaylistStateI = initialState, action: Action) => {
@@ -39,10 +43,11 @@ export const playlistReducer: Reducer<PlaylistStateI> = (state: PlaylistStateI =
     return Object.assign({}, state, action.payload);
   };
   switch (action.type) {
-    case PLAYLIST_ACTIONS.INIT:
-      return changeState();
     case PLAYLIST_ACTIONS.CREATE:
-      action.payload = { lists: [...state.lists, action.payload] };
+      action.payload = { list: [...state.list, action.payload] };
+      return changeState();
+    case PLAYLIST_ACTIONS.UPDATE:
+      action.payload = { list: action.payload };
       return changeState();
     default:
       return state;
@@ -62,11 +67,13 @@ export class PlaylistService extends Analytics {
 
     this.state$ = store.select('playlist');
 
-    this.init();   
+    store.select(state => state.couchbase.playlists).subscribe((playlists) => {
+      this.store.dispatch({ type: PLAYLIST_ACTIONS.UPDATE, payload: playlists });
+    });
   }
 
   public addPrompt(track: TNSTrack) {
-    let rawPlaylists = this.store.getState().playlist.lists;
+    let rawPlaylists = this.store.getState().playlist.list;
 
     let promptNew = () => {
       dialogs.prompt({
@@ -105,18 +112,12 @@ export class PlaylistService extends Analytics {
 
   private create(name: string, track: TNSTrack) {
     this.logger.debug(`TODO: create playlist named '${name}', and add track: ${track.name}`);
-    let newPlaylist = new PlaylistModel(name);
+    let newPlaylist = new PlaylistModel({ name });
     newPlaylist.addTrack(new TrackModel(track));
     this.store.dispatch({ type: PLAYLIST_ACTIONS.CREATE, payload: newPlaylist });
   }
 
   private addTrackTo(playlistId: string) {
     
-  }
-  
-  private init() {
-    // TODO: init playlists from app settings or local store of some sort (using {N}) 
-    let lists = [];
-    this.store.dispatch({ type: PLAYLIST_ACTIONS.INIT, payload: { lists } });
   }
 }

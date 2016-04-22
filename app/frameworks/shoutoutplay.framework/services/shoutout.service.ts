@@ -7,6 +7,8 @@ import {Observable} from 'rxjs/Rx';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics.framework/index';
+import {LogService} from '../../core.framework/index';
+import {ShoutoutModel} from '../index';
 
 // analytics
 const CATEGORY: string = 'Shoutout';
@@ -14,20 +16,35 @@ const CATEGORY: string = 'Shoutout';
 /**
  * ngrx setup start --
  */
-const initialState: Array<string> = [];
+export interface ShoutoutStateI {
+  list: Array<ShoutoutModel>
+}
 
-export const SHOUTOUT_ACTIONS: any = {
-  INIT: `[${CATEGORY}] INIT`,
-  UPDATE: `[${CATEGORY}] UPDATE`,
-  CREATE: `[${CATEGORY}] CREATE`
+const initialState: ShoutoutStateI = {
+  list: []
 };
 
-export const shoutoutReducer: Reducer<any> = (state: any = [], action: Action) => {
+interface SHOUTOUT_ACTIONSI {
+  CREATE: string;
+  UPDATE: string;
+}
+
+export const SHOUTOUT_ACTIONS: SHOUTOUT_ACTIONSI = {
+  CREATE: `[${CATEGORY}] CREATE`,
+  UPDATE: `[${CATEGORY}] UPDATE`
+};
+
+export const shoutoutReducer: Reducer<ShoutoutStateI> = (state: ShoutoutStateI = initialState, action: Action) => {
+  let changeState = () => {
+    return Object.assign({}, state, action.payload);
+  };
   switch (action.type) {
-    case SHOUTOUT_ACTIONS.INIT:
-      return [...action.payload];
     case SHOUTOUT_ACTIONS.CREATE:
-      return [...state, action.payload];
+      action.payload = { list: [...state.list, action.payload] };
+      return changeState();
+    case SHOUTOUT_ACTIONS.UPDATE:
+      action.payload = { list: action.payload };
+      return changeState();
     default:
       return state;
   }
@@ -38,20 +55,16 @@ export const shoutoutReducer: Reducer<any> = (state: any = [], action: Action) =
 
 @Injectable()
 export class ShoutoutService extends Analytics {
-  public shoutOuts: Observable<any>;
+  public state$: Observable<any>;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService) {
     super(analytics);
     this.category = CATEGORY;
 
-    this.shoutOuts = store.select('shoutOuts');
+    this.state$ = store.select('shoutout');
 
-    this.init();   
-  }
-
-  private init() {
-    // TODO: init shoutouts from app settings or local store of some sort (using {N}) 
-    let userShoutouts = [];
-    this.store.dispatch({ type: SHOUTOUT_ACTIONS.INIT, payload: userShoutouts });
+    store.select(state => state.couchbase.shoutouts).subscribe((shoutouts) => {
+      this.store.dispatch({ type: SHOUTOUT_ACTIONS.UPDATE, payload: shoutouts });
+    });
   }
 }
