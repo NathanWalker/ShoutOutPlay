@@ -4,7 +4,7 @@ Join the Waffle Board here to track progress:
 https://waffle.io/NathanWalker/ShoutOutPlay/join
 
 * [Setup](#setup)
-* [XCode 7.3 Issue](#if-you-run-into-the-xcode-7.3-cocoapods-issue)
+* [XCode 7.3 Issue](#if-you-run-into-the-xcode-73-cocoapods-issue)
 * [Watch Video: Code Walk-Throughs!](#video-walk-throughs)
 * [Concept](#concept)
 * [UI Preview](#ui-preview)
