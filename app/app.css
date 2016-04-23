@@ -58,6 +58,11 @@ SearchBar {
   font-size:30;
 }
 
+.detail-btn {
+  font-size:30;
+  color:#333;
+}
+
 .record-btn {
   color: #E42338;
 }

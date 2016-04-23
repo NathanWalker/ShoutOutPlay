@@ -5,8 +5,11 @@
     <!--<Image src="res://nativescript_logo" class="action-image"/>-->
     <Label text="ShoutOutPlay"  class="logo-text"></Label>
   </StackLayout>
-  <ActionItem (tap)="toggleMenu()">
+  <!--<ActionItem (tap)="toggleMenu()">
     <Button class="fa" [text]="'fa-bars' | fonticon"></Button>
+  </ActionItem>-->
+  <ActionItem [nsRouterLink]="['/Playlist']">
+    <Button text="Playlists"></Button>
   </ActionItem>
   <ActionItem [nsRouterLink]="['/Record']" ios.position="right" android.position="popup">
     <Button class="fa" [text]="'fa-microphone' | fonticon"></Button>

@@ -15,7 +15,6 @@ import {ActionBarUtil} from './frameworks/core.framework/index';
 import {PlayerService, CouchbaseService} from './frameworks/shoutoutplay.framework/index';
 import {SearchComponent} from './components/search/search.component';
 import {RecordComponent} from './components/record/record.component';
-import {RecordlistComponent} from './components/record/recordlist.component';
 import {PlaylistComponent} from './components/playlist/playlist.component';
 
 @Component({
@@ -26,10 +25,9 @@ import {PlaylistComponent} from './components/playlist/playlist.component';
   directives: [NS_ROUTER_DIRECTIVES]
 })
 @RouteConfig([
-  { path: '/', component: SearchComponent, as: 'Search' },
-  { path: '/record', component: RecordComponent, as: 'Record' },
-  { path: '/playlist', component: PlaylistComponent, as: 'Playlist' },
-  { path: '/recordlist', component: RecordlistComponent, as: 'Recordlist' }
+  { path: '/', component: SearchComponent, name: 'Search' },
+  { path: '/record', component: RecordComponent, name: 'Record' },
+  { path: '/playlist', component: PlaylistComponent, name: 'Playlist' }
 ])  
 export class AppComponent {
 

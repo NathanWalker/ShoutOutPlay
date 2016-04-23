@@ -21,8 +21,8 @@ const CATEGORY: string = 'Player';
  * ngrx setup start --
  */
 export interface PlayerStateI {
-  currentTrack?: string;
-  previewTrack?: string;
+  currentTrackId?: string;
+  previewTrackId?: string;
   playing?: boolean;
 }
 
@@ -32,18 +32,12 @@ const initialState: PlayerStateI = {
 
 interface PLAYER_ACTIONSI {
   TOGGLE_PLAY: string;
-  PLAY: string;
-  PAUSE: string;
-  TRACK_CHANGE: string;
-  PREVIEW_CHANGE: string;
+  STOP: string;
 }
 
 export const PLAYER_ACTIONS: PLAYER_ACTIONSI = {
   TOGGLE_PLAY: `[${CATEGORY}] TOGGLE_PLAY`,
-  PLAY: `[${CATEGORY}] PLAY`,
-  PAUSE: `[${CATEGORY}] PAUSE`,
-  TRACK_CHANGE: `[${CATEGORY}] TRACK_CHANGE`,
-  PREVIEW_CHANGE: `[${CATEGORY}] PREVIEW_CHANGE`
+  STOP: `[${CATEGORY}] STOP`
 };
 
 export const playerReducer: Reducer<PlayerStateI> = (state: PlayerStateI = initialState, action: Action) => {
@@ -52,14 +46,22 @@ export const playerReducer: Reducer<PlayerStateI> = (state: PlayerStateI = initi
   };
   switch (action.type) {
     case PLAYER_ACTIONS.TOGGLE_PLAY:
+      if ((action.payload.previewTrackId && action.payload.previewTrackId !== state.previewTrackId) ||
+        (action.payload.currentTrackId && action.payload.currentTrackId !== state.currentTrackId)) {
+        // when changing to new track, always start playing
+        action.payload.playing = true
+
+        // always reset the other (only 1 track can be played at a time, preview from search or playlist)
+        if (action.payload.previewTrackId) action.payload.currentTrackId = undefined;
+        if (action.payload.currentTrackId) action.payload.previewTrackId = undefined;
+      } else {
+        // toggle play 
+        action.payload.playing = !state.playing;  
+      }
       return changeState();
-    case PLAYER_ACTIONS.PLAY:
-      return changeState();
-    case PLAYER_ACTIONS.PAUSE:
-      return changeState();
-    case PLAYER_ACTIONS.TRACK_CHANGE:
-      return changeState();
-    case PLAYER_ACTIONS.PREVIEW_CHANGE:
+    case PLAYER_ACTIONS.STOP:
+      // reset all
+      action.payload = { playing: false, currentTrackId: undefined, previewTrackId: undefined };
       return changeState();
     default:
       return state;
@@ -74,11 +76,6 @@ export class PlayerService extends Analytics {
   public state$: Observable<any>;
   private _spotify: TNSSpotifyPlayer;
 
-  // helper state (not for app state usage)
-  private _currentPreview: string;
-  private _currentTrack: string;
-  private _playing: boolean;
-
   constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService) {
     super(analytics);
     this.category = CATEGORY;
@@ -92,66 +89,29 @@ export class PlayerService extends Analytics {
     this.setupEvents();
 
     // react to search previews
-    store.select('search').subscribe((search: SearchStateI) => {
-      let currentPreviewId: string;
-      if (this._currentPreview) {
-        currentPreviewId = this._currentPreview.split(':')[2];
-      }
-      if (search && search.previewTrackId && (search.previewTrackId !== currentPreviewId || search.playing !== this._playing)) {
-        // only togglePlay when previewTrackId is defined, is different than current OR playing state changes
-        this.togglePlay(search.previewTrackId, true);
-      }
+    this.state$.subscribe((player: PlayerStateI) => {
+      if (player.previewTrackId || player.currentTrackId) {
+        // only if tracks are defined
+        this.togglePlay(player.previewTrackId || player.currentTrackId, player.previewTrackId !== undefined);  
+      } 
     });
   }
 
-  public togglePlay(trackId: string, isPreview?: boolean) {
+  private togglePlay(trackId: string, isPreview?: boolean) {
     this.loader.show();
 
     let trackUri: string = `spotify:track:${trackId}`;
 
     this._spotify.togglePlay(trackUri).then((isPlaying: boolean) => {
-      this.stateHandler(trackUri, isPreview, isPlaying);
+      this.loader.hide();
+      this.track(PLAYER_ACTIONS.TOGGLE_PLAY, { label: `${trackUri} ${isPlaying ? 'playing' : 'paused'}` });
     }, (error) => {
-      this.stateHandler(trackUri, isPreview, false);
+      this.loader.hide();
+      this.track(`[${CATEGORY}] ERROR`, { label: error.toString() });
       if (error === 'login') {
         this.updateLogin(false);
       }
     });
-  }
-
-  private stateHandler(track: string, isPreview: boolean, playing: boolean) {
-    this.loader.hide();
-    this._playing = playing;
-    
-    let type: string;
-    let payload: any = {
-      playing: playing
-    };
-    if (isPreview) {
-      payload.previewTrack = track;
-      if (this._currentPreview !== track) {
-        // don't actually change unless diff
-        type = PLAYER_ACTIONS.PREVIEW_CHANGE;
-        this._currentTrack = undefined;
-        this._currentPreview = track;
-      }          
-    } else {
-      payload.currentTrack = track;
-      if (this._currentTrack !== track) {
-        // don't actually change unless diff
-        type = PLAYER_ACTIONS.TRACK_CHANGE;
-        this._currentPreview = undefined;
-        this._currentTrack = track;
-      }
-    }
-    if (type) {
-      // track change - analytics
-      this.track(type, { label: track });
-    } else {
-      // just toggling playback
-      type = PLAYER_ACTIONS[playing ? 'PLAY' : 'PAUSE'];
-    }
-    this.store.dispatch({ type: type, payload: payload });  
   }
 
   private updateAlbumArt(url: string) {
@@ -176,12 +136,8 @@ export class PlayerService extends Analytics {
   }  
 
   private trackEnded(url: string) {
-    console.log(`TODO: correct state in results list`);
-    // update play/pause state in list
-    // TODO: not as simple as below... need another state to just update search results state
-    // the following depends on togglePlay which in this case player.isPlaying is false, so calling again just plays it again
-    // let isPreview = this._currentPreview !== undefined;
-    // this.stateHandler(url, isPreview, false);
+    // update playing state
+    this.store.dispatch({ type: PLAYER_ACTIONS.STOP });
   }
 
   private setupEvents() {

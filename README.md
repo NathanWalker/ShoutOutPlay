@@ -12,10 +12,15 @@ tns install
 // run it (you will see TS warnings/errors)..it's ok, proceed)
 tns emulate ios
 
+// Or you can use VS Code debugger :)
+```
 
-// All subsequest times, you should use this instead
-// (handles the XCode 7.3 CocoaPods issue)
-npm run start.ios
+#### IF you run into the XCode 7.3 CocoaPods issue
+
+Run this once:
+
+```
+npm run fix_xcode
 ```
 
 ShoutOutPlay is a music app allowing live shout outs to be recorded and mixed in with your favorite music playlists for corporate events, parties, weddings and get togethers.

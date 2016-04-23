@@ -8,9 +8,9 @@ export class LogService {
   constructor(@Inject(forwardRef(() => ConsoleService)) public logger: ConsoleService) {}
   
   // debug (standard output)
-  public debug(msg: string) { 
+  public debug(msg: any) { 
     if (CoreConfigService.DEBUG.LEVEL_4) {
-      this.logger.log(msg);  
+      this.logger.log(msg);  // must be `log` as Android does not support console.debug !!
     }
   }
   

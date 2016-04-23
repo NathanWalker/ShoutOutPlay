@@ -7,12 +7,12 @@ import * as dialogs from 'ui/dialogs';
 // libs
 import {Store, Reducer, Action} from '@ngrx/store';
 import {Observable} from 'rxjs/Rx';
-import {TNSTrack} from 'nativescript-spotify';
+import {TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics.framework/index';
 import {LogService} from '../../core.framework/index';
-import {PlaylistModel, TrackModel} from '../index';
+import {PlaylistModel, TrackModel, PLAYER_ACTIONS} from '../index';
 
 // analytics
 const CATEGORY: string = 'Playlist';
@@ -21,7 +21,8 @@ const CATEGORY: string = 'Playlist';
  * ngrx setup start --
  */
 export interface PlaylistStateI {
-  list: Array<PlaylistModel>
+  list: Array<PlaylistModel>;
+  playing?: boolean;
 }
 
 const initialState: PlaylistStateI = {
@@ -30,11 +31,13 @@ const initialState: PlaylistStateI = {
 
 interface PLAYLIST_ACTIONSI {
   CREATE: string;
+  CREATED: string;
   UPDATE: string;
 }
 
 export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
   CREATE: `[${CATEGORY}] CREATE`,
+  CREATED: `[${CATEGORY}] CREATED`,
   UPDATE: `[${CATEGORY}] UPDATE`
 };
 
@@ -43,7 +46,7 @@ export const playlistReducer: Reducer<PlaylistStateI> = (state: PlaylistStateI =
     return Object.assign({}, state, action.payload);
   };
   switch (action.type) {
-    case PLAYLIST_ACTIONS.CREATE:
+    case PLAYLIST_ACTIONS.CREATED:
       action.payload = { list: [...state.list, action.payload] };
       return changeState();
     case PLAYLIST_ACTIONS.UPDATE:
@@ -72,8 +75,23 @@ export class PlaylistService extends Analytics {
     });
   }
 
+  public togglePlay(playlistId: string) {
+    let playlist: PlaylistModel;
+    for (let p of this.getRawPlaylists()) {
+      if (p.id === playlistId) {
+        playlist = p;
+        break;
+      }
+    }
+    if (playlist.tracks.length) {
+      this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: playlist.tracks[0]} }); 
+    } else {
+      Utils.alert('This playist contains 0 tracks to play.');
+    }
+  }
+
   public addPrompt(track: TNSTrack) {
-    let rawPlaylists = this.store.getState().playlist.list;
+    let rawPlaylists = this.getRawPlaylists();
 
     let promptNew = () => {
       dialogs.prompt({
@@ -119,5 +137,9 @@ export class PlaylistService extends Analytics {
 
   private addTrackTo(playlistId: string) {
     
+  }
+
+  private getRawPlaylists(): Array<PlaylistModel> {
+    return this.store.getState().playlist.list;
   }
 }

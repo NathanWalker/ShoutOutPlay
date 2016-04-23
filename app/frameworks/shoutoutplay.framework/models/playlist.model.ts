@@ -4,7 +4,8 @@ import {TrackModel} from './track.model';
 export class PlaylistModel {
   public id: string;
   public name: string;
-  public tracks: Array<TrackModel>;
+  public tracks: Array<TrackModel> = [];
+  public playing: boolean = false;
   public type: string = 'playlist';
   
   constructor(model?: any) {
