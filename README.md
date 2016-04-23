@@ -3,6 +3,12 @@
 Join the Waffle Board here to track progress:
 https://waffle.io/NathanWalker/ShoutOutPlay/join
 
+* [Setup](#setup)
+* [XCode 7.3 Issue](#if-you-run-into-the-xcode-7.3-cocoapods-issue)
+* [Watch Video: Code Walk-Throughs!](#video-walk-throughs)
+* [Concept](#concept)
+* [UI Preview](#ui-preview)
+
 ## Setup
 
 ```
@@ -23,6 +29,13 @@ Run this once:
 npm run fix_xcode
 ```
 
+## Video Walk-Throughs
+
+* [Overview code walk-through of ShoutOutPlay](https://www.youtube.com/watch?v=lLLuDpoSS_w)
+* [ngrx/store in-depth with ShoutOutPlay](https://www.youtube.com/watch?v=OIcWjVmy2xs)
+
+## Concept
+
 ShoutOutPlay is a music app allowing live shout outs to be recorded and mixed in with your favorite music playlists for corporate events, parties, weddings and get togethers.
 
 It allows users to search for any music track via Spotify integration. They can preview/play the tracks and then choose to add them to a new or existing playlist they create. What makes ShoutOutPlay unique is it's ability to allow users to record "Shout Outs" which will mix into the music and play on a specific track they choose or can be played at random during the playlist playback if they choose.
@@ -33,7 +46,7 @@ Imagine you are at a corporate event for Telerik and the Vice President of Techn
 
 The beauty of this is it makes the party take on a whole new meaning with personalized dedications and give the guests as a way to participate as an iPad with the app running could be setup in an area that would allow guest to walk up to it and record their own "Shout Outs" to people at the event.
 
-UI Comp
+## UI Preview
 
 ![Status](https://cdn.filestackcontent.com/RqD32VFSlWM1vLBPrgpg?v=0)
 
