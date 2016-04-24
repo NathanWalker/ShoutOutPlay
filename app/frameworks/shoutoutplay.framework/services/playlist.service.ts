@@ -1,5 +1,6 @@
 // angular
 import {Injectable} from 'angular2/core';
+import {Router} from 'angular2/router';
 
 // nativescript
 import * as dialogs from 'ui/dialogs';
@@ -22,6 +23,7 @@ const CATEGORY: string = 'Playlist';
  */
 export interface PlaylistStateI {
   list: Array<PlaylistModel>;
+  selectedPlaylist?: PlaylistModel;
   playing?: boolean;
 }
 
@@ -32,13 +34,15 @@ const initialState: PlaylistStateI = {
 interface PLAYLIST_ACTIONSI {
   CREATE: string;
   CREATED: string;
-  UPDATE: string;
+  SELECT: string;
+  UPDATE_LIST: string;
 }
 
 export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
   CREATE: `[${CATEGORY}] CREATE`,
   CREATED: `[${CATEGORY}] CREATED`,
-  UPDATE: `[${CATEGORY}] UPDATE`
+  SELECT: `[${CATEGORY}] SELECT`,
+  UPDATE_LIST: `[${CATEGORY}] UPDATE_LIST`
 };
 
 export const playlistReducer: Reducer<PlaylistStateI> = (state: PlaylistStateI = initialState, action: Action) => {
@@ -49,7 +53,10 @@ export const playlistReducer: Reducer<PlaylistStateI> = (state: PlaylistStateI =
     case PLAYLIST_ACTIONS.CREATED:
       action.payload = { list: [...state.list, action.payload] };
       return changeState();
-    case PLAYLIST_ACTIONS.UPDATE:
+    case PLAYLIST_ACTIONS.SELECT:
+      action.payload = { selectedPlaylist: action.payload };
+      return changeState();
+    case PLAYLIST_ACTIONS.UPDATE_LIST:
       action.payload = { list: action.payload };
       return changeState();
     default:
@@ -64,14 +71,30 @@ export const playlistReducer: Reducer<PlaylistStateI> = (state: PlaylistStateI =
 export class PlaylistService extends Analytics {
   public state$: Observable<any>;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private _router: Router) {
     super(analytics);
     this.category = CATEGORY;
 
     this.state$ = store.select('playlist');
-
+    this.state$.subscribe((state: PlaylistStateI) => {
+      if (state.selectedPlaylist) {
+        this._router.navigate(['PlaylistDetail', { id: state.selectedPlaylist.id }]);
+      }
+    });
+    
     store.select(state => state.couchbase.playlists).subscribe((playlists) => {
-      this.store.dispatch({ type: PLAYLIST_ACTIONS.UPDATE, payload: playlists });
+      this.store.dispatch({ type: PLAYLIST_ACTIONS.UPDATE_LIST, payload: playlists });
+    });
+
+    store.select(state => state.router).subscribe((route) => {
+      this.logger.debug(`route change --`);
+      this.logger.debug(route);
+      switch (route.url) {
+        case '/playlist':
+          // reset selection
+          this.store.dispatch({ type: PLAYLIST_ACTIONS.SELECT, payload: undefined });
+          break;
+      }
     });
   }
 
@@ -84,7 +107,7 @@ export class PlaylistService extends Analytics {
       }
     }
     if (playlist.tracks.length) {
-      this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: playlist.tracks[0]} }); 
+      this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: playlist.tracks[0].id } }); 
     } else {
       Utils.alert('This playist contains 0 tracks to play.');
     }

@@ -1,0 +1,20 @@
+<ActionBar [title]="(playlistService.state$ | async)?.selectedPlaylist.name">
+  <NavigationButton text="Playlists" android.systemIcon="ic_menu_back"></NavigationButton>
+  <ActionItem (tap)="edit()" ios.position="right" android.position="popup">
+    <Button class="fa" [text]="'fa-pencil' | fonticon"></Button>
+  </ActionItem>
+</ActionBar>
+<StackLayout>
+  <ListView [items]="(playlistService.state$ | async)?.selectedPlaylist.tracks" row="1" colSpan="2" height="300">
+    <template #item="item" #odd="odd" #even="even">
+      <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
+        <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="togglePlay(item.id)"></Button>
+        <StackLayout row="0" col="1">
+          <Label [text]="item.name" textWrap="true" class="title"></Label> 
+          <Label [text]="item.artist.name" textWrap="true" class="title-sub"></Label> 
+        </StackLayout>
+        <!--<Button row="0" col="2" [text]="'fa-chevron-right ' | fonticon" class="detail-btn fa" (tap)="viewDetail(item)"></Button>-->
+      </GridLayout>
+    </template>
+  </ListView>
+</StackLayout>

@@ -4,6 +4,6 @@
 		"**/*.js": true
 	},
   "search.exclude": {
-   "*.js": true 
+   "**/*.js": true 
   }
 }

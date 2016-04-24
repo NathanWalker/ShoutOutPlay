@@ -16,6 +16,7 @@ import {PlayerService, CouchbaseService} from './frameworks/shoutoutplay.framewo
 import {SearchComponent} from './components/search/search.component';
 import {RecordComponent} from './components/record/record.component';
 import {PlaylistComponent} from './components/playlist/playlist.component';
+import {PlaylistDetailComponent} from './components/playlist/playlist-detail.component';
 
 @Component({
   selector: 'my-app',
@@ -25,9 +26,10 @@ import {PlaylistComponent} from './components/playlist/playlist.component';
   directives: [NS_ROUTER_DIRECTIVES]
 })
 @RouteConfig([
-  { path: '/', component: SearchComponent, name: 'Search' },
-  { path: '/record', component: RecordComponent, name: 'Record' },
-  { path: '/playlist', component: PlaylistComponent, name: 'Playlist' }
+  { path: '/',            name: 'Search',         component: SearchComponent },
+  { path: '/record',      name: 'Record',         component: RecordComponent },
+  { path: '/playlist',    name: 'Playlist',       component: PlaylistComponent },
+  { path: '/playlist/:id',name: 'PlaylistDetail', component: PlaylistDetailComponent }
 ])  
 export class AppComponent {
 

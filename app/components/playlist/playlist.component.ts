@@ -1,9 +1,12 @@
 // angular
 import {Component} from 'angular2/core';
 
+// libs
+import {Store} from '@ngrx/store';
+
 // app
 import {LogService, BaseComponent} from '../../frameworks/core.framework/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel} from '../../frameworks/shoutoutplay.framework/index';
+import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYLIST_ACTIONS} from '../../frameworks/shoutoutplay.framework/index';
 
 @BaseComponent({
   selector: 'playlist',
@@ -11,12 +14,14 @@ import {PlaylistService, PlaylistStateI, PlaylistModel} from '../../frameworks/s
 })
 export class PlaylistComponent {
 
-  constructor(private logger: LogService, public playlistService: PlaylistService) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService) {
 
   }
 
-  public viewDetail(playlist: PlaylistModel) {
-    this.logger.debug(`TODO: show detail for: ${playlist.name}`);
+  public viewDetail(e: any) {
+    // this.logger.debug(e);
+    let playlist = this.store.getState().playlist.list[e.index];
+    this.store.dispatch({ type: PLAYLIST_ACTIONS.SELECT, payload: playlist });
   }
 
   public add() {

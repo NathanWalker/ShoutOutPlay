@@ -5,7 +5,7 @@
   </ActionItem>
 </ActionBar>
 <StackLayout>
-  <ListView [items]="(playlistService.state$ | async)?.list" row="1" colSpan="2" height="300">
+  <ListView [items]="(playlistService.state$ | async)?.list" (itemTap)="viewDetail($event)" row="1" colSpan="2" height="300">
     <template #item="item" #odd="odd" #even="even">
       <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
         <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="playlistService.togglePlay(item.id)"></Button>
@@ -13,7 +13,7 @@
           <Label [text]="item.name" textWrap="true" class="title"></Label> 
           <Label [text]="item.tracks.length + ' Tracks'" textWrap="true" class="title-sub"></Label> 
         </StackLayout>
-        <Button row="0" col="2" [text]="'fa-chevron-right ' | fonticon" class="detail-btn fa" (tap)="viewDetail(item)"></Button>
+        <Button row="0" col="2" [text]="'fa-chevron-right' | fonticon" class="detail-btn fa"></Button>
       </GridLayout>
     </template>
   </ListView>
