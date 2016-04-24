@@ -8,17 +8,20 @@ import {Couchbase} from 'nativescript-couchbase';
 
 // app
 import {PlaylistModel, ShoutoutModel} from '../index';
-import {LogService} from '../../core.framework/index';
+import {LogService, ProgressService} from '../../core.framework/index';
 
 // analytics
 const CATEGORY: string = 'Couchbase';
+
+declare var MBProgressHUDModeCustomView: any;
 
 /**
  * ngrx setup start --
  */
 export interface CouchbaseStateI {
   playlists?: Array<PlaylistModel>,
-  shoutouts?: Array<ShoutoutModel>
+  shoutouts?: Array<ShoutoutModel>,
+  newPlaylist?: PlaylistModel
 }
 
 const initialState: CouchbaseStateI = {
@@ -27,16 +30,14 @@ const initialState: CouchbaseStateI = {
 };
 
 interface COUCHBASE_ACTIONSI {
-  SAVE_PLAYLIST: string;
-  SAVE_SHOUTOUT: string;
+  CREATE_PLAYLIST: string;
   UPDATE: string;
   DELETE_PLAYLIST: string;
   DELETE_SHOUTOUT: string;
 }
 
 export const COUCHBASE_ACTIONS: COUCHBASE_ACTIONSI = {
-  SAVE_PLAYLIST: `[${CATEGORY}] SAVE_PLAYLIST`,
-  SAVE_SHOUTOUT: `[${CATEGORY}] SAVE_SHOUTOUT`,
+  CREATE_PLAYLIST: `[${CATEGORY}] CREATE_PLAYLIST`,
   UPDATE: `[${CATEGORY}] UPDATE`,
   DELETE_PLAYLIST: `[${CATEGORY}] DELETE_PLAYLIST`,
   DELETE_SHOUTOUT: `[${CATEGORY}] DELETE_SHOUTOUT`
@@ -47,13 +48,12 @@ export const couchbaseReducer: Reducer<CouchbaseStateI> = (state: CouchbaseState
     return Object.assign({}, state, action.payload);
   };
   switch (action.type) {
-    case COUCHBASE_ACTIONS.SAVE_PLAYLIST:
-      action.payload = { playlists: [...state.playlists, action.payload] };
-      return changeState();
-    case COUCHBASE_ACTIONS.SAVE_SHOUTOUT:
-      action.payload = { shoutouts: [...state.shoutouts, action.payload] };
+    case COUCHBASE_ACTIONS.CREATE_PLAYLIST:
+      action.payload = { newPlaylist: action.payload };
       return changeState();
     case COUCHBASE_ACTIONS.UPDATE:
+      // always reset when updating state
+      action.payload.newPlaylist = undefined;
       return changeState();
     case COUCHBASE_ACTIONS.DELETE_PLAYLIST:
       action.payload = { playlists: state.playlists.filter((playlist: PlaylistModel) => playlist.id !== action.payload) };
@@ -74,9 +74,15 @@ export class CouchbaseService {
   public state$: Observable<any>;
   private database: Couchbase;
 
-  constructor(private store: Store<any>, private logger: LogService) {
+  constructor(private store: Store<any>, private logger: LogService, private loader: ProgressService) {
     this.state$ = store.select('couchbase');
-
+    this.state$.subscribe((couchbase: CouchbaseStateI) => {
+      if (couchbase.newPlaylist) {
+        // creating a new playlist
+        this.addDocument(couchbase.newPlaylist);
+      }
+    });
+    
     this.init();   
   }
 
@@ -87,16 +93,14 @@ export class CouchbaseService {
     this.database.createView('playlists', '1', (document, emitter) => {
       let doc = JSON.parse(document);
       if (doc.type === 'playlist') {
-        let playlist = new PlaylistModel(doc);
-        emitter.emit(playlist.id, playlist);
+        emitter.emit(doc._id, document);
       }
     });
 
     this.database.createView('shoutouts', '1', (document, emitter) => {
       let doc = JSON.parse(document);
       if (doc.type === 'shoutout') {
-        let shoutout = new ShoutoutModel(doc);
-        emitter.emit(shoutout.id, shoutout);
+        emitter.emit(doc._id, document);
       }
     });
 
@@ -104,64 +108,79 @@ export class CouchbaseService {
     this.setupChangeHandler();
 
     // restore state from couchbase    
-    // let playlists = [];
-    // let shoutouts = [];
+    let playlists = [];
+    let shoutouts = [];
 
     let rows = this.database.executeQuery('playlists');
-    this.logger.debug(`executeQuery('playlists')`);
-    this.logger.debug(typeof rows);
-    this.logger.debug(rows);
-    for (let i in rows) {
-      this.logger.debug(i);
-      if (rows.hasOwnProperty(i)) {
-        this.logger.debug(rows[i]);
-        // playlists.push(rows[i]);
-      }
+    for (let row of rows) {
+      playlists.push(new PlaylistModel(JSON.parse(row)));
     }
 
     rows = this.database.executeQuery('shoutouts');
-    this.logger.debug(`executeQuery('shoutouts')`);
-    for (let i in rows) {
-      this.logger.debug(i);
-      if (rows.hasOwnProperty(i)) {
-        this.logger.debug(rows[i]);
-        // shoutouts.push(rows[i]);
-      }
+    for (let row of rows) {
+      shoutouts.push(new ShoutoutModel(JSON.parse(row)));
     }
 
-    // this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
+    this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
   }
 
   private setupChangeHandler() {
     this.database.addDatabaseChangeListener((changes) => {
-      this.logger.debug('Changes occured, firing addDatabaseChangeListener ---');
+      this.logger.debug('Changes occured, addDatabaseChangeListener ---');
       this.logger.debug(changes);
 
       // used to process changes before dispatching to store      
-      let rawPlaylists = this.store.getState().couchbase.playlists;
-      let rawShoutouts = this.store.getState().couchbase.shoutouts;
+      // when grabbing raw state, make sure it's a copy as to not accidentally mutate it
+      let playlists = [...this.store.getState().couchbase.playlists];
+      let shoutouts = [...this.store.getState().couchbase.shoutouts];
+      let startingCnt = {
+        playlists: playlists.length,
+        shoutouts: shoutouts.length
+      }
       
       for (let change of changes) {
-        this.logger.debug(change);
-
-        // this should be the underlying record https://github.com/couchbaselabs/nativescript-couchbase/blob/master/couchbase.ios.ts#L194
-        this.logger.debug(change.change); 
         
         let documentId = change.getDocumentId();
         let document = this.database.getDocument(documentId);
 
         // update or insert document
-        this.changeHandler(document, rawPlaylists, rawShoutouts);
+        this.changeHandler(document, playlists, shoutouts);
       }
 
-      this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists: rawPlaylists, shoutouts: rawShoutouts } });
+      let msg = (playlists.length > startingCnt.playlists || shoutouts.length > startingCnt.shoutouts) ? 'Saved' : 'Updated';
+      this.loader.show({ message: msg, ios: { mode: MBProgressHUDModeCustomView, customView: 'Checkmark.png' } });
+      setTimeout(() => {
+        this.loader.hide();
+      }, 1000);
+      
+      this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
     });
   }
 
   private changeHandler(document: any, playlists: Array<PlaylistModel>, shoutouts: Array<ShoutoutModel>) {
-    // TODO: modify
-    this.logger.debug(document);
-    
+    switch (document.type) {
+      case 'playlist':
+        var index = playlists.findIndex(playlist => playlist.id === document._id);
+        if (index > -1) {
+          // update
+          playlists[index] = new PlaylistModel(document);
+        } else {
+          playlists.push(new PlaylistModel(document));
+        }
+        break;
+      case 'shoutout':
+        var index = shoutouts.findIndex(shoutout => shoutout.id === document._id);
+        if (index > -1) {
+          // update
+          shoutouts[index] = new ShoutoutModel(document);
+        } else {
+          shoutouts.push(new ShoutoutModel(document));
+        }
+        break;
+    }
+  }
 
+  private addDocument(model: PlaylistModel | ShoutoutModel) {
+    this.database.createDocument(model);
   }
 }

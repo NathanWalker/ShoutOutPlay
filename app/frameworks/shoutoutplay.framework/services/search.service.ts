@@ -4,12 +4,12 @@ import {Injectable, Inject, forwardRef} from 'angular2/core';
 // libs
 import {Store, Reducer, Action} from '@ngrx/store';
 import {Observable} from 'rxjs/Rx';
-import {TNSSpotifySearch, Utils} from 'nativescript-spotify';
+import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics.framework/index';
 import {ProgressService} from '../../core.framework/index';
-import {PlayerStateI, PLAYER_ACTIONS} from '../../shoutoutplay.framework/index';
+import {PlayerStateI, PLAYER_ACTIONS, TrackModel} from '../../shoutoutplay.framework/index';
 
 // analytics
 const CATEGORY: string = 'Search';
@@ -19,7 +19,7 @@ const CATEGORY: string = 'Search';
  */
 export interface SearchStateI {
   term?: string;
-  results?: Array<any>;
+  results?: Array<TrackModel>;
 }
 
 const initialState: SearchStateI = {
@@ -84,16 +84,21 @@ export class SearchService extends Analytics {
     });
   }
 
-  private resultChange(tracks: Array<any>, query: string) {
+  private resultChange(tracks: Array<TNSTrack>, term: string) {
     this.loader.hide();
-    this.track(SEARCH_ACTIONS.RESULTS_CHANGE, { label: query });
-    this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results: tracks, term: query } });
+    this.track(SEARCH_ACTIONS.RESULTS_CHANGE, { label: term });
+    // convert to TrackModel
+    let results: Array<TrackModel> = [];
+    for (let track of tracks) {
+      results.push(new TrackModel(track));
+    }
+    this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results, term } });
   }
 
   private updateTrack(playerState: PlayerStateI) {
     let id = playerState.previewTrackId;
-    let updatedResults = this.store.getState().search.results;
-    for (let item of updatedResults) {
+    let results = this.store.getState().search.results;
+    for (let item of results) {
       if (item.id === id) {
         item.playing = playerState.playing;
       } else {
@@ -101,6 +106,6 @@ export class SearchService extends Analytics {
         item.playing = false;
       }
     }
-    this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results: updatedResults } });
+    this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results } });
   }
 }

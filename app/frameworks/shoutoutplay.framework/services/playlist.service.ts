@@ -11,8 +11,8 @@ import {TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics.framework/index';
-import {LogService} from '../../core.framework/index';
-import {PlaylistModel, TrackModel, PLAYER_ACTIONS} from '../index';
+import {LogService, ProgressService} from '../../core.framework/index';
+import {PlaylistModel, TrackModel, PLAYER_ACTIONS, COUCHBASE_ACTIONS} from '../index';
 
 // analytics
 const CATEGORY: string = 'Playlist';
@@ -64,7 +64,7 @@ export const playlistReducer: Reducer<PlaylistStateI> = (state: PlaylistStateI =
 export class PlaylistService extends Analytics {
   public state$: Observable<any>;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -90,7 +90,7 @@ export class PlaylistService extends Analytics {
     }
   }
 
-  public addPrompt(track: TNSTrack) {
+  public addPrompt(track: TrackModel) {
     let rawPlaylists = this.getRawPlaylists();
 
     let promptNew = () => {
@@ -128,11 +128,12 @@ export class PlaylistService extends Analytics {
     }
   } 
 
-  private create(name: string, track: TNSTrack) {
+  private create(name: string, track: TrackModel) {
+    this.loader.show();
     this.logger.debug(`TODO: create playlist named '${name}', and add track: ${track.name}`);
     let newPlaylist = new PlaylistModel({ name });
-    newPlaylist.addTrack(new TrackModel(track));
-    this.store.dispatch({ type: PLAYLIST_ACTIONS.CREATE, payload: newPlaylist });
+    newPlaylist.addTrack(track);
+    this.store.dispatch({ type: COUCHBASE_ACTIONS.CREATE_PLAYLIST, payload: newPlaylist });
   }
 
   private addTrackTo(playlistId: string) {

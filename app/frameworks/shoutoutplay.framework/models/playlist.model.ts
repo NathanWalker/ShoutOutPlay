@@ -12,15 +12,12 @@ export class PlaylistModel {
     if (model) {
       for (let key in model) {
         if (key === '_id') {
+          // couchbase id
           this.id = model[key];
         } else {
           this[key] = model[key];  
         }
       }
-    }
-    if (!this.id) {
-      // couchbase id's are strings
-      this.id = Math.floor(Math.random()*100000000000000000).toString();  
     }
   }
   

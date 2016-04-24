@@ -12,10 +12,7 @@ import {PlaylistService, PlaylistStateI, PlaylistModel} from '../../frameworks/s
 export class PlaylistComponent {
 
   constructor(private logger: LogService, public playlistService: PlaylistService) {
-    playlistService.state$.subscribe((state: PlaylistStateI) => {
-      this.logger.debug(`playlists:`);
-      this.logger.debug(state.list);
-    });
+
   }
 
   public viewDetail(playlist: PlaylistModel) {

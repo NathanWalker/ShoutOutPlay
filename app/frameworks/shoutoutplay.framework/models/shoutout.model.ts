@@ -1,5 +1,5 @@
 export class ShoutoutModel {
-  public id: number;
+  public id: string;
   public name: string;
   public author: string;
   public trackId: string;
@@ -9,11 +9,13 @@ export class ShoutoutModel {
   constructor(model?: any) {
     if (model) {
       for (let key in model) {
-        this[key] = model[key];
+        if (key === '_id') {
+          // couchbase id
+          this.id = model[key];
+        } else {
+          this[key] = model[key];  
+        }
       }
-    }
-    if (!this.id) {
-      this.id = Math.floor(Math.random()*100000000000000000);  
     }
   }
 }
