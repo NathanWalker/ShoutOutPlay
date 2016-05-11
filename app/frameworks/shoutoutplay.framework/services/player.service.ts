@@ -1,5 +1,5 @@
 // angular
-import {Injectable, Inject, forwardRef, OnInit} from 'angular2/core';
+import {Injectable, Inject, forwardRef, OnInit} from '@angular/core';
 
 // nativescript
 import {EventData} from 'data/observable';

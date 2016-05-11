@@ -30,7 +30,7 @@
       <SearchBar (submit)="search($event)" (clear)="clear()"></SearchBar>
     </CardView>
     <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333">
-      <template #item="item" #odd="odd" #even="even">
+      <template let-item="item" let-odd="odd" let-even="even">
         <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
           <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="searchService.togglePreview(item.id)"></Button>
           <StackLayout row="0" col="1">

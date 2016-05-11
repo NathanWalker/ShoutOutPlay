@@ -1,5 +1,5 @@
 // angular
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 
 // libs
 import {Store} from '@ngrx/store';

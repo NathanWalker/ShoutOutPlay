@@ -1,21 +1,18 @@
 import {
-  AnyTestFn,
   afterEach,
+  async,
   beforeEach,
   beforeEachProviders,
   ddescribe,
   describe,
   fdescribe,
   xdescribe,
-  expect,
-  FunctionWithParamTokens,
   inject,
-  injectAsync,
   iit,
   it,
   fit,
   xit
-} from 'angular2/testing';
+} from '@angular/core/testing';
 
 // intellisense via shorthand
 export interface TestApi {
@@ -25,19 +22,19 @@ export interface TestApi {
   describe: Function;
   fdescribe: Function;
   xdescribe: Function;
-  be(fn: FunctionWithParamTokens | AnyTestFn): void;
-  beforeEach(fn: FunctionWithParamTokens | AnyTestFn): void;
+  async(fn: Function): Function;
+  be(fn: Function): void;
+  beforeEach(fn: Function): void;
   beforeEachProviders(fn: any): void;
   bep(fn: any): void;
   e(actual: any): jasmine.Matchers;
   expect(actual: any): jasmine.Matchers;
   fail(e?: any): void;
-  inject(tokens: any[], fn: Function): FunctionWithParamTokens;
-  injectAsync(tokens: any[], fn: Function): FunctionWithParamTokens;
-  iit(name: string, fn: FunctionWithParamTokens | AnyTestFn, timeOut?: number): void;
-  it(name: string, fn: FunctionWithParamTokens | AnyTestFn, timeOut?: number): void;
-  fit(name: string, fn: FunctionWithParamTokens | AnyTestFn, timeOut?: number): void;
-  xit(name: string, fn: FunctionWithParamTokens | AnyTestFn, timeOut?: number): void;
+  inject(tokens: any[], fn: Function): Function;
+  iit(name: string, fn: Function, timeOut?: number): void;
+  it(name: string, fn: Function, timeOut?: number): void;
+  fit(name: string, fn: Function, timeOut?: number): void;
+  xit(name: string, fn: Function, timeOut?: number): void;
   pending(reason?: string): void;
   spyOn(object: any, method: string): jasmine.Spy;
 };
@@ -50,6 +47,7 @@ export const Ng2Jasmine: TestApi = {
   describe: describe,
   fdescribe: fdescribe,
   xdescribe: xdescribe,
+  async: async,
   be: beforeEach,  // shorthand beforeEach
   beforeEach: beforeEach,
   beforeEachProviders: beforeEachProviders,
@@ -58,7 +56,6 @@ export const Ng2Jasmine: TestApi = {
   expect: expect,
   fail: fail,
   inject: inject,
-  injectAsync: injectAsync,
   iit: iit,
   it: it,
   fit: fit,

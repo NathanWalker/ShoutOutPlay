@@ -1,5 +1,5 @@
 // angular
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 
 // libs
 import {TNSFontIconPipe} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';

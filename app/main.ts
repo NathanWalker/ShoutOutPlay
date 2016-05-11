@@ -6,7 +6,7 @@ import {NS_ROUTER_PROVIDERS} from 'nativescript-angular/router';
 import * as app from 'application';
 
 // angular
-import {provide} from 'angular2/core';
+import {provide} from '@angular/core';
 
 // config
 import {CoreConfigService} from './frameworks/core.framework/index';

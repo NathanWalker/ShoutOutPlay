@@ -1,5 +1,5 @@
 // angular
-import {Injectable} from 'angular2/core';
+import {Injectable} from '@angular/core';
 
 // libs
 import {LoadingIndicator, OptionsCommon} from 'nativescript-loading-indicator';

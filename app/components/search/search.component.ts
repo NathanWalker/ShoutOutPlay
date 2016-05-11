@@ -1,5 +1,5 @@
 // angular
-import {ChangeDetectionStrategy} from 'angular2/core';
+import {ChangeDetectionStrategy} from '@angular/core';
 
 // libs
 import {Store} from '@ngrx/store';

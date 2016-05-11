@@ -1,5 +1,5 @@
 
-import {Injector} from 'angular2/core';
+import {Injector} from '@angular/core';
 
 // libs
 import {Angulartics2} from 'angulartics2';

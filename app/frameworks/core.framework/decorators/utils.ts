@@ -1,5 +1,5 @@
 // angular
-import {Component, ChangeDetectionStrategy} from 'angular2/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 
 // nativescript
 import {NS_ROUTER_DIRECTIVES} from 'nativescript-angular/router';

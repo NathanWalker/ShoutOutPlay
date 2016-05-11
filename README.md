@@ -4,7 +4,6 @@ Join the Waffle Board here to track progress:
 https://waffle.io/NathanWalker/ShoutOutPlay/join
 
 * [Setup](#setup)
-* [XCode 7.3 Issue](#if-you-run-into-the-xcode-73-cocoapods-issue)
 * [Watch Video: Code Walk-Throughs!](#video-walk-throughs)
 * [Concept](#concept)
 * [UI Preview](#ui-preview)
@@ -12,21 +11,12 @@ https://waffle.io/NathanWalker/ShoutOutPlay/join
 ## Setup
 
 ```
-brew install xcproj  // tmp until {N} 1.7.2 supports XCode 7.3 cocoapods issue
 tns install
 
 // run it (you will see TS warnings/errors)..it's ok, proceed)
 tns emulate ios
 
 // Or you can use VS Code debugger :)
-```
-
-#### IF you run into the XCode 7.3 CocoaPods issue
-
-Run this once:
-
-```
-npm run fix_xcode
 ```
 
 ## Video Walk-Throughs

@@ -1,5 +1,5 @@
 // angular
-import {Injectable, Inject, forwardRef} from 'angular2/core';
+import {Injectable, Inject, forwardRef} from '@angular/core';
 
 // libs
 import {Store, Reducer, Action} from '@ngrx/store';
