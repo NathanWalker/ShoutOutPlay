@@ -1,11 +1,11 @@
 
-import {Injector} from '@angular/core';
+import {ReflectiveInjector} from '@angular/core';
 
 // libs
 import {Angulartics2} from 'angulartics2';
 import {Angulartics2Segment} from 'angulartics2/src/providers/angulartics2-segment';
 
-import {t} from '../../test.framework/index';
+import {t, TEST_ROUTER_PROVIDERS} from '../../test.framework/index';
 import {AnalyticsService, Analytics} from '../index';
 
 export function main() {
@@ -14,8 +14,9 @@ export function main() {
     let segment: Angulartics2Segment;
 
     t.be(() => {
-      let injector = Injector.resolveAndCreate([
+      let injector = ReflectiveInjector.resolveAndCreate([
         // Angulartics2 relies on router for virtual page view tracking
+        TEST_ROUTER_PROVIDERS(),
         Angulartics2, Angulartics2Segment, AnalyticsService
       ]);
       analyticsService = injector.get(AnalyticsService);
@@ -71,8 +72,9 @@ export function main() {
     let analytics: Analytics;
 
     t.be(() => {
-      let injector = Injector.resolveAndCreate([
+      let injector = ReflectiveInjector.resolveAndCreate([
         // Angulartics2 relies on router for virtual page view tracking
+        TEST_ROUTER_PROVIDERS(),
         Angulartics2, Angulartics2Segment, AnalyticsService
       ]);
       analyticsService = injector.get(AnalyticsService);

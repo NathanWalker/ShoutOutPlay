@@ -1,30 +1,13 @@
-<ActionBar title="ShoutOutPlay"> 
-  <StackLayout orientation="horizontal"
-    ios:horizontalAlignment="center"
-    android:horizontalAlignment="left">
-    <!--<Image src="res://nativescript_logo" class="action-image"/>-->
-    <Label text="ShoutOutPlay"  class="logo-text"></Label>
-  </StackLayout>
-  <!--<ActionItem (tap)="toggleMenu()">
-    <Button class="fa" [text]="'fa-bars' | fonticon"></Button>
-  </ActionItem>-->
-  <ActionItem [nsRouterLink]="['/Playlist']">
-    <Button text="Playlists"></Button>
-  </ActionItem>
-  <ActionItem [nsRouterLink]="['/Record']" ios.position="right" android.position="popup">
-    <Button class="fa" [text]="'fa-microphone' | fonticon"></Button>
-  </ActionItem>
-</ActionBar>
 <StackLayout>
-  
+
   <!-- unauth -->
-  <StackLayout [visibility]="(authService.state$ | async)?.loggedIn ? 'collapsed' : 'visible'">
+  <StackLayout *ngIf="(authService.state$ | async)?.loggedIn === false">
     <Label text="Get ready to play!" class="instruction heading-1"></Label>
     <Image src="~/assets/login-btn.png" (tap)="authService.login()" class="login-btn"></Image> 
   </StackLayout>
   
   <!-- auth -->
-  <StackLayout [visibility]="(authService.state$ | async)?.loggedIn ? 'visible' : 'collapsed'" class="full-page">
+  <StackLayout *ngIf="(authService.state$ | async)?.loggedIn === true" class="full-page">
     <Label text="Search by track name to add to a playlist..." class="instruction"></Label>
     <CardView margin="5" radius="5">
       <SearchBar (submit)="search($event)" (clear)="clear()"></SearchBar>

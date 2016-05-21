@@ -31,6 +31,8 @@ import {
 } from './frameworks/shoutoutplay.framework/index';
 import {AppComponent} from './app.component';
 
+// import {SIDEDRAWER_PROVIDERS} from './components/side-drawer/side-drawer-directives';
+
 // Spotify setup
 if (app.ios) {
   app.ios.delegate = SpotifyAppDelegate;
@@ -38,6 +40,7 @@ if (app.ios) {
 
 nativeScriptBootstrap(AppComponent, [
   NS_ROUTER_PROVIDERS,
+  // SIDEDRAWER_PROVIDERS,
   provide(ConsoleService, { useValue: console }),
   CORE_PROVIDERS,
   ANALYTICS_PROVIDERS,

@@ -1,0 +1,37 @@
+<ActionBar title="ShoutOutPlay"> 
+      <StackLayout orientation="horizontal"
+        ios:horizontalAlignment="center"
+        android:horizontalAlignment="left">
+        <!--<Image src="res://nativescript_logo" class="action-image"/>-->
+        <Label text="ShoutOutPlay"  class="logo-text"></Label>
+      </StackLayout>
+      <ActionItem (tap)="toggleMenu()">
+        <Button class="fa" [text]="'fa-bars' | fonticon"></Button>
+      </ActionItem>
+      <!--<ActionItem [nsRouterLink]="['/Playlist']">
+        <Button text="Playlists"></Button>
+      </ActionItem>-->
+      <ActionItem [nsRouterLink]="['/Record']" ios.position="right" android.position="popup">
+        <Button class="fa" [text]="'fa-microphone' | fonticon"></Button>
+      </ActionItem>
+    </ActionBar>
+    <RadSideDrawer #drawer [transition]="asd">
+        <template drawerSide>
+           <StackLayout style="background-color: gray;">
+              <StackLayout style=" padding:10;text-align: center;">
+                  <Label text="Navigation Menu"></Label>
+              </StackLayout>
+              <StackLayout style="background-color: gray;">
+                  <Label text="Primary" style="padding: 10px;background-color:lightgray;"></Label>
+                  <Label text="Social" style="padding: 10px;"></Label>
+                  <Label text="Promotions" style="padding: 10px;"></Label>
+                  <Label text="Labels" style="padding:10px;background-color: lightgray;"></Label>
+                  <Label text="Important" style="padding: 10px;"></Label>
+                  <Label text="Starred" style="padding: 10px;"></Label>
+                  <Label text="Sent Mail" style="padding: 10px;"></Label>
+                  <Label text="Drafts" style="padding: 10px;"></Label>
+              </StackLayout>
+          </StackLayout>
+        </template>
+        <page-router-outlet *drawerMain></page-router-outlet>
+    </RadSideDrawer>

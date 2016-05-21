@@ -23,10 +23,6 @@ export class SearchComponent {
       this.searchService.search(e.object.text);
     }
   }
-  
-  public toggleMenu() {
-    this.logger.debug('test');
-  }
 
   public clear() {
     this.logger.debug('clear');
