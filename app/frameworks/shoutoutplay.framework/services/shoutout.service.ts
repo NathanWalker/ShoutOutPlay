@@ -2,8 +2,8 @@
 import {Injectable} from '@angular/core';
 
 // libs
-import {Store, Reducer, Action} from '@ngrx/store';
-import {Observable} from 'rxjs/Rx';
+import {Store, ActionReducer, Action} from '@ngrx/store';
+import {Observable} from 'rxjs/Observable';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics.framework/index';
@@ -34,7 +34,7 @@ export const SHOUTOUT_ACTIONS: SHOUTOUT_ACTIONSI = {
   UPDATE: `[${CATEGORY}] UPDATE`
 };
 
-export const shoutoutReducer: Reducer<ShoutoutStateI> = (state: ShoutoutStateI = initialState, action: Action) => {
+export const shoutoutReducer: ActionReducer<ShoutoutStateI> = (state: ShoutoutStateI = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };

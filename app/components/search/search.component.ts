@@ -1,6 +1,3 @@
-// angular
-import {ChangeDetectionStrategy} from '@angular/core';
-
 // libs
 import {Store} from '@ngrx/store';
 
@@ -10,8 +7,7 @@ import {SearchService, AuthService, AuthStateI, PlaylistService} from '../../fra
 
 @BaseComponent({
   selector: 'search',
-  templateUrl: `./components/search/search.component.html`,
-  changeDetection: ChangeDetectionStrategy.Default
+  templateUrl: `./components/search/search.component.html`
 })
 export class SearchComponent {
   

@@ -1,4 +1,5 @@
 // angular
+import {ChangeDetectionStrategy} from '@angular/core';
 // import {ViewChild, AfterViewInit} from '@angular/core';
 import {RouteConfig} from '@angular/router-deprecated';
 
@@ -41,7 +42,8 @@ import {PlaylistDetailComponent} from './components/playlist/playlist-detail.com
       </ActionItem>
     </ActionBar>
     <page-router-outlet></page-router-outlet>
-  `
+  `,
+  changeDetection: ChangeDetectionStrategy.Default
 })
 @RouteConfig([
   { path: '/',            name: 'Search',         component: SearchComponent },

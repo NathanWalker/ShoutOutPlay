@@ -2,8 +2,9 @@
 import {Injectable, Inject, forwardRef} from '@angular/core';
 
 // libs
-import {Store, Reducer, Action} from '@ngrx/store';
-import {Observable} from 'rxjs/Rx';
+import {Store, ActionReducer, Action} from '@ngrx/store';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/take';
 import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
@@ -34,7 +35,7 @@ export const SEARCH_ACTIONS: SEARCH_ACTIONSI = {
   RESULTS_CHANGE: `[${CATEGORY}] RESULTS_CHANGE`
 };
 
-export const searchReducer: Reducer<SearchStateI> = (state: SearchStateI = initialState, action: Action) => {
+export const searchReducer: ActionReducer<SearchStateI> = (state: SearchStateI = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };
@@ -97,15 +98,17 @@ export class SearchService extends Analytics {
 
   private updateTrack(playerState: PlayerStateI) {
     let id = playerState.previewTrackId;
-    let results = this.store.getState().search.results;
-    for (let item of results) {
-      if (item.id === id) {
-        item.playing = playerState.playing;
-      } else {
-        // this ensures when track changes, all other item playing state is turned off
-        item.playing = false;
+    this.store.take(1).subscribe((s: any) => {
+      let results = [...s.search.results];
+      for (let item of results) {
+        if (item.id === id) {
+          item.playing = playerState.playing;
+        } else {
+          // this ensures when track changes, all other item playing state is turned off
+          item.playing = false;
+        }
       }
-    }
-    this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results } });
+      this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results } });
+    });
   }
 }

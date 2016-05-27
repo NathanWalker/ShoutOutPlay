@@ -6,8 +6,9 @@ import {Router} from '@angular/router-deprecated';
 import * as dialogs from 'ui/dialogs';
 
 // libs
-import {Store, Reducer, Action} from '@ngrx/store';
-import {Observable} from 'rxjs/Rx';
+import {Store, ActionReducer, Action} from '@ngrx/store';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/take';
 import {TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
@@ -45,7 +46,7 @@ export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
   UPDATE_LIST: `[${CATEGORY}] UPDATE_LIST`
 };
 
-export const playlistReducer: Reducer<PlaylistStateI> = (state: PlaylistStateI = initialState, action: Action) => {
+export const playlistReducer: ActionReducer<PlaylistStateI> = (state: PlaylistStateI = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };
@@ -86,69 +87,72 @@ export class PlaylistService extends Analytics {
       this.store.dispatch({ type: PLAYLIST_ACTIONS.UPDATE_LIST, payload: playlists });
     });
 
-    store.select(state => state.router).subscribe((route) => {
-      this.logger.debug(`route change --`);
-      this.logger.debug(route);
-      switch (route.url) {
-        case '/playlist':
-          // reset selection
-          this.store.dispatch({ type: PLAYLIST_ACTIONS.SELECT, payload: undefined });
+    // store.select(state => state.router).subscribe((route) => {
+    //   this.logger.debug(`route change --`);
+    //   this.logger.debug(route);
+    //   switch (route.url) {
+    //     case '/playlist':
+    //       // reset selection
+    //       this.store.dispatch({ type: PLAYLIST_ACTIONS.SELECT, payload: undefined });
+    //       break;
+    //   }
+    // });
+  }
+
+  public togglePlay(playlistId: string) {
+    this.getRawPlaylists().then((list: Array<PlaylistModel>) => {
+      let playlist: PlaylistModel;
+      for (let p of list) {
+        if (p.id === playlistId) {
+          playlist = p;
           break;
+        }
+      }
+      if (playlist.tracks.length) {
+        this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: playlist.tracks[0].id } }); 
+      } else {
+        Utils.alert('This playist contains 0 tracks to play.');
       }
     });
   }
 
-  public togglePlay(playlistId: string) {
-    let playlist: PlaylistModel;
-    for (let p of this.getRawPlaylists()) {
-      if (p.id === playlistId) {
-        playlist = p;
-        break;
-      }
-    }
-    if (playlist.tracks.length) {
-      this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: playlist.tracks[0].id } }); 
-    } else {
-      Utils.alert('This playist contains 0 tracks to play.');
-    }
-  }
-
   public addPrompt(track: TrackModel) {
-    let rawPlaylists = this.getRawPlaylists();
-
-    let promptNew = () => {
-      dialogs.prompt({
-        title: 'Create a Playlist',
-        okButtonText: 'Save',
-        cancelButtonText: 'Cancel',
-        inputType: dialogs.inputType.text
-      }).then((r: any) => {
-        this.create(r.text, track);
-      });
-    };
-    
-    if (rawPlaylists.length === 0) {
-      // create playlist
-      promptNew();
-    } else {
-      let existingLabel = 'Existing Playlist';
-      let newLabel = 'New Playlist';
-      dialogs.action({
-        message: 'Add track to...',
-        cancelButtonText: 'Cancel',
-        actions: [existingLabel, newLabel]
-      }).then((r: any) => {
-        this.logger.debug(`User chose: ${r}`);
-        switch (r) {
-          case existingLabel:
-            this.logger.debug('open existing playlist picker modal');
-            break;
-          case newLabel:
-            promptNew();
-            break;
-        }
-      });  
-    }
+    this.getRawPlaylists().then((list: Array<PlaylistModel>) => {
+      let rawPlaylists = list;
+      let promptNew = () => {
+        dialogs.prompt({
+          title: 'Create a Playlist',
+          okButtonText: 'Save',
+          cancelButtonText: 'Cancel',
+          inputType: dialogs.inputType.text
+        }).then((r: any) => {
+          this.create(r.text, track);
+        });
+      };
+      
+      if (rawPlaylists.length === 0) {
+        // create playlist
+        promptNew();
+      } else {
+        let existingLabel = 'Existing Playlist';
+        let newLabel = 'New Playlist';
+        dialogs.action({
+          message: 'Add track to...',
+          cancelButtonText: 'Cancel',
+          actions: [existingLabel, newLabel]
+        }).then((r: any) => {
+          this.logger.debug(`User chose: ${r}`);
+          switch (r) {
+            case existingLabel:
+              this.logger.debug('open existing playlist picker modal');
+              break;
+            case newLabel:
+              promptNew();
+              break;
+          }
+        });  
+      }
+    });
   } 
 
   private create(name: string, track: TrackModel) {
@@ -163,7 +167,11 @@ export class PlaylistService extends Analytics {
     
   }
 
-  private getRawPlaylists(): Array<PlaylistModel> {
-    return this.store.getState().playlist.list;
+  private getRawPlaylists(): Promise<any> {
+    return new Promise((resolve: any) => {
+      this.store.take(1).subscribe((s: any) => {
+        resolve(s.playlist.list);
+      });
+    })
   }
 }

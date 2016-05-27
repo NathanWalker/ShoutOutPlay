@@ -2,9 +2,10 @@
 import {Injectable} from '@angular/core';
 
 // libs
-import {Store, Reducer, Action} from '@ngrx/store';
-import {Observable} from 'rxjs/Rx';
+import {Store, ActionReducer, Action} from '@ngrx/store';
+import {Observable} from 'rxjs/Observable';
 import {Couchbase} from 'nativescript-couchbase';
+import 'rxjs/add/operator/take';
 
 // app
 import {PlaylistModel, ShoutoutModel} from '../index';
@@ -43,7 +44,7 @@ export const COUCHBASE_ACTIONS: COUCHBASE_ACTIONSI = {
   DELETE_SHOUTOUT: `[${CATEGORY}] DELETE_SHOUTOUT`
 };
 
-export const couchbaseReducer: Reducer<CouchbaseStateI> = (state: CouchbaseStateI = initialState, action: Action) => {
+export const couchbaseReducer: ActionReducer<CouchbaseStateI> = (state: CouchbaseStateI = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };
@@ -131,29 +132,31 @@ export class CouchbaseService {
 
       // used to process changes before dispatching to store      
       // when grabbing raw state, make sure it's a copy as to not accidentally mutate it
-      let playlists = [...this.store.getState().couchbase.playlists];
-      let shoutouts = [...this.store.getState().couchbase.shoutouts];
-      let startingCnt = {
-        playlists: playlists.length,
-        shoutouts: shoutouts.length
-      }
-      
-      for (let change of changes) {
+      this.store.take(1).subscribe((s: any) => {
+        let playlists = [...s.couchbase.playlists];
+        let shoutouts = [...s.couchbase.shoutouts];
+        let startingCnt = {
+          playlists: playlists.length,
+          shoutouts: shoutouts.length
+        }
         
-        let documentId = change.getDocumentId();
-        let document = this.database.getDocument(documentId);
+        for (let change of changes) {
+          
+          let documentId = change.getDocumentId();
+          let document = this.database.getDocument(documentId);
 
-        // update or insert document
-        this.changeHandler(document, playlists, shoutouts);
-      }
+          // update or insert document
+          this.changeHandler(document, playlists, shoutouts);
+        }
 
-      let msg = (playlists.length > startingCnt.playlists || shoutouts.length > startingCnt.shoutouts) ? 'Saved' : 'Updated';
-      this.loader.show({ message: msg, ios: { mode: MBProgressHUDModeCustomView, customView: 'Checkmark.png' } });
-      setTimeout(() => {
-        this.loader.hide();
-      }, 1000);
-      
-      this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
+        let msg = (playlists.length > startingCnt.playlists || shoutouts.length > startingCnt.shoutouts) ? 'Saved' : 'Updated';
+        this.loader.show({ message: msg, ios: { mode: MBProgressHUDModeCustomView, customView: 'Checkmark.png' } });
+        setTimeout(() => {
+          this.loader.hide();
+        }, 1000);
+        
+        this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
+      });
     });
   }
 

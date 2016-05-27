@@ -3,6 +3,7 @@ import {Component} from '@angular/core';
 
 // libs
 import {Store} from '@ngrx/store';
+import 'rxjs/add/operator/take';
 
 // app
 import {LogService, BaseComponent} from '../../frameworks/core.framework/index';
@@ -20,8 +21,10 @@ export class PlaylistComponent {
 
   public viewDetail(e: any) {
     // this.logger.debug(e);
-    let playlist = this.store.getState().playlist.list[e.index];
-    this.store.dispatch({ type: PLAYLIST_ACTIONS.SELECT, payload: playlist });
+    this.store.take(1).subscribe((s: any) => {
+      let playlist = s.playlist.list[e.index];
+      this.store.dispatch({ type: PLAYLIST_ACTIONS.SELECT, payload: playlist });
+    });
   }
 
   public add() {

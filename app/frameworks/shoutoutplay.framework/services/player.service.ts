@@ -5,8 +5,8 @@ import {Injectable, Inject, forwardRef, OnInit} from '@angular/core';
 import {EventData} from 'data/observable';
 
 // libs
-import {Store, Reducer, Action} from '@ngrx/store';
-import {Observable} from 'rxjs/Rx';
+import {Store, ActionReducer, Action} from '@ngrx/store';
+import {Observable} from 'rxjs/Observable';
 import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescript-spotify';
 
 // app
@@ -40,7 +40,7 @@ export const PLAYER_ACTIONS: PLAYER_ACTIONSI = {
   STOP: `[${CATEGORY}] STOP`
 };
 
-export const playerReducer: Reducer<PlayerStateI> = (state: PlayerStateI = initialState, action: Action) => {
+export const playerReducer: ActionReducer<PlayerStateI> = (state: PlayerStateI = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };

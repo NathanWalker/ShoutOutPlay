@@ -6,8 +6,12 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
-    "exclude": [
-        "node_modules",
-        "platforms"
+    "files": [
+        "node_modules/tns-core-modules/tns-core-modules.d.ts",
+        "node_modules/tns-platform-declarations/android17.d.ts",
+        "node_modules/tns-platform-declarations/ios.d.ts",
+        "node_modules/tns-platform-declarations/org.nativescript.widgets.d.ts",
+        "typings/main.d.ts",
+        "app/main.ts"
     ]
 }

@@ -2,8 +2,8 @@
 import {Injectable} from '@angular/core';
 
 // libs
-import {Store, Reducer, Action} from '@ngrx/store';
-import {Observable} from 'rxjs/Rx';
+import {Store, ActionReducer, Action} from '@ngrx/store';
+import {Observable} from 'rxjs/Observable';
 import {TNSSpotifyAuth} from 'nativescript-spotify';
 
 // app
@@ -29,7 +29,7 @@ export const AUTH_ACTIONS: any = {
   SET_CURRENT_USER: `[${CATEGORY}] SET_CURRENT_USER`
 };
 
-export const authReducer: Reducer<AuthStateI> = (state: AuthStateI = initialState, action: Action) => {
+export const authReducer: ActionReducer<AuthStateI> = (state: AuthStateI = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };

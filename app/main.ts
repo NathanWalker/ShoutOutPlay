@@ -14,7 +14,6 @@ CoreConfigService.DEBUG.LEVEL_4 = true;
 
 // libs
 import {provideStore} from '@ngrx/store';
-import {routerReducer, routerMiddleware} from 'ngrx-store-router';
 import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 // app
@@ -54,12 +53,10 @@ nativeScriptBootstrap(AppComponent, [
   }),
   provideStore({
     auth: authReducer,
-    router: routerReducer,
     couchbase: couchbaseReducer,
     player: playerReducer,
     playlist: playlistReducer,
     search: searchReducer,
     shoutout: shoutoutReducer
-  }),
-  routerMiddleware
+  })
 ], { startPageActionBarHidden: false }); // https://github.com/NativeScript/nativescript-angular/issues/121
