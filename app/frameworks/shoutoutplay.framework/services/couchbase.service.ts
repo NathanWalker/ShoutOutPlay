@@ -9,7 +9,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {PlaylistModel, ShoutoutModel} from '../index';
-import {LogService, ProgressService} from '../../core.framework/index';
+import {LogService, DialogsService} from '../../core.framework/index';
 
 // analytics
 const CATEGORY: string = 'Couchbase';
@@ -75,7 +75,7 @@ export class CouchbaseService {
   public state$: Observable<any>;
   private database: Couchbase;
 
-  constructor(private store: Store<any>, private logger: LogService, private loader: ProgressService) {
+  constructor(private store: Store<any>, private logger: LogService, private dialogs: DialogsService) {
     this.state$ = store.select('couchbase');
     this.state$.subscribe((couchbase: CouchbaseStateI) => {
       if (couchbase.newPlaylist) {
@@ -150,10 +150,7 @@ export class CouchbaseService {
         }
 
         let msg = (playlists.length > startingCnt.playlists || shoutouts.length > startingCnt.shoutouts) ? 'Saved' : 'Updated';
-        this.loader.show({ message: msg, ios: { mode: MBProgressHUDModeCustomView, customView: 'Checkmark.png' } });
-        setTimeout(() => {
-          this.loader.hide();
-        }, 1000);
+        this.dialogs.success(msg);
         
         this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
       });

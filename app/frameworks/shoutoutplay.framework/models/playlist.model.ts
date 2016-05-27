@@ -1,5 +1,6 @@
 // libs
 import {TrackModel} from './track.model';
+import * as _ from 'lodash';
 
 export class PlaylistModel {
   public id: string;
@@ -21,10 +22,16 @@ export class PlaylistModel {
     }
   }
   
-  public addTrack(track: TrackModel) {
+  public addTrack(track: TrackModel): boolean {
     if (!this.tracks) {
       this.tracks = [];
     }
-    this.tracks.push(track);
+    let dup = _.find(this.tracks, { id: track.id });
+    if (dup) {
+      return false;
+    } else {
+      this.tracks.push(track);
+      return true;
+    }
   }
 }

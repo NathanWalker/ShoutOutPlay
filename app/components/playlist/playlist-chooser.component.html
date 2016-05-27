@@ -1,0 +1,16 @@
+<StackLayout>
+  <GridLayout rows="auto" columns="auto,*">
+      <Button text="Cancel" (tap)="close()" row="0" col="0"></Button>
+      <Label text="Choose Playlist..." textWrap="true" row="0" col="1"></Label>
+  </GridLayout>
+  <ListView [items]="(playlistService.state$ | async)?.list" (itemTap)="choose($event)" row="1" colSpan="2" height="300">
+    <template let-item="item" let-odd="odd" let-even="even">
+      <GridLayout columns="*" rows="auto" [class.odd]="odd" [class.even]="even" class="list-item">
+        <StackLayout row="0" col="1">
+          <Label [text]="item.name" textWrap="true" class="title"></Label> 
+          <Label [text]="item.tracks.length + ' Tracks'" textWrap="true" class="title-sub"></Label> 
+        </StackLayout>
+      </GridLayout>
+    </template>
+  </ListView>
+</StackLayout>

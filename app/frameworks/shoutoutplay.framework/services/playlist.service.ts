@@ -10,10 +10,11 @@ import {Store, ActionReducer, Action} from '@ngrx/store';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/take';
 import {TNSTrack, Utils} from 'nativescript-spotify';
+import * as _ from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics.framework/index';
-import {LogService, ProgressService} from '../../core.framework/index';
+import {LogService, ProgressService, DialogsService} from '../../core.framework/index';
 import {PlaylistModel, TrackModel, PLAYER_ACTIONS, COUCHBASE_ACTIONS} from '../index';
 
 // analytics
@@ -26,6 +27,7 @@ export interface PlaylistStateI {
   list: Array<PlaylistModel>;
   selectedPlaylist?: PlaylistModel;
   playing?: boolean;
+  showPicker?: boolean;
 }
 
 const initialState: PlaylistStateI = {
@@ -37,13 +39,17 @@ interface PLAYLIST_ACTIONSI {
   CREATED: string;
   SELECT: string;
   UPDATE_LIST: string;
+  SHOW_PICKER: string;
+  CLOSE_PICKER: string;
 }
 
 export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
   CREATE: `[${CATEGORY}] CREATE`,
   CREATED: `[${CATEGORY}] CREATED`,
   SELECT: `[${CATEGORY}] SELECT`,
-  UPDATE_LIST: `[${CATEGORY}] UPDATE_LIST`
+  UPDATE_LIST: `[${CATEGORY}] UPDATE_LIST`,
+  SHOW_PICKER: `[${CATEGORY}] SHOW_PICKER`,
+  CLOSE_PICKER: `[${CATEGORY}] CLOSE_PICKER`
 };
 
 export const playlistReducer: ActionReducer<PlaylistStateI> = (state: PlaylistStateI = initialState, action: Action) => {
@@ -60,6 +66,12 @@ export const playlistReducer: ActionReducer<PlaylistStateI> = (state: PlaylistSt
     case PLAYLIST_ACTIONS.UPDATE_LIST:
       action.payload = { list: action.payload };
       return changeState();
+    case PLAYLIST_ACTIONS.SHOW_PICKER:
+      action.payload = { showPicker: true, selectedPlaylist: undefined };
+      return changeState();
+    case PLAYLIST_ACTIONS.CLOSE_PICKER:
+      action.payload = { showPicker: false, selectedPlaylist: undefined };
+      return changeState();
     default:
       return state;
   }
@@ -71,8 +83,9 @@ export const playlistReducer: ActionReducer<PlaylistStateI> = (state: PlaylistSt
 @Injectable()
 export class PlaylistService extends Analytics {
   public state$: Observable<any>;
+  private selectedTrack: TrackModel;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private _router: Router) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private _router: Router) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -117,11 +130,12 @@ export class PlaylistService extends Analytics {
   }
 
   public addPrompt(track: TrackModel) {
+    this.selectedTrack = track;
     this.getRawPlaylists().then((list: Array<PlaylistModel>) => {
       let rawPlaylists = list;
       let promptNew = () => {
         dialogs.prompt({
-          title: 'Create a Playlist',
+          title: 'Add to New Playlist...',
           okButtonText: 'Save',
           cancelButtonText: 'Cancel',
           inputType: dialogs.inputType.text
@@ -144,7 +158,7 @@ export class PlaylistService extends Analytics {
           this.logger.debug(`User chose: ${r}`);
           switch (r) {
             case existingLabel:
-              this.logger.debug('open existing playlist picker modal');
+              this.store.dispatch({ type: PLAYLIST_ACTIONS.SHOW_PICKER });
               break;
             case newLabel:
               promptNew();
@@ -155,16 +169,30 @@ export class PlaylistService extends Analytics {
     });
   } 
 
+  public addTrackTo(playlistId: string) {
+    this.store.take(1).subscribe((s: any) => {
+      let playlists = [...s.playlist.list];
+      for (let item of playlists) {
+        if (item.id === playlistId) {
+          if (item.addTrack(this.selectedTrack)) {
+            this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists } });
+            this.dialogsService.success('Added!');
+            break;
+          } else {
+            dialogs.alert(`Track was already added to that playlist.`);
+            break;
+          }
+        }
+      }  
+    });
+  }
+
   private create(name: string, track: TrackModel) {
     this.loader.show();
     this.logger.debug(`TODO: create playlist named '${name}', and add track: ${track.name}`);
     let newPlaylist = new PlaylistModel({ name });
     newPlaylist.addTrack(track);
     this.store.dispatch({ type: COUCHBASE_ACTIONS.CREATE_PLAYLIST, payload: newPlaylist });
-  }
-
-  private addTrackTo(playlistId: string) {
-    
   }
 
   private getRawPlaylists(): Promise<any> {

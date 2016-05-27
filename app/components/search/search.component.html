@@ -1,13 +1,13 @@
-<StackLayout>
+<StackLayout modal-dialog-host>
 
   <!-- unauth -->
-  <StackLayout *ngIf="(authService.state$ | async)?.loggedIn === false">
+  <StackLayout [visibility]="(authService.state$ | async)?.loggedIn ? 'collapsed': 'visible'">
     <Label text="Get ready to play!" class="instruction heading-1"></Label>
     <Image src="~/assets/login-btn.png" (tap)="authService.login()" class="login-btn"></Image> 
   </StackLayout>
   
   <!-- auth -->
-  <StackLayout *ngIf="(authService.state$ | async)?.loggedIn === true" class="full-page">
+  <StackLayout [visibility]="(authService.state$ | async)?.loggedIn ? 'visible': 'collapsed'" class="full-page">
     <Label text="Search by track name to add to a playlist..." class="instruction"></Label>
     <CardView margin="5" radius="5">
       <SearchBar (submit)="search($event)" (clear)="clear()"></SearchBar>
