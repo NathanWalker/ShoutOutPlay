@@ -6,7 +6,7 @@ import {NS_ROUTER_DIRECTIVES} from 'nativescript-angular/router';
 import {NS_DIRECTIVES} from "nativescript-angular/directives";
 
 // libs
-import {TNSFontIconPipe} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
+import {TNSFontIconPipe, TNSFontIconPurePipe} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 declare var Reflect: any;
 const _reflect: any = Reflect;
@@ -24,7 +24,7 @@ export class DecoratorUtils {
       NS_DIRECTIVES
     ];
     // default pipes
-    let PIPES: any[] = [TNSFontIconPipe];   
+    let PIPES: any[] = [TNSFontIconPipe, TNSFontIconPurePipe];   
     
     // custom decorator options
     if (customDecoratorMetadata) {

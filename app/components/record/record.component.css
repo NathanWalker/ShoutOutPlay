@@ -1,0 +1,64 @@
+.audioPlot {
+  width:100%;
+  height:100%;
+  background-color: #000;
+  top:0;
+  left:0;
+}
+
+.record-btn {
+  color: #E42338;
+}
+
+.recordTime {
+  horizontal-alignment: center;
+  font-size:18;
+  color:#fff;
+  top:90;
+  left:0;
+  width:100%;
+}
+
+.play-area {
+  top:370;
+  left:0;
+  width:100%;
+  horizontal-alignment:center;
+}
+
+.save-area {
+  top:420;
+  left:0;
+  width:100%;
+  horizontal-alignment:center;
+}
+
+.play-btn {
+  color:#fff;
+  text-align: right;
+  font-size:25;
+  width:44%;
+  padding:0 10 0 0;
+}
+.play-btn-txt {
+  color:#fff;
+  text-align: left;
+  font-size:25;
+  width:50%;
+  padding:0 0 0 10;
+}
+
+.save-btn {
+  color:#fff;
+  text-align: right;
+  font-size:25;
+  width:30%;
+  padding:0 10 0 0;
+}
+.save-btn-txt {
+  color:#fff;
+  text-align: left;
+  font-size:25;
+  width:70%;
+  padding:0 0 0 10;
+}

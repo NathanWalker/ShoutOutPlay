@@ -24,8 +24,8 @@ export class SearchComponent {
             fullscreen: false
         };
         this.modal.showModal(PlaylistChooserComponent, options).then((res: string) => {
-           this.store.dispatch({ type: PLAYLIST_ACTIONS.CLOSE_PICKER });
-        })
+          this.store.dispatch({ type: PLAYLIST_ACTIONS.CLOSE_PICKER });
+        });
       }
     });
   }

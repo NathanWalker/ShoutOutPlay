@@ -20,7 +20,7 @@
             <Label [text]="item.name" textWrap="true" class="title"></Label> 
             <Label [text]="item.artist.name" textWrap="true" class="title-sub"></Label> 
           </StackLayout>
-          <Button row="0" col="2" [text]="'fa-plus-circle' | fonticon" class="add-btn fa" (tap)="playlistService.addPrompt(item)"></Button>
+          <Button row="0" col="2" [text]="'fa-plus-circle' | fonticonPure" class="add-btn fa" (tap)="playlistService.addPrompt(item)"></Button>
         </GridLayout>
       </template>
     </ListView>

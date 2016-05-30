@@ -1,7 +1,7 @@
 <ActionBar title="Playlists">
   <NavigationButton text="Back" android.systemIcon="ic_menu_back"></NavigationButton>
   <ActionItem (tap)="add()" ios.position="right" android.position="popup">
-    <Button class="fa" [text]="'fa-plus' | fonticon"></Button>
+    <Button class="fa" [text]="'fa-plus' | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
 <StackLayout>
@@ -13,7 +13,7 @@
           <Label [text]="item.name" textWrap="true" class="title"></Label> 
           <Label [text]="item.tracks.length + ' Tracks'" textWrap="true" class="title-sub"></Label> 
         </StackLayout>
-        <Button row="0" col="2" [text]="'fa-chevron-right' | fonticon" class="detail-btn fa"></Button>
+        <Button row="0" col="2" [text]="'fa-chevron-right' | fonticonPure" class="detail-btn fa"></Button>
       </GridLayout>
     </template>
   </ListView>

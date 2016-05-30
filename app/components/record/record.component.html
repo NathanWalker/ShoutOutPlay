@@ -1,9 +1,19 @@
 <ActionBar title="Record"> 
   <NavigationButton text="Back" android.systemIcon="ic_menu_back"></NavigationButton>
-  <ActionItem (tap)="record()" ios.position="right" android.position="popup">
-    <Button class="fa record-btn" [text]="'fa-circle' | fonticon"></Button>
+  <ActionItem (tap)="toggleRecord()" ios.position="right" android.position="popup">
+    <Button class="fa record-btn" [text]="(recordBtn$ | async) | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
-<StackLayout class="record-view full-page">
-  <Label text="TODO: Wire up Record View" color="#fff" padding="20"></Label>
-</StackLayout>
+<AbsoluteLayout modal-dialog-host>
+    <AudioPlot #audioplot class="audioPlot" [color]="audioPlotColor" plotType="buffer" [bufferData]="audioPlotBufferData$ | async"></AudioPlot>
+    
+    <StackLayout orientation="horizontal" class="play-area" *ngIf="showPlayBtn">
+      <Button [text]="(playBtn$ | async) | fonticonPure" class="fa play-btn" (tap)="togglePlay()"></Button>   
+      <Button [text]="playBtnTxt" class="play-btn-txt" (tap)="togglePlay()"></Button>   
+    </StackLayout>
+    
+    <StackLayout orientation="horizontal" class="save-area" *ngIf="showPlayBtn">
+      <Button [text]="'fa-check' | fonticon" class="fa save-btn" (tap)="saveToTrack()"></Button>   
+      <Button text="Add ShoutOut to Track..." class="save-btn-txt" (tap)="saveToTrack()"></Button>   
+    </StackLayout>
+</AbsoluteLayout>

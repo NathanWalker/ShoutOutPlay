@@ -1,7 +1,7 @@
 <ActionBar [title]="(playlistService.state$ | async)?.selectedPlaylist.name">
   <NavigationButton text="Playlists" android.systemIcon="ic_menu_back"></NavigationButton>
   <ActionItem (tap)="edit()" ios.position="right" android.position="popup">
-    <Button class="fa" [text]="'fa-pencil' | fonticon"></Button>
+    <Button class="fa" [text]="'fa-pencil' | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
 <StackLayout>
@@ -13,7 +13,7 @@
           <Label [text]="item.name" textWrap="true" class="title"></Label> 
           <Label [text]="item.artist.name" textWrap="true" class="title-sub"></Label> 
         </StackLayout>
-        <!--<Button row="0" col="2" [text]="'fa-chevron-right ' | fonticon" class="detail-btn fa" (tap)="viewDetail(item)"></Button>-->
+        <!--<Button row="0" col="2" [text]="'fa-chevron-right ' | fonticonPure" class="detail-btn fa" (tap)="viewDetail(item)"></Button>-->
       </GridLayout>
     </template>
   </ListView>

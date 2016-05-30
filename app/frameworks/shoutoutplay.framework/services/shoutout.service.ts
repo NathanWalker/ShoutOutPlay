@@ -17,7 +17,8 @@ const CATEGORY: string = 'Shoutout';
  * ngrx setup start --
  */
 export interface ShoutoutStateI {
-  list: Array<ShoutoutModel>
+  list: Array<ShoutoutModel>;
+  showTrackPicker?: boolean;
 }
 
 const initialState: ShoutoutStateI = {
@@ -27,11 +28,15 @@ const initialState: ShoutoutStateI = {
 interface SHOUTOUT_ACTIONSI {
   CREATE: string;
   UPDATE: string;
+  SHOW_PICKER: string;
+  CLOSE_PICKER: string;
 }
 
 export const SHOUTOUT_ACTIONS: SHOUTOUT_ACTIONSI = {
   CREATE: `[${CATEGORY}] CREATE`,
-  UPDATE: `[${CATEGORY}] UPDATE`
+  UPDATE: `[${CATEGORY}] UPDATE`,
+  SHOW_PICKER: `[${CATEGORY}] SHOW_PICKER`,
+  CLOSE_PICKER: `[${CATEGORY}] CLOSE_PICKER`
 };
 
 export const shoutoutReducer: ActionReducer<ShoutoutStateI> = (state: ShoutoutStateI = initialState, action: Action) => {
@@ -44,6 +49,12 @@ export const shoutoutReducer: ActionReducer<ShoutoutStateI> = (state: ShoutoutSt
       return changeState();
     case SHOUTOUT_ACTIONS.UPDATE:
       action.payload = { list: action.payload };
+      return changeState();
+    case SHOUTOUT_ACTIONS.SHOW_PICKER:
+      action.payload = { showTrackPicker: true };
+      return changeState();
+    case SHOUTOUT_ACTIONS.CLOSE_PICKER:
+      action.payload = { showTrackPicker: false };
       return changeState();
     default:
       return state;

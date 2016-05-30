@@ -13,5 +13,9 @@
         "node_modules/tns-platform-declarations/org.nativescript.widgets.d.ts",
         "typings/main.d.ts",
         "app/main.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "platforms"
     ]
 }

@@ -7,6 +7,7 @@ import {RouteConfig} from '@angular/router-deprecated';
 import {NS_ROUTER_DIRECTIVES} from 'nativescript-angular/router';
 import {registerElement} from "nativescript-angular/element-registry"
 registerElement("CardView", () => require("nativescript-cardview").CardView);
+registerElement("AudioPlot", () => require("nativescript-ezaudio").AudioPlot);
 
 // libs
 import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
