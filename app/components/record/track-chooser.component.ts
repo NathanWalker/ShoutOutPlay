@@ -38,6 +38,10 @@ export class TrackChooserComponent {
     for (let playlist of list) {
       this._tracks = [...this._tracks, ...playlist.tracks];
     }
-    this.tracks$.next(this._tracks);
+    console.log(this._tracks.length);
+    setTimeout(() => {
+      this.tracks$.next(this._tracks);
+    });
+    
   }
 }

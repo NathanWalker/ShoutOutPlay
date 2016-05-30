@@ -1,6 +1,7 @@
 // angular
 import {Component, OnDestroy, NgZone, ViewChild} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
+import {Location} from '@angular/common';
 
 // nativescript
 import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
@@ -22,7 +23,8 @@ import {TrackChooserComponent} from './track-chooser.component';
   selector: 'record',
   templateUrl: `./components/record/record.component.html`,
   styleUrls: [`./components/record/record.component.css`],
-  directives: [ModalDialogHost]
+  directives: [ModalDialogHost],
+  providers: [ModalDialogService]
 })
 export class RecordComponent implements OnDestroy {
   @ViewChild('audioplot') audioplot: any;
@@ -44,11 +46,10 @@ export class RecordComponent implements OnDestroy {
   private _player: any;
   private _recordingPath: string;
   private _reloadPlayer: boolean = false;
-  private _sessionRecordings: Array<any>;
+  private _sessionRecordings: Array<any> = [];
   
-  constructor(private logger: LogService, private _ngZone: NgZone, private modal: ModalDialogService, private store: Store<any>, private router: Router) {
-    this._sessionRecordings = [];
-    
+  constructor(private logger: LogService, private _ngZone: NgZone, private modal: ModalDialogService, private store: Store<any>, private loc: Location) {
+
     this._recorder = new TNSEZRecorder();
     this._recorder.delegate().audioEvents.on('audioBuffer', (eventData) => {
       this._ngZone.run(() => {
@@ -141,7 +142,7 @@ export class RecordComponent implements OnDestroy {
       this.logger.debug(`Chose Track!`);
       this.logger.debug(track);
     }
-    this.router.navigate(['/']);
+    this.loc.back();
   }
 
   private setSavedSession() {
@@ -174,6 +175,8 @@ export class RecordComponent implements OnDestroy {
         });
       } 
     };
-    deleteFile();
+    if (this._sessionRecordings.length) {
+      deleteFile();  
+    }
   }
 }

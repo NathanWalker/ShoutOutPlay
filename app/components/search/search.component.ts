@@ -12,7 +12,8 @@ import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
 @BaseComponent({
   selector: 'search',
   templateUrl: `./components/search/search.component.html`,
-  directives: [ModalDialogHost]
+  directives: [ModalDialogHost],
+  providers: [ModalDialogService]
 })
 export class SearchComponent {
   
