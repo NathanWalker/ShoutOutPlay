@@ -1,5 +1,5 @@
 // angular
-import {Injectable, Inject, forwardRef, OnInit} from '@angular/core';
+import {Injectable, Inject, forwardRef, OnInit, NgZone} from '@angular/core';
 
 // nativescript
 import {EventData} from 'data/observable';
@@ -56,7 +56,7 @@ export const playerReducer: ActionReducer<PlayerStateI> = (state: PlayerStateI =
         if (action.payload.currentTrackId) action.payload.previewTrackId = undefined;
       } else {
         // toggle play 
-        action.payload.playing = !state.playing;  
+        action.payload.playing = !state.playing;
       }
       return changeState();
     case PLAYER_ACTIONS.STOP:
@@ -76,7 +76,7 @@ export class PlayerService extends Analytics {
   public state$: Observable<any>;
   private _spotify: TNSSpotifyPlayer;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -92,8 +92,8 @@ export class PlayerService extends Analytics {
     this.state$.subscribe((player: PlayerStateI) => {
       if (player.previewTrackId || player.currentTrackId) {
         // only if tracks are defined
-        this.togglePlay(player.previewTrackId || player.currentTrackId, player.previewTrackId !== undefined);  
-      } 
+        this.togglePlay(player.previewTrackId || player.currentTrackId, player.previewTrackId !== undefined);
+      }
     });
   }
 
@@ -117,11 +117,11 @@ export class PlayerService extends Analytics {
   private updateAlbumArt(url: string) {
     this.logger.debug(url);
   }
-  
+
   private updateLogin(loggedIn: boolean) {
     this.store.dispatch({ type: AUTH_ACTIONS.LOGGED_IN_CHANGE, payload: { loggedIn } });
   }
-  
+
   private loginSuccess() {
     this.logger.debug(`loginSuccess!`);
     this.updateLogin(true);
@@ -133,7 +133,7 @@ export class PlayerService extends Analytics {
     this.logger.debug(error);
     this.updateLogin(false);
     this.loader.hide();
-  }  
+  }
 
   private trackEnded(url: string) {
     // update playing state
@@ -141,26 +141,36 @@ export class PlayerService extends Analytics {
   }
 
   private setupEvents() {
-    this._spotify.events.on('albumArtChange', (eventData: any) => {
+    // Wraps an event callback so that it is executed inside NgZones
+    type eventCallback = (eventData: any) => void;
+    var zoneWrap = (callback: eventCallback): eventCallback => {
+      return (eventData: any) => {
+        this.ngZone.run(() => {
+          callback(eventData)
+        })
+      }
+    };
+
+    this._spotify.events.on('albumArtChange', zoneWrap((eventData: any) => {
       this.updateAlbumArt(eventData.data.url);
-    });
-    this._spotify.events.on('playerReady', (eventData: any) => {
+    }));
+    this._spotify.events.on('playerReady', zoneWrap((eventData: any) => {
       this.loader.hide();
-    });
-    this._spotify.events.on('stoppedPlayingTrack', (eventData: any) => {
+    }));
+    this._spotify.events.on('stoppedPlayingTrack', zoneWrap((eventData: any) => {
       this.trackEnded(eventData.data.url);
-    });
-    this._spotify.auth.events.on('authLoginChange', (eventData: any) => {
+    }));
+    this._spotify.auth.events.on('authLoginChange', zoneWrap((eventData: any) => {
       this.updateLogin(eventData.data.status);
-    });
-    this._spotify.auth.events.on('authLoginCheck', (eventData: any) => {
+    }));
+    this._spotify.auth.events.on('authLoginCheck', zoneWrap((eventData: any) => {
       this.loader.show();
-    });
-    this._spotify.auth.events.on('authLoginSuccess', (eventData: any) => {
+    }));
+    this._spotify.auth.events.on('authLoginSuccess', zoneWrap((eventData: any) => {
       this.loginSuccess();
-    });
-    this._spotify.auth.events.on('authLoginError', (eventData: any) => {
+    }));
+    this._spotify.auth.events.on('authLoginError', zoneWrap((eventData: any) => {
       this.loginError(eventData.data);
-    });
-  } 
+    }));
+  }
 }
