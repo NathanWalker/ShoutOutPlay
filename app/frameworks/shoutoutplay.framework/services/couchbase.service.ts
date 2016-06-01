@@ -160,7 +160,7 @@ export class CouchbaseService {
   private changeHandler(document: any, playlists: Array<PlaylistModel>, shoutouts: Array<ShoutoutModel>) {
     switch (document.type) {
       case 'playlist':
-        var index = playlists.findIndex(playlist => playlist.id === document._id);
+        var index = (<any>playlists).findIndex(playlist => playlist.id === document._id);
         if (index > -1) {
           // update
           playlists[index] = new PlaylistModel(document);
@@ -169,7 +169,7 @@ export class CouchbaseService {
         }
         break;
       case 'shoutout':
-        var index = shoutouts.findIndex(shoutout => shoutout.id === document._id);
+        var index = (<any>shoutouts).findIndex(shoutout => shoutout.id === document._id);
         if (index > -1) {
           // update
           shoutouts[index] = new ShoutoutModel(document);

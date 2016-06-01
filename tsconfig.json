@@ -11,8 +11,10 @@
         "node_modules/tns-platform-declarations/android17.d.ts",
         "node_modules/tns-platform-declarations/ios.d.ts",
         "node_modules/tns-platform-declarations/org.nativescript.widgets.d.ts",
+        "node_modules/nativescript-couchbase/couchbase.d.ts",
         "typings/main.d.ts",
-        "app/main.ts"
+        "app/main.ts",
+        "app/frameworks/core.framework/delegates/app.delegate.ios.ts"
     ],
     "exclude": [
         "node_modules",

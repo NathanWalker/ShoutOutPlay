@@ -19,6 +19,8 @@ import {BaseComponent, LogService} from '../../frameworks/core.framework/index';
 import {ShoutoutStateI, SHOUTOUT_ACTIONS, TrackModel} from '../../frameworks/shoutoutplay.framework/index';
 import {TrackChooserComponent} from './track-chooser.component';
 
+declare var interop: any;
+
 @BaseComponent({
   selector: 'record',
   templateUrl: `./components/record/record.component.html`,
@@ -47,7 +49,7 @@ export class RecordComponent implements OnDestroy {
   private _recordingPath: string;
   private _reloadPlayer: boolean = false;
   private _sessionRecordings: Array<any> = [];
-  
+
   constructor(private logger: LogService, private _ngZone: NgZone, private modal: ModalDialogService, private store: Store<any>, private loc: Location) {
 
     this._recorder = new TNSEZRecorder();
@@ -62,7 +64,7 @@ export class RecordComponent implements OnDestroy {
           bufferSize: eventData.data.bufferSize
         });
       });
-      
+
     });
     this._recorder.delegate().audioEvents.on('recordTime', (eventData) => {
       this.recordTime = eventData.data.time;
@@ -82,8 +84,8 @@ export class RecordComponent implements OnDestroy {
     store.select('shoutout').subscribe((state: ShoutoutStateI) => {
       if (state.showTrackPicker) {
         let options: ModalDialogOptions = {
-            context: { promptMsg: "This is the prompt message!" },
-            fullscreen: false
+          context: { promptMsg: "This is the prompt message!" },
+          fullscreen: false
         };
         this.modal.showModal(TrackChooserComponent, options).then((track?: TrackModel) => {
           this.store.dispatch({ type: SHOUTOUT_ACTIONS.CLOSE_PICKER });
@@ -92,7 +94,7 @@ export class RecordComponent implements OnDestroy {
       }
     });
   }
-  
+
   public toggleRecord() {
     if (this._recorder.isRecording()) {
       this._recorder.stop();
@@ -100,13 +102,13 @@ export class RecordComponent implements OnDestroy {
       this._reloadPlayer = true;
     } else {
       let audioFolder = fs.knownFolders.currentApp().getFolder("audio");
-      console.log(JSON.stringify(audioFolder));  
+      console.log(JSON.stringify(audioFolder));
       this._recordingPath = `${audioFolder.path}/recording-${Date.now()}.m4a`;
       this._sessionRecordings.push({ path: this._recordingPath, saved: false });
-      this._recorder.record(this._recordingPath);  
+      this._recorder.record(this._recordingPath);
       this.toggleRecordState(true);
     }
-  } 
+  }
 
   public togglePlay() {
     this._player.togglePlay(this._recordingPath, this._reloadPlayer);
@@ -166,17 +168,17 @@ export class RecordComponent implements OnDestroy {
       let file = this._sessionRecordings[cnt];
       if (file.saved) {
         advance();
-      } else {        
+      } else {
         let nsFile = fs.File.fromPath(file.path);
         nsFile.remove().then(() => {
           advance();
         }, () => {
           advance();
         });
-      } 
+      }
     };
     if (this._sessionRecordings.length) {
-      deleteFile();  
+      deleteFile();
     }
   }
 }
