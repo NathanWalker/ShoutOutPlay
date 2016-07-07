@@ -1,0 +1,28 @@
+<ActionBar title="Record"> 
+  <NavigationButton text="Back" android.systemIcon="ic_menu_back" class="action-btn"></NavigationButton>
+  <ActionItem (tap)="toggleRecord()" ios.position="right" android.position="popup" *ngIf="showRecord">
+    <Button class="fa record-btn" [text]="(recordBtn$ | async) | fonticonPure"></Button>
+  </ActionItem>
+</ActionBar>
+<AbsoluteLayout modal-dialog-host backgroundColor="#000" width="100%" height="100%">
+  <AudioPlot #audioplot class="audioPlot" [plotColor]="audioPlotColor" plotType="buffer"></AudioPlot>
+
+  <Button #bigSaveBg [text]="'fa-circle' | fonticonPure" class="fa big-save-bg" (tap)="saveToTrack()"></Button>
+  <GridLayout #playbackArea rows="auto" columns="*,*" class="play-controls" [ngClass]="{'play-controls-smaller': isSmallerScreen}">
+    <StackLayout class="play-btns" orientation="horizontal" row="0" col="0">
+       <Button [text]="'fa-step-backward' | fonticonPure" class="fa rewind-btn" (tap)="rewind()" row="0" col="0"></Button> 
+       <Button [text]="(playBtn$ | async) | fonticonPure" class="fa play-btn" (tap)="togglePlay()" row="0" col="1"></Button>   
+    </StackLayout>
+    <Button [text]="playBtnTxt" class="play-btn-txt" (tap)="togglePlay()" row="0" col="1"></Button>  
+  </GridLayout>
+    
+  <StackLayout #addToTrackArea orientation="horizontal" class="save-area" [ngClass]="{'save-area-smaller': isSmallerScreen}">
+    <Button [text]="'fa-check' | fonticon" class="fa save-btn" (tap)="saveToTrack()" [width]="saveBtnWidth"></Button>   
+    <Button [text]="saveTxt" class="save-btn-txt" (tap)="saveToTrack()" [width]="saveBtnTxtWidth"></Button>   
+  </StackLayout>
+
+  <Button #bigRecordBtn [text]="(recordBtn$ | async) | fonticonPure" (tap)="toggleRecord()" class="fa big-record-btn"></Button>
+  <Label #readyRecordLabel text="READY TO RECORD" textWrap="true" class="ready-record-label"></Label>
+  
+  
+</AbsoluteLayout>

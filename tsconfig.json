@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "sourceMap": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "files": [
+        "node_modules/tns-core-modules/tns-core-modules.d.ts",
+        "node_modules/tns-platform-declarations/android17.d.ts",
+        "node_modules/tns-platform-declarations/ios.d.ts",
+        "node_modules/tns-platform-declarations/org.nativescript.widgets.d.ts",
+        "node_modules/nativescript-couchbase/couchbase.d.ts",
+        "node_modules/nativescript-splashscreen/SplashScreen.ios.d.ts",
+        "node_modules/nativescript-spotify/spotify.d.ts",
+        "node_modules/nativescript-fancyalert/fancyalert.d.ts",
+        "typings/index.d.ts",
+        "app/main.ts",
+        "app/frameworks/core.framework/delegates/app.delegate.ios.ts"
+    ]
+}

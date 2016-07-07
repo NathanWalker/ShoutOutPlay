@@ -1,0 +1,32 @@
+<StackLayout modal-dialog-host class="full-page">
+
+  <!-- unauth -->
+  <StackLayout class="full-page" [visibility]="(authService.state$ | async)?.loggedIn ? 'collapsed': 'visible'"><!--*ngIf="(authService.state$ | async)?.loggedIn==false"-->
+    <Label text="Prepare to give some ShoutOuts!" class="instruction heading-1"></Label>
+    <Image src="~/assets/login-btn.png" (tap)="authService.login()" class="login-btn"></Image> 
+  </StackLayout>
+  
+  <!-- auth -->
+  <StackLayout class="full-page" [visibility]="(authService.state$ | async)?.loggedIn ? 'visible': 'collapsed'"><!--*ngIf="(authService.state$ | async)?.loggedIn==true"-->
+    <SearchBar (submit)="search($event)" (clear)="clear()"></SearchBar>
+    <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333" (itemLoading)="itemLoading($event)" *ngIf="(searchService.state$ | async)?.results.length">
+      <template let-item="item" let-odd="odd" let-even="even">
+        <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item result-item">
+          <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="searchService.togglePreview(item)"></Button>
+          <StackLayout row="0" col="1">
+            <Label [text]="item.name" textWrap="true" class="title"></Label> 
+            <Label [text]="item.artist.name" textWrap="true" class="title-sub"></Label> 
+          </StackLayout>
+          <Button row="0" col="2" [text]="'fa-plus-circle' | fonticonPure" class="add-btn fa" (tap)="playlistService.addPrompt(item)"></Button>
+        </GridLayout>
+      </template>
+    </ListView>
+
+    <StackLayout class="full-page-message" [visibility]="(searchService.state$ | async)?.results.length ? 'collapsed': 'visible'"><!--*ngIf="(searchService.state$ | async)?.results.length==0"-->
+      <Label [text]="'fa-long-arrow-up' | fonticonPure" class="fa full-page-icon-label"></Label><!--&#xf176;-->
+      <Label text="Search by artist or track name." textWrap="true" class="full-page-message-label"></Label>
+    </StackLayout>
+
+  </StackLayout>
+  
+<StackLayout>

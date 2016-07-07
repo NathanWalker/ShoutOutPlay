@@ -1,0 +1,299 @@
+@import 'variablesyellow.scss';
+
+
+ActionBar {
+  background-color: $primary;
+  color:white;
+}
+
+// .action-image {
+//   padding:5;
+// }
+
+SearchBar {
+  padding:40;
+  background-color: $primary;
+  color:$primary;
+  border-width:0;
+}
+
+.logo-text {
+  color:#fff;
+}
+
+.fa {
+  font-family: FontAwesome, fontawesome-webfont;
+  font-size:20;
+}
+
+.side-drawer {
+  background-color: $base;
+  width:100%;
+  height:100%;
+  // .side-primary {
+  //   width:100%;
+  // }
+  .side-item {
+    padding:6;
+    width:100%;
+    // background-color:$complimentary;
+    color:#fff;
+
+    // THIS DOESN'T WORK... WHY??
+    // &.active {
+    //   background-color:$primary;
+    //   color:#fff;
+    // }
+
+    .fa {
+      color:$highlight;
+      width:50;
+      text-align: center;
+    }
+  }
+  .item-active {
+    background-color:rgba($primary, .4);
+    color:#fff;
+  }
+  .side-bottom {
+
+    .side-item {
+      // background-color:$base;
+      color: rgba($highlight, .6);
+
+      .fa {
+        color:rgba($highlight, .5);
+      }
+    }
+  }
+}
+
+.full-page-message {
+  width:100%;
+  height:100%;
+  padding-top:80;
+  horizontal-align: center;
+  vertical-align: top;
+  background-color: $primary;
+}
+.full-page-icon-label,
+.full-page-message-label {
+  color:#fff;
+  text-align: center;
+  padding:10;
+}
+.full-page-message-label {
+  font-style: italic;
+  font-size:30;
+}
+.full-page-icon-label {
+  font-size:150;
+  opacity:.2;
+}
+
+.instruction {
+  font-size:16;
+  font-style: italic;
+  width: 100%;
+  text-align: center;
+  color:$primary;
+  margin:8;
+}
+
+.blank-page {
+  background-color: #000;
+  width:100%;
+  height:100%;
+}
+
+.big-heading {
+  font-size:25;
+  color:#fff;
+  background-color:#000;
+  padding:20;
+}
+
+.inline-notice {
+  padding:10;
+  color:#fff;
+  font-style: italic;
+  background-color: #000;
+}
+
+.heading-1 {
+  margin-top:15;
+}
+
+.login-btn {
+  margin:20 0 20 0;
+  width:75%;
+}
+
+.list-item,
+.list-item-swipe {
+  width:100%;
+  vertical-align: center;
+}
+.list-item {
+  padding:20 0 20 0;
+}
+.result-item {
+  padding:10 0 10 0;
+}
+
+.title {
+  color:$highlight;
+  font-size:18;
+  font-weight: bold;
+}
+
+.title-sub {
+  font-size:14;
+  color:$primary;
+}
+
+.actions {
+  width: 100%;
+}
+
+.divider {
+  height: 1;
+  background-color:rgba(darkgray, .5);
+  width:100%;
+}
+.divider2 {
+  margin-top:19;
+}
+
+.row-center {
+  height:100%;
+  vertical-align:center;
+}
+
+.has-shoutout {
+  color:$bright;
+}
+
+.btn {
+  text-align: center;
+  color:#fff;
+}
+
+.play-btn {
+  font-size: 30;
+  color:#fff;
+  margin:0 5 0 5;
+}
+
+.delete-btn {
+  background-color:$red;
+  height: 100%;
+
+  // &.wide {
+  //   text-align: center;
+  //   margin:15;
+  //   font-size:20;
+  //   width:100%;
+  //   color:#fff;
+  // }
+}
+.delete-btn-wide {
+  background-color:darken($red, 15%);
+  text-align: center;
+    margin:65 15 0 15;
+    padding:10;
+    font-size:20;
+    color:#fff;
+    width:80%;
+    horizontal-align:center;
+}
+.delete-confirmed {
+  background-color:lighten($red, 15%);
+}
+
+.edit-btn {
+  background-color:#528100;
+  height: 100%;
+}
+
+.drag-btn {
+  background-color:darkgray;
+}
+
+.add-btn {
+  font-size:30;
+  color:$highlight;
+  margin-right: 5;
+}
+
+.detail-btn {
+  font-size:30;
+  color:$primary;
+  margin-right:5;
+}
+
+.full-page {
+  height: 100%;
+  background-color:$base;
+}
+
+.settings-list {
+  padding:20;
+}
+.settings-btn {
+  margin:10 0 10 0;
+}
+
+ListView {
+  height: 100%;
+  background-color:$base;
+}
+
+.odd {
+  background-color: $base;
+}
+
+.even {
+  background-color: $complimentary;
+}
+
+.odd.playing,
+.even.playing {
+  background-color: #87C2FF;
+}
+
+.search {
+  background-color: #BABAC1;
+  padding:5;
+}
+
+.record-view {
+  background-color:#000;
+}
+
+.microphone-btn {
+  color:$bright;
+}
+
+.modal-action-bar {
+  width:100%;
+  padding: 10 15 10 15;
+  background-color:$primary;
+
+  .cancel-btn {
+    color:#fff;
+  }
+  .modal-label {
+    color:#fff;
+    width:100%;
+    text-align: right;
+  }
+}
+
+.modal-list {
+  .list-item {
+    padding:10 15 10 15;
+  }
+}
+
+

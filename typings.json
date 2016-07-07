@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "lodash": "github:typed-typings/npm-lodash#7ccf9dc406a792d702067f4eab0fa8df4109fcaa"
+  },
+  "devDependencies": {},
+  "globalDependencies": {}
+}

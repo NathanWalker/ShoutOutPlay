@@ -1,0 +1,146 @@
+@import 'variables.scss';
+
+.audioPlot {
+  width:100%;
+  height:75%;
+  background-color: $base;
+  top:0;
+  left:0;
+}
+
+.big-record-btn,
+.record-btn,
+.ready-record-label {
+  color: #E42338;
+}
+
+.ready-record-label {
+  font-size:60;
+  text-align:left;
+  font-weight: bold;
+  opacity:0;
+}
+
+.big-record-btn {
+  font-size:200;
+  opacity:0;
+}
+
+.recordTime {
+  horizontal-align: center;
+  font-size:18;
+  color:#fff;
+  top:90;
+  left:0;
+  width:100%;
+}
+
+.big-save-bg {
+  color: $bright;
+  font-size:550;
+  opacity:0;
+}
+.play-controls {
+  width:100%;
+  horizontal-align:center;
+  opacity:0;
+
+  .play-btns {
+    horizontal-align:center;
+    width:60%;
+  }
+  .rewind-btn {
+    color:#fff;
+    text-align: right;
+    font-size:50;
+    padding:0 20 0 20;
+    width: 35%;
+  }
+  .play-btn {
+    color:#fff;
+    text-align: right;
+    font-size:130;
+    width:65%;
+  }
+  .play-btn-txt {
+    color:#fff;
+    text-align: left;
+    font-size:40;
+    width:40%;
+    padding:0 0 0 10;
+    vertical-align: center;
+  }
+  // &.smaller {
+  //   .play-btns {
+  //     width:60%;
+  //   }
+  //   .rewind-btn {
+  //     font-size:30;
+  //     width:40%;
+  //   }
+  //   .play-btn {
+  //     font-size:100;
+  //     width:60%;
+  //   }
+  //   .play-btn-text {
+  //     font-size:25;
+  //     width:40%;
+  //   }
+  // }
+}
+.play-controls-smaller {
+  .play-btns {
+    width:60%;
+  }
+  .rewind-btn {
+    font-size:30;
+    width:40%;
+  }
+  .play-btn {
+    font-size:100;
+    width:60%;
+  }
+  .play-btn-text {
+    font-size:20;
+    width:40%;
+  }
+}
+
+.save-area {
+  width:100%;
+  horizontal-align:center;
+  opacity:0;
+
+  .save-btn {
+    color:#000;
+    text-align: right;
+    font-size:30;
+    // width:55%;
+    padding:0 10 0 0;
+  }
+  .save-btn-txt {
+    color:#000;
+    text-align: left;
+    font-size:25;
+    // width:45%;
+    padding:0 20 0 5;
+  }
+  // &.smaller {
+  //   .save-btn {
+  //       width:50%;
+  //     }
+  //     .save-btn-txt {
+  //       width:50%;
+  //       font-size:20;
+  //     }
+  // }
+}
+.save-area-smaller {
+  .save-btn {
+      width:50%;
+    }
+    .save-btn-txt {
+      width:50%;
+      font-size:20;
+    }
+}

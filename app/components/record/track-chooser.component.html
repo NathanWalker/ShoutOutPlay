@@ -1,0 +1,18 @@
+<StackLayout>
+  <GridLayout rows="auto" columns="auto,*" class="modal-action-bar">
+      <Button text="Cancel" (tap)="close()" row="0" col="0" class="cancel-btn"></Button>
+      <Label text="Choose Track" textWrap="true" row="0" col="1" class="modal-label"></Label>
+  </GridLayout>
+  <Label text="All tracks in every playlist have already had a ShoutOut added to them. Search for a new track, add to a playlist, and come back here to record a ShoutOut!" textWrap="true" *ngIf="noTracks" class="inline-notice"></Label>
+  
+  <ListView [items]="(tracks$ | async)" (itemTap)="choose($event)" row="1" colSpan="2" class="modal-list full-page">
+    <template let-item="item" let-odd="odd" let-even="even">
+      <GridLayout columns="*" rows="auto" [class.odd]="odd" [class.even]="even" class="list-item">
+        <StackLayout row="0" col="1">
+          <Label [text]="item.name" textWrap="true" class="title"></Label> 
+          <Label [text]="item.artist.name" textWrap="true" class="title-sub"></Label> 
+        </StackLayout>
+      </GridLayout>
+    </template>
+  </ListView>
+</StackLayout>

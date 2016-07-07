@@ -1,0 +1,74 @@
+<ActionBar title="Welcome"> 
+  <NavigationButton visibility="collapsed"></NavigationButton>
+  <ActionItem ios.position="right" android.position="popup" (tap)="close()">
+    <Button text="Got It"></Button>
+  </ActionItem>
+</ActionBar>
+<StackLayout class="full-page">
+    <SlideContainer angular="true" #slides pageIndicators="true" (changed)="slideChange($event)">
+        <Slide class="slides slide-1">
+            <AbsoluteLayout class="msg-area">
+                <StackLayout class="gif-area">
+                    <Gif [src]="gifs[0]" height="471" #step1></Gif>
+                </StackLayout>
+                <StackLayout class="mask-cover">
+                    <Image [src]="maskCover" stretch="aspectFill"></Image>
+                </StackLayout>
+                <StackLayout class="number-area">
+                    <Label text="1" class="number"></Label>     
+                </StackLayout>
+                <StackLayout class="text-area" [top]="textTop">
+                    <Label text="Search for music to add to a playlist." textWrap="true" class="text-label"></Label>
+                </StackLayout>       
+            </AbsoluteLayout>
+        </Slide>
+        <Slide class="slides slide-2" #slide2>
+            <AbsoluteLayout class="msg-area">
+                <StackLayout class="gif-area">
+                    <Gif [src]="gifs[1]" height="471" #step2></Gif>
+                </StackLayout>
+                <StackLayout class="mask-cover">
+                    <Image [src]="maskCover" stretch="aspectFill"></Image>
+                </StackLayout>
+                <StackLayout class="number-area">
+                    <Label text="2" class="number"></Label>
+                </StackLayout>
+                <StackLayout class="text-area" [top]="textTop">
+                    <Label text="Use plus button to add your track." textWrap="true" class="text-label"></Label>
+                </StackLayout> 
+            </AbsoluteLayout>
+        </Slide>
+        <Slide class="slides slide-3">
+            <AbsoluteLayout class="msg-area">              
+                <StackLayout class="gif-area">
+                    <Gif [src]="gifs[2]" height="471" #step3></Gif>
+                </StackLayout>
+                <StackLayout class="mask-cover">
+                    <Image [src]="maskCover" stretch="aspectFill"></Image>
+                </StackLayout>
+                <StackLayout class="number-area">
+                    <Label text="3" class="number"></Label>
+                </StackLayout>
+                <StackLayout class="text-area" [top]="textTop">
+                    <Label text="Record a ShoutOut, then add to a track." textWrap="true" class="text-label"></Label>
+                </StackLayout> 
+            </AbsoluteLayout>
+        </Slide>
+        <Slide class="slides slide-4">
+            <AbsoluteLayout class="msg-area">              
+                <StackLayout class="gif-area">
+                    <Gif [src]="gifs[3]" height="350" #step4></Gif>
+                </StackLayout>
+                <StackLayout class="mask-cover">
+                    <Image [src]="maskCover" stretch="aspectFill"></Image>
+                </StackLayout>
+                <StackLayout class="number-area">
+                    <Label text="4" class="number"></Label>
+                </StackLayout>
+                <StackLayout class="text-area" [top]="textTop">
+                    <Label text="Have Fun!" textWrap="true" class="text-label"></Label>
+                </StackLayout> 
+            </AbsoluteLayout>
+        </Slide>
+    </SlideContainer>
+<StackLayout>

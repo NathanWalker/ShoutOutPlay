@@ -1,0 +1,10 @@
+node_modules
+platforms
+hooks
+lib
+*.js
+*.map
+*.log
+*.css
+typings
+app/SplashScreen.ts
