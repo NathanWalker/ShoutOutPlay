@@ -8,3 +8,4 @@ lib
 *.css
 typings
 app/SplashScreen.ts
+!app/tns-java-classes.js

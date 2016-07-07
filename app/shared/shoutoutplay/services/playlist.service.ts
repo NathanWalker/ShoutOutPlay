@@ -18,8 +18,8 @@ import {TNSTrack, Utils} from 'nativescript-spotify';
 import * as _ from 'lodash';
 
 // app
-import {Analytics, AnalyticsService} from '../../analytics.framework/index';
-import {LogService, ProgressService, DialogsService, FancyAlertService} from '../../core.framework/index';
+import {Analytics, AnalyticsService} from '../../analytics/index';
+import {LogService, ProgressService, DialogsService, FancyAlertService} from '../../core/index';
 import {PlaylistModel, TrackModel, PLAYER_ACTIONS, COUCHBASE_ACTIONS, ShoutoutService, SHOUTOUT_ACTIONS} from '../index';
 
 declare var zonedCallback: Function;

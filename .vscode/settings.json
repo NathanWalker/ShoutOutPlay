@@ -5,6 +5,7 @@
     "**/.svn": true,
     "**/.DS_Store": true,
     "**/*.js": true,
+    "webpack.config.js": false,
     "**/*.css": true
   }
 }

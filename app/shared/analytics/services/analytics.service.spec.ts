@@ -5,11 +5,11 @@ import {ReflectiveInjector} from '@angular/core';
 import {Angulartics2} from 'angulartics2';
 import {Angulartics2Segment} from 'angulartics2/src/providers/angulartics2-segment';
 
-import {t, TEST_ROUTER_PROVIDERS} from '../../test.framework/index';
+import {t, TEST_ROUTER_PROVIDERS} from '../../test/index';
 import {AnalyticsService, Analytics} from '../index';
 
 export function main() {
-  t.describe('analytics.framework: AnalyticsService', () => {
+  t.describe('analytics: AnalyticsService', () => {
     let analyticsService: AnalyticsService;
     let segment: Angulartics2Segment;
 
@@ -67,7 +67,7 @@ export function main() {
     });
   });
 
-  t.describe('analytics.framework: Analytics (Base Class)', () => {
+  t.describe('analytics: Analytics (Base Class)', () => {
     let analyticsService: AnalyticsService;
     let analytics: Analytics;
 

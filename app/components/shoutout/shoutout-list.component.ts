@@ -10,8 +10,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 
 // app
-import {LogService, BaseComponent, FancyAlertService} from '../../frameworks/core.framework/index';
-import {ShoutoutModel, COUCHBASE_ACTIONS, ShoutoutService, CouchbaseService} from '../../frameworks/shoutoutplay.framework/index';
+import {LogService, BaseComponent, FancyAlertService} from '../../shared/core/index';
+import {ShoutoutModel, COUCHBASE_ACTIONS, ShoutoutService, CouchbaseService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 

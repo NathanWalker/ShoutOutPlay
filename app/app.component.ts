@@ -15,14 +15,13 @@ registerElement("AudioPlot", () => require("nativescript-ezaudio").AudioPlot);
 registerElement("Slide", () => require("nativescript-slides").Slide);
 registerElement("SlideContainer", () => require("nativescript-slides").SlideContainer);
 registerElement("Gif", () => require("nativescript-gif").Gif);
-registerElement("VideoPlayer", () => require("nativescript-videoplayer").Video);
 
 // libs
 import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 // app
-import {ActionBarUtil, BaseComponent, LogService, DrawerService} from './frameworks/core.framework/index';
-import {AuthService, PlayerService, CouchbaseService, PlaylistService} from './frameworks/shoutoutplay.framework/index';
+import {ActionBarUtil, BaseComponent, LogService, DrawerService} from './shared/core/index';
+import {AuthService, PlayerService, CouchbaseService, PlaylistService} from './shared/shoutoutplay/index';
  
 @BaseComponent({
   moduleId: module.id,

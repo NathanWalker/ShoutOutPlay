@@ -12,7 +12,7 @@ import * as _ from 'lodash';
 
 // app
 import {PlaylistModel, ShoutoutModel} from '../index';
-import {LogService, DialogsService} from '../../core.framework/index';
+import {LogService, DialogsService} from '../../core/index';
 
 // analytics
 const CATEGORY: string = 'Couchbase';

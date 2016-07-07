@@ -1,9 +1,9 @@
-import {t} from '../../test.framework/index';
+import {t} from '../../test/index';
 import {CoreConfigService} from '../index';
 import * as _ from 'lodash';
 
 export function main() {
-  t.describe('core.framework: CoreConfigService', () => {
+  t.describe('core: CoreConfigService', () => {
     t.be(() => CoreConfigService.RESET());
     
     t.it('DEBUG', () => {

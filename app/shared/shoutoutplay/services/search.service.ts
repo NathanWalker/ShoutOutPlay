@@ -8,9 +8,9 @@ import 'rxjs/add/operator/take';
 import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
-import {Analytics, AnalyticsService} from '../../analytics.framework/index';
-import {ProgressService, LogService} from '../../core.framework/index';
-import {PlayerStateI, PLAYER_ACTIONS, TrackModel, COUCHBASE_ACTIONS} from '../../shoutoutplay.framework/index';
+import {Analytics, AnalyticsService} from '../../analytics/index';
+import {ProgressService, LogService} from '../../core/index';
+import {PlayerStateI, PLAYER_ACTIONS, TrackModel, COUCHBASE_ACTIONS} from '../../shoutoutplay/index';
 
 // analytics
 const CATEGORY: string = 'Search';

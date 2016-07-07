@@ -11,7 +11,7 @@ import * as app from 'application';
 import {provide} from '@angular/core';
 
 // config
-import {CoreConfigService} from './frameworks/core.framework/index';
+import {CoreConfigService} from './shared/core/index';
 CoreConfigService.DEBUG.LEVEL_4 = true;
 
 // libs
@@ -26,8 +26,8 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
 
 // app
-import {CORE_PROVIDERS, ConsoleService, SpotifyAppDelegate} from './frameworks/core.framework/index';
-import {ANALYTICS_PROVIDERS} from './frameworks/analytics.framework/index';
+import {CORE_PROVIDERS, ConsoleService, SpotifyAppDelegate} from './shared/core/index';
+import {ANALYTICS_PROVIDERS} from './shared/analytics/index';
 import {
   SHOUTOUTPLAY_PROVIDERS,
   authReducer,
@@ -38,7 +38,7 @@ import {
   PlaylistEffects,
   searchReducer,
   shoutoutReducer
-} from './frameworks/shoutoutplay.framework/index';
+} from './shared/shoutoutplay/index';
 import {AppComponent} from './app.component';
 import {routes} from './app.routes';
 

@@ -12,8 +12,8 @@ import * as utils from 'utils/utils';
 import {Store} from '@ngrx/store';
 
 // app
-import {AnimateService, LogService, BaseComponent, FancyAlertService} from '../../frameworks/core.framework/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, COUCHBASE_ACTIONS, CouchbaseStateI, CouchbaseService, EmptyComponent} from '../../frameworks/shoutoutplay.framework/index';
+import {AnimateService, LogService, BaseComponent, FancyAlertService} from '../../shared/core/index';
+import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, COUCHBASE_ACTIONS, CouchbaseStateI, CouchbaseService, EmptyComponent} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 declare var zonedCallback: Function;

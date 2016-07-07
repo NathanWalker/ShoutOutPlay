@@ -1,8 +1,8 @@
 import {Router} from '@angular/router';
 
 // app
-import {LogService, BaseComponent} from '../../frameworks/core.framework/index';
-import {COUCHBASE_ACTIONS} from '../../frameworks/shoutoutplay.framework/index';
+import {LogService, BaseComponent} from '../../shared/core/index';
+import {COUCHBASE_ACTIONS} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   moduleId: module.id,

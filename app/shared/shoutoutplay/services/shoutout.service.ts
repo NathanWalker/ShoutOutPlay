@@ -9,8 +9,8 @@ import {Store, ActionReducer, Action} from '@ngrx/store';
 import {Observable} from 'rxjs/Observable';
 
 // app
-import {Analytics, AnalyticsService} from '../../analytics.framework/index';
-import {LogService, ProgressService} from '../../core.framework/index';
+import {Analytics, AnalyticsService} from '../../analytics/index';
+import {LogService, ProgressService} from '../../core/index';
 import {ShoutoutModel, TrackModel, COUCHBASE_ACTIONS} from '../index';
 
 // analytics

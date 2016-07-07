@@ -3,8 +3,8 @@ import {Store} from '@ngrx/store';
 import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
 
 // app
-import {LogService, BaseComponent} from '../../frameworks/core.framework/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, COUCHBASE_ACTIONS, CouchbaseService} from '../../frameworks/shoutoutplay.framework/index';
+import {LogService, BaseComponent} from '../../shared/core/index';
+import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, COUCHBASE_ACTIONS, CouchbaseService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   moduleId: module.id,

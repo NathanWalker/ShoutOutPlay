@@ -9,8 +9,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 
 // app
-import {LogService, BaseComponent, ProgressService} from '../../frameworks/core.framework/index';
-import {ShoutoutModel, COUCHBASE_ACTIONS, ShoutoutService} from '../../frameworks/shoutoutplay.framework/index';
+import {LogService, BaseComponent, ProgressService} from '../../shared/core/index';
+import {ShoutoutModel, COUCHBASE_ACTIONS, ShoutoutService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   moduleId: module.id,

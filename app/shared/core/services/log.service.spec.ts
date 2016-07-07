@@ -1,6 +1,6 @@
 import {provide} from '@angular/core';
 
-import {t} from '../../test.framework/index';
+import {t} from '../../test/index';
 import {CoreConfigService, ConsoleService, LogService} from '../index';
 
 const providers: any[] = [
@@ -9,7 +9,7 @@ const providers: any[] = [
 ];
 
 export function main() {
-  t.describe('core.framework: LogService', () => {
+  t.describe('core: LogService', () => {
     
     t.be(() => {
       // ensure statics are in default state

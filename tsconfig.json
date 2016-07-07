@@ -17,6 +17,6 @@
         "node_modules/nativescript-fancyalert/fancyalert.d.ts",
         "typings/index.d.ts",
         "app/main.ts",
-        "app/frameworks/core.framework/delegates/app.delegate.ios.ts"
+        "app/shared/core/delegates/app.delegate.ios.ts"
     ]
 }

@@ -14,8 +14,8 @@ import {Store} from '@ngrx/store';
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 // app
-import {BaseComponent, CoreConfigService, LogService} from '../../frameworks/core.framework/index';
-import {SearchService, AuthService, AuthStateI, PlaylistService, PLAYLIST_ACTIONS, TrackModel, EmptyComponent} from '../../frameworks/shoutoutplay.framework/index';
+import {BaseComponent, CoreConfigService, LogService} from '../../shared/core/index';
+import {SearchService, AuthService, AuthStateI, PlaylistService, PLAYLIST_ACTIONS, TrackModel, EmptyComponent} from '../../shared/shoutoutplay/index';
 import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
 
 @BaseComponent({

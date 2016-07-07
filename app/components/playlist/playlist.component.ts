@@ -14,8 +14,8 @@ import 'rxjs/add/operator/take';
 import {isString, includes} from 'lodash';
 
 // app
-import {AnimateService, LogService, BaseComponent, ProgressService, FancyAlertService, DrawerService} from '../../frameworks/core.framework/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYLIST_ACTIONS, PlayerStateI, CouchbaseService, COUCHBASE_ACTIONS, CouchbaseStateI, ShoutoutService, SearchService, EmptyComponent} from '../../frameworks/shoutoutplay.framework/index';
+import {AnimateService, LogService, BaseComponent, ProgressService, FancyAlertService, DrawerService} from '../../shared/core/index';
+import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYLIST_ACTIONS, PlayerStateI, CouchbaseService, COUCHBASE_ACTIONS, CouchbaseStateI, ShoutoutService, SearchService, EmptyComponent} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 

@@ -20,8 +20,8 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import * as _ from 'lodash';
 
 // app
-import {BaseComponent, LogService, ProgressService, FancyAlertService} from '../../frameworks/core.framework/index';
-import {ShoutoutStateI, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, COUCHBASE_ACTIONS, SearchService} from '../../frameworks/shoutoutplay.framework/index';
+import {BaseComponent, LogService, ProgressService, FancyAlertService} from '../../shared/core/index';
+import {ShoutoutStateI, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, COUCHBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
 import {TrackChooserComponent} from './track-chooser.component';
 
 declare var interop: any, zonedCallback: Function, kCGBlendModeSourceAtop: any, HUGE_VAL: any, kCAFillModeForwards: any, kCAMediaTimingFunctionEaseInEaseOut: any;

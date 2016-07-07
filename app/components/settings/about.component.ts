@@ -1,7 +1,7 @@
 import * as utils from 'utils/utils';
 
 // app
-import {LogService, BaseComponent} from '../../frameworks/core.framework/index';
+import {LogService, BaseComponent} from '../../shared/core/index';
 
 @BaseComponent({
   moduleId: module.id,

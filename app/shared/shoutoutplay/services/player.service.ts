@@ -12,9 +12,9 @@ import 'rxjs/add/operator/take';
 import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescript-spotify';
 
 // app
-import {Analytics, AnalyticsService} from '../../analytics.framework/index';
-import {LogService, ProgressService} from '../../core.framework/index';
-import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, COUCHBASE_ACTIONS} from '../../shoutoutplay.framework/index';
+import {Analytics, AnalyticsService} from '../../analytics/index';
+import {LogService, ProgressService} from '../../core/index';
+import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, COUCHBASE_ACTIONS} from '../../shoutoutplay/index';
 
 declare var zonedCallback: Function;
 

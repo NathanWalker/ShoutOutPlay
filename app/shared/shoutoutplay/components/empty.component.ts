@@ -1,7 +1,7 @@
 import {Input} from '@angular/core';
 
 // app
-import {ReuseComponent} from '../../core.framework/';
+import {ReuseComponent} from '../../core/';
 
 @ReuseComponent({
   moduleId: module.id,

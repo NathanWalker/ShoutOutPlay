@@ -7,7 +7,7 @@ import {Observable} from 'rxjs/Observable';
 import {TNSSpotifyAuth} from 'nativescript-spotify';
 
 // app
-import {Analytics, AnalyticsService} from '../../analytics.framework/index';
+import {Analytics, AnalyticsService} from '../../analytics/index';
 
 // analytics
 const CATEGORY: string = 'Auth';
