@@ -135,6 +135,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       let audioFolder = fs.knownFolders.documents();
       this.logger.debug(JSON.stringify(audioFolder));
       this._recordingPath = `${audioFolder.path}/recording-${Date.now()}.m4a`;
+      this.logger.debug(this._recordingPath);
       this._sessionRecordings.push({ path: this._recordingPath, saved: false });
       this._recorder.record(this._recordingPath);
       this.toggleRecordState(true);
