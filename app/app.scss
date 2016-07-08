@@ -106,7 +106,7 @@ SearchBar {
   font-style: italic;
   width: 100%;
   text-align: center;
-  color:$primary;
+  color:rgba(#fff, .4);
   margin:8;
 }
 
@@ -253,6 +253,10 @@ SearchBar {
 .full-page {
   height: 100%;
   background-color:$base;
+}
+.logged-out {
+  height: 100%;
+  background-color:#7C3FE8;
 }
 
 .settings-list {
