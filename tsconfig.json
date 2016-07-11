@@ -18,5 +18,9 @@
         "typings/index.d.ts",
         "app/main.ts",
         "app/shared/core/delegates/app.delegate.ios.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "platforms"
     ]
 }

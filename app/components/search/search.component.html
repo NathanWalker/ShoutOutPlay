@@ -9,7 +9,7 @@
   <!-- auth -->
   <StackLayout class="full-page" [visibility]="(authService.state$ | async)?.loggedIn ? 'visible': 'collapsed'"><!--*ngIf="(authService.state$ | async)?.loggedIn==true"-->
     <SearchBar (submit)="search($event)" (clear)="clear()"></SearchBar>
-    <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333" (itemLoading)="itemLoading($event)" *ngIf="(searchService.state$ | async)?.results.length">
+    <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333" (itemLoading)="itemLoading($event)" *ngIf="(searchService.state$ | async)?.results.length"><!--(loadMoreItems)="loadMore($event)"-->
       <template let-item="item" let-odd="odd" let-even="even">
         <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item result-item">
           <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="searchService.togglePreview(item)"></Button>

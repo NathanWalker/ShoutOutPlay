@@ -1,6 +1,7 @@
 // angular
-import {NgZone, ViewChild, OnDestroy, ElementRef, AfterViewInit} from '@angular/core';
+import {NgZone, ViewChild, OnDestroy, ElementRef, AfterViewInit, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
+import {Location} from '@angular/common';
 
 // nativescript
 import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
@@ -12,6 +13,7 @@ import {AnimationCurve} from 'ui/enums';
 // libs
 import {Store} from '@ngrx/store';
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import 'rxjs/add/operator/take';
 
 // app
 import {BaseComponent, CoreConfigService, LogService} from '../../shared/core/index';
@@ -25,18 +27,26 @@ import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
   directives: [ModalDialogHost, EmptyComponent],
   providers: [ModalDialogService]
 })
-export class SearchComponent implements AfterViewInit, OnDestroy {
+export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   // TODO: potentially animate empty view
   // @ViewChild('emptyArrow') emptyArrowEl: ElementRef;
   // @ViewChild('emptyLabel') emptyLabelEl: ElementRef;
+  private _loadingMore: boolean = false;
 
-  constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private _router: Router) {
+  constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private _router: Router, private loc: Location) {
+    logger.debug(`SearchComponent constructor`);
     if (!CoreConfigService.SEEN_INTRO()) {
       this._router.navigate(['/intro']);
     } else {
-      CoreConfigService.SET_SEEN_INTRO(false);
-      this._router.navigate(['/']);
+      // CoreConfigService.SET_SEEN_INTRO(false);
+      // HACK: search view doesn't render when showing to start
+      this._router.navigate(['/welcome']);
     }
+
+    // loc.subscribe((value: any) => {
+    //   this.logger.debug(`location change:`);
+    //   this.logger.debug(value);
+    // });
       
     playlistService.state$.subscribe((state: any) => {
       if (state.showPicker) {
@@ -65,6 +75,17 @@ export class SearchComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  public loadMore(e: any) {
+    if (!this._loadingMore) {
+      this._loadingMore = true;
+      this.searchService.searchMore();
+      setTimeout(() => {
+        // prevent multiple triggers
+        this._loadingMore = false;
+      }, 1000);
+    }
+  }
+
   public clear() {
     this.logger.debug('clear');
   }  
@@ -73,7 +94,12 @@ export class SearchComponent implements AfterViewInit, OnDestroy {
     e.ios.selectionStyle = UITableViewCellSelectionStyle.UITableViewCellSelectionStyleNone;
   }
 
+  ngOnInit() {
+    this.logger.debug(`SearchComponent ngOnInit`);
+  }
+
   ngAfterViewInit() {
+    this.logger.debug(`SearchComponent ngAfterViewInit`);
     // let emptyArrow = this.emptyArrowEl.nativeElement;
     // let emptyLabel = this.emptyLabelEl.nativeElement;
 

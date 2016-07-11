@@ -1,5 +1,5 @@
 // angular
-import {HTTP_PROVIDERS} from '@angular/http';
+import {NS_HTTP_PROVIDERS} from 'nativescript-angular/http';
 
 // app
 import {LogService} from './services/log.service';
@@ -9,7 +9,7 @@ import {DialogsService} from './services/dialogs.service';
 import {FancyAlertService} from './services/fancyalert.service';
 
 export const CORE_PROVIDERS: any[] = [
-  HTTP_PROVIDERS,
+  NS_HTTP_PROVIDERS,
   DrawerService,
   ProgressService,
   DialogsService,

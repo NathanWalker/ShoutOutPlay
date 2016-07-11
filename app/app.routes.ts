@@ -8,7 +8,9 @@ import {PlaylistDetailComponent} from './components/playlist/playlist-detail.com
 import {ShoutOutListComponent} from './components/shoutout/shoutout-list.component';
 import {ThemeComponent} from './components/settings/theme.component';
 import {GeneralComponent} from './components/settings/general.component';
+import {HelpComponent} from './components/settings/help.component';
 import {AboutComponent} from './components/settings/about.component';
+import {WelcomeComponent} from './components/intro/welcome.component';
 
 export const routes: RouterConfig = [
     { path: "", component: SearchComponent },
@@ -19,5 +21,7 @@ export const routes: RouterConfig = [
     { path: "shoutout", component: ShoutOutListComponent },
     { path: "theme", component: ThemeComponent },
     { path: "general", component: GeneralComponent },
-    { path: "about", component: AboutComponent }
+    { path: "help", component: HelpComponent },
+    { path: "about", component: AboutComponent },
+    { path: "welcome", component: WelcomeComponent }
 ];

@@ -60,7 +60,7 @@ export class AuthService extends Analytics {
       this.track(AUTH_ACTIONS.LOGGED_IN_CHANGE, { label: loggedIn.toString() });
     }); 
 
-    TNSSpotifyAuth.INIT_SESSION().then(() => {
+    TNSSpotifyAuth.VERIFY_SESSION().then(() => {
       this.setLoggedIn(true);
     }, () => {
       this.setLoggedIn(false);

@@ -510,5 +510,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this._player.delegate().audioEvents.off('reachedEnd');
     this._recorder = undefined;
     this._player = undefined;
+    // set av category session back to playback
+    
   }
 }

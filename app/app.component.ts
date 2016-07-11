@@ -1,5 +1,5 @@
 // angular
-import {ChangeDetectionStrategy, ChangeDetectorRef, Inject, ViewChild, AfterViewInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Inject, ViewChild, AfterViewInit, ElementRef, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 
 // nativescript
@@ -7,6 +7,8 @@ import {NS_ROUTER_DIRECTIVES, nsProvideRouter} from 'nativescript-angular/router
 import {RadSideDrawerComponent} from 'nativescript-telerik-ui-pro/sidedrawer/angular';
 import {PushTransition, DrawerTransitionBase, SlideInOnTopTransition} from 'nativescript-telerik-ui-pro/sidedrawer';
 import {Page} from "ui/page";
+import {screen} from 'platform';
+import {AbsoluteLayout} from 'ui/layouts/absolute-layout';
 
 /* register elements */
 import {registerElement} from "nativescript-angular/element-registry"
@@ -20,6 +22,7 @@ registerElement("Gif", () => require("nativescript-gif").Gif);
 import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 // app
+import {PlayerControlsComponent} from './components/player/player-controls.component';
 import {ActionBarUtil, BaseComponent, LogService, DrawerService} from './shared/core/index';
 import {AuthService, PlayerService, CouchbaseService, PlaylistService} from './shared/shoutoutplay/index';
  
@@ -27,6 +30,7 @@ import {AuthService, PlayerService, CouchbaseService, PlaylistService} from './s
   moduleId: module.id,
   selector: 'my-app',
   templateUrl: 'app.component.html',
+  directives: [PlayerControlsComponent],
   changeDetection: ChangeDetectionStrategy.Default
 }) 
 export class AppComponent implements AfterViewInit {
@@ -36,10 +40,12 @@ export class AppComponent implements AfterViewInit {
     shoutout: false,
     theme: false,
     general: false,
+    help: false,
     about: false
   };
   @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
   private _sideDrawerTransition: DrawerTransitionBase;
+  private _playerControls: any;
   
   constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private couchbase: CouchbaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private _router: Router, public authService: AuthService, public drawerService: DrawerService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
@@ -79,7 +85,20 @@ export class AppComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
+ 
     this.drawerService.drawer = this.drawerComponent.sideDrawer;
     this._changeDetectionRef.detectChanges();
+    // setTimeout(() => {
+    //   this.logger.debug(`Dimensions: ${screen.mainScreen.widthDIPs}x${screen.mainScreen.heightDIPs}`);
+    //   this.logger.debug(this.drawerService.drawer.mainContent);
+    //   this._playerControls = this.drawerService.drawer.mainContent.getViewById('playerControls');
+
+    //   this.logger.debug(`this._playerControls:`);
+    //   this.logger.debug(this._playerControls);
+    //   this.logger.debug(this._playerControls.top);
+
+    //   AbsoluteLayout.setTop(this._playerControls, 360);
+    //   this.logger.debug(this._playerControls.top);
+    // }, 1000);
   }
 }

@@ -9,8 +9,16 @@ ActionBar {
 //   padding:5;
 // }
 
+ScrollView {
+  background-color:$base;
+}
+
 .page-bg {
   background-color: $base;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
 }
 
 SearchBar {
@@ -123,6 +131,18 @@ SearchBar {
   padding:20;
 }
 
+.large-heading {
+  font-size:30;
+  color:#fff;
+  padding:10 10 10 10;
+}
+
+.medium-heading {
+  font-size:20;
+  color:rgba(#fff, .6);
+  padding:5 10 5 10;
+}
+
 .inline-notice {
   padding:10;
   color:#fff;
@@ -152,14 +172,14 @@ SearchBar {
 }
 
 .title {
-  color:$highlight;
+  color:#fff;
   font-size:18;
   font-weight: bold;
 }
 
 .title-sub {
   font-size:14;
-  color:$primary;
+  color:$highlight;
 }
 
 .actions {
@@ -259,6 +279,22 @@ SearchBar {
   background-color:#7C3FE8;
 }
 
+.player-full-screen,
+.player-minimized {
+  background-color:$primary;
+}
+.player-full-screen {
+  width:100%;
+  height:100%;
+}
+.player-minimized {
+  width:100%;
+  height:100;
+}
+.player-controls {
+  width:100%;
+  background-color:$primary;
+}
 .settings-list {
   padding:20;
 }

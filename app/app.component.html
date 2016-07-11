@@ -14,7 +14,7 @@
     <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
-
+    
 <RadSideDrawer #drawer [transition]="sideDrawerTransition" selectionBehavior="None">
     <template drawerSide>
       <GridLayout class="side-drawer" rows="auto, *, auto" columns="*">
@@ -33,13 +33,17 @@
           </GridLayout>
         </StackLayout>
         <StackLayout class="side-bottom" row="2" col="0">
-          <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.theme}" (tap)="navItem('theme')">
+          <!--<GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.theme}" (tap)="navItem('theme')">
             <Label [text]="'fa-paint-brush' | fonticon" class="fa" row="0" col="0"></Label> 
             <Label text="Color Themes" row="0" col="1"></Label>  
-          </GridLayout>
+          </GridLayout>-->
           <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.general}" (tap)="navItem('general')">
             <Label [text]="'fa-cog' | fonticon" class="fa" row="0" col="0"></Label> 
             <Label text="Settings" row="0" col="1"></Label>  
+          </GridLayout>
+          <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.help}" (tap)="navItem('help')">
+            <Label [text]="'fa-question-circle' | fonticon" class="fa" row="0" col="0"></Label> 
+            <Label text="Help" row="0" col="1"></Label>  
           </GridLayout>
           <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.about}" (tap)="navItem('about')">
             <Label [text]="'fa-info-circle' | fonticon" class="fa" row="0" col="0"></Label> 
@@ -49,6 +53,9 @@
       </GridLayout>
     </template>
     <template drawerMain>
-      <page-router-outlet class="page-bg"></page-router-outlet>
+      <!--<AbsoluteLayout width="100%" height="100%">-->
+        <page-router-outlet class="page-bg"></page-router-outlet>
+        <!--<player-controls id="playerControls" class="player-controls"></player-controls>
+      </AbsoluteLayout>-->
     </template>
 </RadSideDrawer>

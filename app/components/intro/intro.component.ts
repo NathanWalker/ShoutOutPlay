@@ -60,45 +60,24 @@ export class IntroComponent implements OnInit, AfterViewInit {
     public slideChange(e: any) {
         this.logger.debug(`slide change`);
         this.logger.debug(e.eventData.newIndex);
-        switch (e.eventData.newIndex) {
-            case 0:
-                setTimeout(() => {
-                    this._step1.start();
-                    this._step2.stop();
-                    this._step3.stop();
-                    this._step4.stop();
-                }, 100);
-                break;
-            case 1:
-                setTimeout(() => {
-                    this._step1.stop();
-                    this._step2.start();
-                    this._step3.stop();
-                    this._step4.stop();
-                }, 100);
-                break;
-            case 2:
-                setTimeout(() => {
-                    this._step1.stop();
-                    this._step2.stop();
-                    this._step3.start();
-                    this._step4.stop();
-                }, 100);
-                break;
-            case 3:
-                setTimeout(() => {
-                    this._step1.stop();
-                    this._step2.stop();
-                    this._step3.stop();
-                    this._step4.start();
-                }, 100);
-                break;
-        }
+        this.gifControl(e.eventData.newIndex);
     }
 
     public close() {
-        // CoreConfigService.SET_SEEN_INTRO(true);
+        CoreConfigService.SET_SEEN_INTRO(true);
         this.location.back();
+    }
+
+    private gifControl(step: number) {
+      setTimeout(() => {
+        for (var i = 0; i < 4; i++) {
+          if (i===step) {
+            this[`_step${step+1}`].start();
+          } else {
+            this[`_step${i+1}`].stop();
+          }
+        }
+      }, 100);
     }
 
     ngOnInit() {

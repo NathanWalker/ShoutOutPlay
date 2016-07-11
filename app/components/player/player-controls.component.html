@@ -1,0 +1,18 @@
+<AbsoluteLayout>
+    <GridLayout rows="auto, *, auto" columns="*" [visibility]="!(minimized$ | async) ? 'visible' : 'collapsed'" class="player-full-screen">
+      <Button [text]="'fa-chevron' | fonticonPure" (tap)="minimize()" row="0" col="0"></Button>
+      <Image src="res://logo-160.png" row="1" col="0"></Image>
+      <GridLayout rows="auto" columns="*,*" row="2" col="0">
+        <Button text="test" (tap)="togglePlay()" row="0" col="0"></Button>
+        <Button [text]="(playingIcon$ | async) | fonticonPure" (tap)="togglePlay()" class="play-btn fa" row="0" col="1"></Button>
+      </GridLayout>
+    </GridLayout>
+
+    <GridLayout rows="auto" columns="auto,*" [visibility]="(minimized$ | async) ? 'visible' : 'collapsed'">
+      <Button row="0" col="0" [text]="(playingIcon$ | async) | fonticonPure" class="play-btn fa" (tap)="togglePlay()"></Button>
+        <StackLayout row="0" col="1" class="row-center">
+          <Label [text]="currentTrack.name" textWrap="true" class="title"></Label> 
+          <Label [text]="currentTrack.artist.name" textWrap="true" class="title-sub"></Label> 
+        </StackLayout>
+    </GridLayout>
+</AbsoluteLayout>

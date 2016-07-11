@@ -1,5 +1,5 @@
 // angular
-import {Injectable, Inject, forwardRef, OnInit} from '@angular/core';
+import {Injectable, Inject, forwardRef, OnInit, NgZone} from '@angular/core';
 
 // nativescript
 import {EventData} from 'data/observable';
@@ -90,7 +90,7 @@ export class PlayerService extends Analytics {
   private _currentShoutOutPath: string;
   private _shoutoutTimeout: any;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -147,6 +147,9 @@ export class PlayerService extends Analytics {
       this.loader.hide();
       // this.track(PLAYER_ACTIONS.TOGGLE_PLAY, { label: `${trackUri} ${isPlaying ? 'playing' : 'paused'}` });
     }, (error) => {
+      this.logger.debug(`togglePlay error:`);
+      this.logger.debug(error);
+      
       this.loader.hide();
       this.track(`[${CATEGORY}] ERROR`, { label: error.toString() });
       if (error === 'login') {
@@ -156,6 +159,8 @@ export class PlayerService extends Analytics {
   }
   
   private queueShoutOut(trackId: string) {
+    // always ensure spotify volume is up to start
+    this.setSpotifyVolume(1);
     if (trackId !== this._currentTrackId) {
       this.store.take(1).subscribe((s: any) => {
         let playlists = [...s.couchbase.playlists];
@@ -184,7 +189,7 @@ export class PlayerService extends Analytics {
   }
 
   private toggleShoutOutPlay(reload?: boolean) {
-    if (this._currentShoutOutPath) {
+    if (this._currentShoutOutPath && this._spotify.player) {
       this.logger.debug(`calling this.toggleShoutOutPlay();`);
 
       if (reload === true) {
@@ -213,12 +218,14 @@ export class PlayerService extends Analytics {
   }
 
   private setSpotifyVolume(volume: number) {
-    (<any>this._spotify).player.setVolumeCallback(volume, (error) => {
-      if (error !== null) {
-        console.log(`Spotify Player volume adjust error:`);
-        console.log(error);
-      }
-    });
+    if (this._spotify.player) {
+      this._spotify.player.setVolumeCallback(volume, (error) => {
+        if (error !== null) {
+          console.log(`Spotify Player volume adjust error:`);
+          console.log(error);
+        }
+      });
+    }
   }
 
   private updateAlbumArt(url: string) {
@@ -261,26 +268,40 @@ export class PlayerService extends Analytics {
   }
 
   private setupEvents() {
-    this._spotify.events.on('albumArtChange', zonedCallback((eventData: any) => {
-      this.updateAlbumArt(eventData.data.url);
-    }));
-    this._spotify.events.on('playerReady', zonedCallback((eventData: any) => {
-      this.loader.hide();
-    }));
-    this._spotify.events.on('stoppedPlayingTrack', zonedCallback((eventData: any) => {
-      this.trackEnded(eventData.data.url);
-    }));
-    this._spotify.auth.events.on('authLoginChange', zonedCallback((eventData: any) => {
-      this.updateLogin(eventData.data.status);
-    }));
-    this._spotify.auth.events.on('authLoginCheck', zonedCallback((eventData: any) => {
-      this.loader.show();
-    }));
-    this._spotify.auth.events.on('authLoginSuccess', zonedCallback((eventData: any) => {
-      this.loginSuccess();
-    }));
-    this._spotify.auth.events.on('authLoginError', zonedCallback((eventData: any) => {
-      this.loginError(eventData.data);
-    }));
+    this._spotify.events.on('albumArtChange', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.updateAlbumArt(eventData.data.url);
+      });
+    });
+    this._spotify.events.on('playerReady', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.loader.hide();
+      });
+    });
+    this._spotify.events.on('stoppedPlayingTrack', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.trackEnded(eventData.data.url);
+      });
+    });
+    this._spotify.auth.events.on('authLoginChange', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.updateLogin(eventData.data.status);
+      });
+    });
+    this._spotify.auth.events.on('authLoginCheck', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.loader.show();
+      });
+    });
+    this._spotify.auth.events.on('authLoginSuccess', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.loginSuccess();
+      });
+    });
+    this._spotify.auth.events.on('authLoginError', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.loginError(eventData.data);
+      });
+    });
   }
 }

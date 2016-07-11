@@ -53,6 +53,9 @@ export const searchReducer: ActionReducer<SearchStateI> = (state: SearchStateI =
 @Injectable()
 export class SearchService extends Analytics {
   public state$: Observable<any>;
+  private _currentQuery: string;
+  private _currentOffset: number = 0;
+  private _hasMore: boolean = true;
 
   constructor(public analytics: AnalyticsService, private logger: LogService, private store: Store<any>, private loader: ProgressService, private ngZone: NgZone) {
     super(analytics);
@@ -91,17 +94,46 @@ export class SearchService extends Analytics {
     });
   }
 
-  public search(query: string, queryType?: string) {
+  public search(query: string, queryType?: string, offset?: number) {
     queryType = queryType || 'track';
+    if (typeof offset === 'undefined') offset = 0;
+
+    if (this._currentQuery !== query) {
+      this._currentQuery = query;
+      // reset offset whenever query changes
+      this._currentOffset = offset = 0;
+    }
     
-    this.loader.show({ message: 'Searching...' });
+    this.loader.show({ message: this._currentOffset > 0 ? 'Finding more results...' : 'Searching...' });
+    this.logger.debug(`loading offset: ${this._currentOffset}`);
     
-    TNSSpotifySearch.QUERY(query, queryType).then((result) => {
-      this.resultChange(result.tracks, query);
+    TNSSpotifySearch.QUERY(query, queryType, offset).then((result) => {
+      this._hasMore = result.hasNextPage;
+      // for (let key in result) {
+      //     console.log('---');
+      //     console.log(key);
+      //     console.log(result[key]);
+      //   }
+      if (this._currentOffset > 0) {
+        this.store.take(1).subscribe((s: any) => {
+          if (s.search) {
+            this.resultChange([...s.search.results, ...result.tracks], query);
+          }
+        });
+      } else {
+        this.resultChange(result.tracks, query);
+      }
     }, () => {
       this.loader.hide();
       Utils.alert('No tracks found. Try using only 2 words of the track name.');
     });
+  }
+
+  public searchMore() {
+    if (this._hasMore) {
+      this._currentOffset = this._currentOffset + 20;
+      this.search(this._currentQuery, null, this._currentOffset);
+    }
   }
 
   private resultChange(tracks: Array<TNSTrack>, term: string) {
