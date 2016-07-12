@@ -23,8 +23,8 @@ ScrollView {
 
 SearchBar {
   padding:40;
-  background-color: $primary;
-  color:$primary;
+  background-color: $action-bar-match;
+  color:$action-bar-match;
   border-width:0;
 }
 
@@ -92,7 +92,7 @@ SearchBar {
   padding-top:80;
   horizontal-align: center;
   vertical-align: top;
-  background-color: $primary;
+  background-color: $action-bar-match;
 }
 .full-page-icon-label,
 .full-page-message-label {
@@ -139,7 +139,13 @@ SearchBar {
 
 .medium-heading {
   font-size:20;
-  color:rgba(#fff, .6);
+  color:rgba(#fff, .7);
+  padding:5 10 5 10;
+}
+
+.small-heading {
+  font-size:15;
+  color:rgba(#fff, .5);
   padding:5 10 5 10;
 }
 
@@ -276,7 +282,7 @@ SearchBar {
 }
 .logged-out {
   height: 100%;
-  background-color:#7C3FE8;
+  background-color:$action-bar-match;
 }
 
 .player-full-screen,
@@ -334,6 +340,16 @@ ListView {
   color:$bright;
 }
 
+.modal-title {
+  font-weight: bold;
+  text-align:center;
+}
+
+.modal-blank-label {
+  color:$primary;
+  width:50;
+}
+
 .modal-action-bar {
   width:100%;
   padding: 10 15 10 15;
@@ -345,7 +361,6 @@ ListView {
   .modal-label {
     color:#fff;
     width:100%;
-    text-align: right;
   }
 }
 

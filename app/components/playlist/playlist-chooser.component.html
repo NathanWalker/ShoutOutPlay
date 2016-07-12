@@ -1,7 +1,7 @@
 <StackLayout>
-  <GridLayout rows="auto" columns="auto,*" class="modal-action-bar">
-      <Button text="Cancel" (tap)="close()" row="0" col="0" class="cancel-btn"></Button>
-      <Label text="Choose Playlist" textWrap="true" row="0" col="1" class="modal-label"></Label>
+  <GridLayout rows="auto" columns="50,*,50" class="modal-action-bar">
+      <Button text="Cancel" (tap)="close()" row="0" col="0" class="cancel-btn" width="50"></Button>
+      <Label text="Choose a Playlist" textWrap="true" row="0" col="1" class="modal-label modal-title"></Label>
   </GridLayout>
   <ListView [items]="(couchbaseService.state$ | async)?.playlists" (itemTap)="choose($event)" row="1" colSpan="2" class="modal-list full-page">
     <template let-item="item" let-odd="odd" let-even="even">

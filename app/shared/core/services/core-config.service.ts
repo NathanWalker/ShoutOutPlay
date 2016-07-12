@@ -2,12 +2,14 @@ import * as appSettings from 'application-settings';
 
 interface APP_SETTING_KEYSI {
   INTRO: string;
+  SHOUTOUT_START: string;
 }
 
 export class CoreConfigService {
   
   public static APP_SETTING_KEYS: APP_SETTING_KEYSI = {
-    INTRO: `viewed-intro`
+    INTRO: `viewed-intro`,
+    SHOUTOUT_START: 'shoutout-start'
   };
 
   public static SEEN_INTRO(): boolean {
@@ -17,6 +19,14 @@ export class CoreConfigService {
 
   public static SET_SEEN_INTRO(value: boolean): void {
     appSettings.setBoolean(CoreConfigService.APP_SETTING_KEYS.INTRO, value);
+  }
+
+  public static SHOUTOUT_START_TIME(): number {
+    return appSettings.getNumber(CoreConfigService.APP_SETTING_KEYS.SHOUTOUT_START, 6000);
+  }
+
+  public static SET_SHOUTOUT_START_TIME(value: number): void {
+    appSettings.setNumber(CoreConfigService.APP_SETTING_KEYS.SHOUTOUT_START, value);
   }
 
   public static DEBUG: any = {

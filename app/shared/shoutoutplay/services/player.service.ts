@@ -13,7 +13,7 @@ import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescrip
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {LogService, ProgressService} from '../../core/index';
+import {CoreConfigService, LogService, ProgressService} from '../../core/index';
 import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, COUCHBASE_ACTIONS} from '../../shoutoutplay/index';
 
 declare var zonedCallback: Function;
@@ -83,6 +83,7 @@ export const playerReducer: ActionReducer<PlayerStateI> = (state: PlayerStateI =
 
 @Injectable()
 export class PlayerService extends Analytics {
+  public static SHOUTOUT_START: number;
   public state$: Observable<any>;
   private _spotify: TNSSpotifyPlayer;
   private _shoutOutPlayer: TNSEZAudioPlayer;
@@ -95,6 +96,8 @@ export class PlayerService extends Analytics {
     this.category = CATEGORY;
 
     this.state$ = store.select('player');
+
+    PlayerService.SHOUTOUT_START = CoreConfigService.SHOUTOUT_START_TIME();
 
     // init player
     loader.show();
@@ -176,7 +179,7 @@ export class PlayerService extends Analytics {
                     this._shoutoutTimeout = setTimeout(() => {
                       this.logger.debug(`queueShoutOut toggleShoutOutPlay(true)`);
                       this.toggleShoutOutPlay(true);
-                    }, 6000);
+                    }, PlayerService.SHOUTOUT_START);
                   }
                 }
               }
