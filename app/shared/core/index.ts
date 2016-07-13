@@ -36,3 +36,4 @@ export * from './services/log.service';
 export * from './services/progress.service';
 export * from './services/dialogs.service';
 export * from './services/fancyalert.service';
+export * from './services/text.service';

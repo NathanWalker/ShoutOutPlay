@@ -4,6 +4,7 @@
       <Button text="Logout" (tap)="logout()" class="settings-btn" textAlign="right" row="0" col="1"></Button>
   </GridLayout>  
   <Label [text]="displayName$ | async" textWrap="true" class="large-heading"></Label>
+  <Label [text]="emailAddress$ | async" textWrap="true" class="small-heading"></Label>
   <StackLayout class="divider" margin="5 0 5 0"></StackLayout>
   <Label text="ShoutOut start time:" textWrap="true" class="medium-heading"></Label>
   <Label text="The time each ShoutOut will play over the top of each track." textWrap="true" class="small-heading"></Label>

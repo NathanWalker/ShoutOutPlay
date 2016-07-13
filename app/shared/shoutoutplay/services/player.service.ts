@@ -4,6 +4,7 @@ import {Injectable, Inject, forwardRef, OnInit, NgZone} from '@angular/core';
 // nativescript
 import {EventData} from 'data/observable';
 import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
+import {File} from 'file-system';
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
@@ -13,7 +14,7 @@ import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescrip
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {CoreConfigService, LogService, ProgressService} from '../../core/index';
+import {CoreConfigService, LogService, ProgressService, FancyAlertService, TextService} from '../../core/index';
 import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, COUCHBASE_ACTIONS} from '../../shoutoutplay/index';
 
 declare var zonedCallback: Function;
@@ -91,7 +92,7 @@ export class PlayerService extends Analytics {
   private _currentShoutOutPath: string;
   private _shoutoutTimeout: any;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -176,10 +177,17 @@ export class PlayerService extends Analytics {
                 for (let shoutout of shoutouts) {
                   if (shoutout.tmpId === track.shoutoutId) {
                     this._currentShoutOutPath = shoutout.recordingPath;
-                    this._shoutoutTimeout = setTimeout(() => {
-                      this.logger.debug(`queueShoutOut toggleShoutOutPlay(true)`);
-                      this.toggleShoutOutPlay(true);
-                    }, PlayerService.SHOUTOUT_START);
+                    if (!File.exists(this._currentShoutOutPath)) {
+                      // alert user
+                      setTimeout(() => {
+                        this.fancyalert.show(TextService.SHOUTOUT_NOT_FOUND);
+                      }, 1000);
+                    } else {
+                      this._shoutoutTimeout = setTimeout(() => {
+                        this.logger.debug(`queueShoutOut toggleShoutOutPlay(true)`);
+                        this.toggleShoutOutPlay(true);
+                      }, PlayerService.SHOUTOUT_START);     
+                    }
                   }
                 }
               }
@@ -198,7 +206,7 @@ export class PlayerService extends Analytics {
       if (reload === true) {
         this.logger.debug(`_shoutOutPlayer.togglePlay`);
         this.logger.debug(this._currentShoutOutPath);
-        this._shoutOutPlayer.togglePlay(this._currentShoutOutPath, true); 
+        this._shoutOutPlayer.togglePlay(this._currentShoutOutPath, true);
         // volume down spotify
         this.setSpotifyVolume(0.6);
       } else {

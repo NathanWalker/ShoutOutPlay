@@ -22,6 +22,7 @@ import {COUCHBASE_ACTIONS, PlayerService} from '../../shared/shoutoutplay/index'
 export class GeneralComponent implements AfterViewInit {
   @ViewChild('slider') public slider: ElementRef;
   public displayName$: BehaviorSubject<string> = new BehaviorSubject('');
+  public emailAddress$: BehaviorSubject<string> = new BehaviorSubject('');
   public shoutoutTime: number = 6;
   public shoutoutTime$: BehaviorSubject<string> = new BehaviorSubject(`6 seconds`);
 
@@ -32,6 +33,7 @@ export class GeneralComponent implements AfterViewInit {
           this.logger.debug(`Current user: ${user.displayName}`);
           if (user.displayName) {
             this.displayName$.next(user.displayName);
+            this.emailAddress$.next(user.emailAddress);
           } else {
             this.displayName$.next(`Non-premium user`);
           }
