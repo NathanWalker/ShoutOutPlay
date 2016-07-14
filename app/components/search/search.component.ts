@@ -33,7 +33,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   // @ViewChild('emptyLabel') emptyLabelEl: ElementRef;
   private _loadingMore: boolean = false;
 
-  constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private _router: Router, private loc: Location) {
+  constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private router: Router, private loc: Location) {
     logger.debug(`SearchComponent constructor`);
   }
 
@@ -66,13 +66,13 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   ngOnInit() {
     this.logger.debug(`SearchComponent ngOnInit`);
 
-    if (!CoreConfigService.SEEN_INTRO()) {
-      this._router.navigate(['/intro']);
-    } else {
-      // CoreConfigService.SET_SEEN_INTRO(false);
-      // HACK: search view doesn't render when showing to start
-      this._router.navigate(['/welcome']);
-    }
+    // if (!CoreConfigService.SEEN_INTRO()) {
+    //   this.router.navigate(['/intro']);
+    // } else {
+    //   // CoreConfigService.SET_SEEN_INTRO(false);
+    //   // HACK: search view doesn't render when showing to start
+    //   this.router.navigate(['/welcome']);
+    // }
       
     this.playlistService.state$.subscribe((state: any) => {
       if (state.showPicker) {
@@ -88,7 +88,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
         });
       
       } else if (state.showRecord) {
-        this._router.navigate(['/record']);
+        this.router.navigate(['/record']);
       }
     });
   }

@@ -28,7 +28,7 @@ declare var zonedCallback: Function;
 export class PlaylistComponent {
   private _currentIndex: number;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, public couchbaseService: CouchbaseService, public drawerService: DrawerService, private loader: ProgressService, private shoutoutService: ShoutoutService, private _router: Router, private searchService: SearchService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, public couchbaseService: CouchbaseService, public drawerService: DrawerService, private loader: ProgressService, private shoutoutService: ShoutoutService, private router: Router, private searchService: SearchService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
     // always stop all tracks playing from search results
     searchService.stopAll();
     
@@ -42,7 +42,7 @@ export class PlaylistComponent {
   public viewDetail(e: any) {
     (<any>topmost().currentPage.getViewById("listview")).notifySwipeToExecuteFinished();
     this.store.take(1).subscribe((s: any) => {
-      this._router.navigate(['/playlist', s.couchbase.playlists[e.itemIndex].id]);
+      this.router.navigate(['/playlist', s.couchbase.playlists[e.itemIndex].id]);
     });  
   }
 

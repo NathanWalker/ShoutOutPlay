@@ -2,7 +2,6 @@
 import {nativeScriptBootstrap} from 'nativescript-angular/application';
 
 // nativescript
-import {nsProvideRouter} from 'nativescript-angular/router';
 import {SIDEDRAWER_PROVIDERS} from "nativescript-telerik-ui-pro/sidedrawer/angular";
 import {LISTVIEW_PROVIDERS} from 'nativescript-telerik-ui-pro/listview/angular';
 import * as app from 'application';
@@ -40,7 +39,7 @@ import {
   shoutoutReducer
 } from './shared/shoutoutplay/index';
 import {AppComponent} from './app.component';
-import {routes} from './app.routes';
+import {APP_ROUTES_PROVIDER} from './app.routes';
 
 // Spotify setup
 if (app.ios) {
@@ -48,7 +47,7 @@ if (app.ios) {
 }
 
 nativeScriptBootstrap(AppComponent, [
-  nsProvideRouter(routes, { enableTracing: false }),
+  APP_ROUTES_PROVIDER,
   SIDEDRAWER_PROVIDERS,
   LISTVIEW_PROVIDERS,
   { provide: ConsoleService, useValue: console },

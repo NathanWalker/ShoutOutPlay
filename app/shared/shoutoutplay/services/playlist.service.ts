@@ -83,7 +83,7 @@ export class PlaylistService extends Analytics {
   public state$: Observable<any>;
   private selectedTrack: TrackModel;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private ngZone: NgZone, private fancyalert: FancyAlertService, @Inject(forwardRef(() => ShoutoutService)) private shoutoutService) {//private _router: Router
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private ngZone: NgZone, private fancyalert: FancyAlertService, @Inject(forwardRef(() => ShoutoutService)) private shoutoutService) {//private router: Router
     super(analytics);
     this.category = CATEGORY;
 

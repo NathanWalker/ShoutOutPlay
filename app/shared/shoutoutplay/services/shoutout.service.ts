@@ -112,17 +112,21 @@ export class ShoutoutService extends Analytics {
     };
     let deleteFile = () => {
       let filePath = recordingPaths[cnt];
-      console.log(`removing file: ${filePath}`);
-      let nsFile = fs.File.fromPath(filePath);
-      if (nsFile) {
-        nsFile.remove().then(() => {
+      if (fs.File.exists(filePath)) {
+        console.log(`removing file: ${filePath}`);
+        let nsFile = fs.File.fromPath(filePath);
+        if (nsFile) {
+          nsFile.remove().then(() => {
+            advance();
+          }, () => {
+            advance();
+          });
+        } else {
           advance();
-        }, () => {
-          advance();
-        });
+        }  
       } else {
         advance();
-      }  
+      }
     };
     if (recordingPaths.length) {
       deleteFile();

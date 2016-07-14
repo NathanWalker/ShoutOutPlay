@@ -70,6 +70,10 @@ export class PlaylistDetailComponent {
     this.fancyalert.confirm('Are you sure you want to remove this track?', 'warning', () => {
       let playlistId = this._playlist.id;
       let track = this._playlist.tracks[this._currentIndex];
+      if (track.shoutoutId) {
+        // TODO: remove shoutout here via shoutoutService
+        // Or change these to PROCESS_UPDATES for both (playlist/shoutouts)
+      }
       this.store.dispatch({ type: COUCHBASE_ACTIONS.DELETE_TRACK, payload: { track, playlistId } });
       // AnimateService.SWIPE_RESET(this._swipedView);
     });

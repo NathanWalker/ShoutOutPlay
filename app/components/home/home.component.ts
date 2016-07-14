@@ -1,14 +1,10 @@
-import {ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
-// app
-import {BaseComponent, CoreConfigService, LogService} from '../../shared/core/index';
-import {PlayerControlsComponent} from '../player/player-controls.component';
-
-
-
-
-// angular
-import {ChangeDetectorRef, Inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, Inject, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
+
+// app
+import {BaseComponent, CoreConfigService, LogService, ActionBarUtil, DrawerService} from '../../shared/core/index';
+import {AuthService, PlayerService, CouchbaseService, PlaylistService} from '../../shared/shoutoutplay/index';
+import {PlayerControlsComponent} from '../player/player-controls.component';
 
 // nativescript
 import {NS_ROUTER_DIRECTIVES, nsProvideRouter} from 'nativescript-angular/router';
@@ -20,13 +16,6 @@ import {AbsoluteLayout} from 'ui/layouts/absolute-layout';
 
 // libs
 import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
-
-// app
-import {ActionBarUtil, DrawerService} from '../../shared/core/index';
-import {AuthService, PlayerService, CouchbaseService, PlaylistService} from '../../shared/shoutoutplay/index';
-
-
-
 
 @BaseComponent({
   moduleId: module.id,
@@ -60,13 +49,13 @@ export class HomeComponent implements AfterViewInit, OnInit {
     help: false,
     about: false
   };
-  @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
+  // @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
   
-  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private couchbase: CouchbaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private _router: Router, public authService: AuthService, public drawerService: DrawerService) {
+  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private couchbase: CouchbaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
-    this._page.on("loaded", this.onLoaded, this);
+    // this._page.on("loaded", this.onLoaded, this);
   }
 
   public navItem(type: string) {
@@ -87,7 +76,7 @@ export class HomeComponent implements AfterViewInit, OnInit {
     }
     this.activeRoute = Object.assign({}, this.activeRoute);
     if (isChange && type !== '') {
-      this._router.navigate([`/home/${type}`]);  
+      this.router.navigate([`/home/${type}`]);  
     } else {
       this.drawerService.toggle(false);
     }
@@ -103,19 +92,19 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
       this.logger.debug(`HomeComponent ngOnInit`);
-    if (!CoreConfigService.SEEN_INTRO()) {
-      this._router.navigate(['/intro']);
-    } else {
-      // CoreConfigService.SET_SEEN_INTRO(false);
-      // HACK: search view doesn't render when showing to start
-      this._router.navigate(['/welcome']);
-    }  
+    // if (!CoreConfigService.SEEN_INTRO()) {
+    //   this.router.navigate(['/intro']);
+    // } else {
+    //   // CoreConfigService.SET_SEEN_INTRO(false);
+    //   // HACK: search view doesn't render when showing to start
+    //   this.router.navigate(['/welcome']);
+    // }  
   }
 
   ngAfterViewInit() {
     this.logger.debug(`HomeComponent ngAfterViewInit`);
-    this.drawerService.drawer = this.drawerComponent.sideDrawer;
-    this._changeDetectionRef.detectChanges();
+    // this.drawerService.drawer = this.drawerComponent.sideDrawer;
+    // this._changeDetectionRef.detectChanges();
 
 
     // setTimeout(() => {
