@@ -2,6 +2,7 @@ import {OnDestroy, NgZone} from '@angular/core';
 
 // nativescript
 import * as utils from 'utils/utils';
+import {File} from 'file-system';
 import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
 
 // libs
@@ -10,7 +11,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 
 // app
-import {LogService, BaseComponent, FancyAlertService} from '../../shared/core/index';
+import {LogService, BaseComponent, FancyAlertService, TextService} from '../../shared/core/index';
 import {ShoutoutModel, COUCHBASE_ACTIONS, ShoutoutService, CouchbaseService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
@@ -63,22 +64,26 @@ export class ShoutOutListComponent implements OnDestroy {
    
     this.logger.debug(`_shoutOutPlayer.togglePlay`);
     this.logger.debug(this._currentShoutOut.recordingPath);
-    this._shoutOutPlayer.togglePlay(this._currentShoutOut.recordingPath, reload); 
-
-    // adjust state
-    this._currentShoutOut.playing = !this._currentShoutOut.playing;
-    let shoutouts = [...this.shoutouts$.getValue()];
-    for (let s of shoutouts) {
-      if (s.tmpId === this._currentShoutOut.tmpId) {
-        s.playing = this._currentShoutOut.playing;
-        this.logger.debug(`set playing: ${s.playing}`);
-      } else {
-        s.playing = false;
+    if (File.exists(this._currentShoutOut.recordingPath)) {
+      this._shoutOutPlayer.togglePlay(this._currentShoutOut.recordingPath, reload); 
+      // adjust state
+      this._currentShoutOut.playing = !this._currentShoutOut.playing;
+      let shoutouts = [...this.shoutouts$.getValue()];
+      for (let s of shoutouts) {
+        if (s.tmpId === this._currentShoutOut.tmpId) {
+          s.playing = this._currentShoutOut.playing;
+          this.logger.debug(`set playing: ${s.playing}`);
+        } else {
+          s.playing = false;
+        }
       }
+      this.ngZone.run(() => {
+        this.shoutouts$.next([...shoutouts]);
+      });
+    } else {
+      // alert user
+      this.fancyalert.show(TextService.SHOUTOUT_NOT_FOUND);
     }
-    this.ngZone.run(() => {
-      this.shoutouts$.next([...shoutouts]);
-    });
   }
 
   public remove(e: any) {

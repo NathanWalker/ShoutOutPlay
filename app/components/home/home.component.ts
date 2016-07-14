@@ -1,5 +1,13 @@
+import {ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
+// app
+import {BaseComponent, CoreConfigService, LogService} from '../../shared/core/index';
+import {PlayerControlsComponent} from '../player/player-controls.component';
+
+
+
+
 // angular
-import {ChangeDetectionStrategy, ChangeDetectorRef, Inject, ViewChild, AfterViewInit, ElementRef, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Inject, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 
 // nativescript
@@ -10,30 +18,39 @@ import {Page} from "ui/page";
 import {screen} from 'platform';
 import {AbsoluteLayout} from 'ui/layouts/absolute-layout';
 
-/* register elements */
-import {registerElement} from "nativescript-angular/element-registry"
-registerElement("CardView", () => require("nativescript-cardview").CardView);
-registerElement("AudioPlot", () => require("nativescript-ezaudio").AudioPlot);
-registerElement("Slide", () => require("nativescript-slides").Slide);
-registerElement("SlideContainer", () => require("nativescript-slides").SlideContainer);
-registerElement("Gif", () => require("nativescript-gif").Gif);
-
 // libs
 import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 // app
-import {PlayerControlsComponent} from './components/player/player-controls.component';
-import {ActionBarUtil, BaseComponent, LogService, DrawerService} from './shared/core/index';
-import {AuthService, PlayerService, CouchbaseService, PlaylistService} from './shared/shoutoutplay/index';
- 
+import {ActionBarUtil, DrawerService} from '../../shared/core/index';
+import {AuthService, PlayerService, CouchbaseService, PlaylistService} from '../../shared/shoutoutplay/index';
+
+
+
+
 @BaseComponent({
   moduleId: module.id,
-  selector: 'my-app',
-  templateUrl: 'app.component.html',
-  directives: [PlayerControlsComponent],
-  changeDetection: ChangeDetectionStrategy.Default
-}) 
-export class AppComponent implements AfterViewInit {
+  selector: 'home',
+  templateUrl: `home.component.html`,
+  directives: [PlayerControlsComponent]
+})
+export class HomeComponent implements AfterViewInit, OnInit {
+  // @ViewChild('playerControls') playerControls: PlayerControlsComponent;
+  // private _playerControls: any;
+  
+  // constructor(private logger: LogService) { }
+
+  // ngAfterViewInit() {
+  //   this.logger.debug(`HomeComponent ngAfterViewInit`);
+  //   this.logger.debug(this.playerControls);
+  //   // if (this.playerControls) {
+  //   //   this._playerControls = this.playerControls.nativeElement;
+  //   //   this.logger.debug(this._playerControls);
+
+  //   // }
+  // }
+
+
   public activeRoute: any = {
     search: true,
     playlist: false,
@@ -70,7 +87,7 @@ export class AppComponent implements AfterViewInit {
     }
     this.activeRoute = Object.assign({}, this.activeRoute);
     if (isChange && type !== '') {
-      this._router.navigate([`/${type}`]);  
+      this._router.navigate([`/home/${type}`]);  
     } else {
       this.drawerService.toggle(false);
     }
@@ -84,8 +101,19 @@ export class AppComponent implements AfterViewInit {
     this._sideDrawerTransition = new SlideInOnTopTransition();
   }
 
+  ngOnInit() {
+      this.logger.debug(`HomeComponent ngOnInit`);
+    if (!CoreConfigService.SEEN_INTRO()) {
+      this._router.navigate(['/intro']);
+    } else {
+      // CoreConfigService.SET_SEEN_INTRO(false);
+      // HACK: search view doesn't render when showing to start
+      this._router.navigate(['/welcome']);
+    }  
+  }
+
   ngAfterViewInit() {
- 
+    this.logger.debug(`HomeComponent ngAfterViewInit`);
     this.drawerService.drawer = this.drawerComponent.sideDrawer;
     this._changeDetectionRef.detectChanges();
 

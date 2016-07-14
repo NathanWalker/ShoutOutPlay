@@ -1,22 +1,3 @@
-<ActionBar title="ShoutOutPlay"> 
-  <StackLayout orientation="horizontal"
-    horizontalAlignment="center" verticalAlignment="center" padding="5">
-    <Image src="res://logo-160.png" class="action-image"></Image>
-    <!--<Label text="ShoutOutPlay"  class="logo-text"></Label>-->
-  </StackLayout>
-  <ActionItem (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
-  </ActionItem>
-  <!--<ActionItem nsRouterLink="/playlist" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button text="Playlists" class="action-btn"></Button>
-  </ActionItem>-->
-  <ActionItem nsRouterLink="/record" ios.position="right" android.position="popup" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure"></Button>
-  </ActionItem>
-</ActionBar>
-
-<!--<page-router-outlet class="page-bg"></page-router-outlet> -->
-
 <RadSideDrawer #drawer [transition]="sideDrawerTransition" selectionBehavior="None">
     <template drawerSide>
       <GridLayout class="side-drawer" rows="auto, *, auto" columns="*">
@@ -55,9 +36,8 @@
       </GridLayout>
     </template>
     <template drawerMain>
-      <page-router-outlet class="page-bg"></page-router-outlet> 
+      <router-outlet width="100%" height="100%" top="0" left="0" backgroundColor="yellow"></router-outlet>
+      <player-controls #playerControls class="player-controls" top="50" left="0" backgroundColor="purple"></player-controls>
     </template>
 </RadSideDrawer>
-
-
 

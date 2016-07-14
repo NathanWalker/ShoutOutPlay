@@ -18,6 +18,7 @@ import {PlayerStateI, TrackModel} from '../../shared/shoutoutplay/index';
 })
 export class PlayerControlsComponent implements OnInit, AfterViewInit {
   public minimized$: BehaviorSubject<boolean> = new BehaviorSubject(true);
+  // public minimized: boolean = true;
   public playingIcon$: BehaviorSubject<string> = new BehaviorSubject('fa-play-circle');
   public currentTrack: TrackModel = new TrackModel({
     name: 'test',                                                             
@@ -27,9 +28,6 @@ export class PlayerControlsComponent implements OnInit, AfterViewInit {
   }); 
 
   constructor(public store: Store<any>, private logger: LogService) {
-    store.select('player').subscribe((state: PlayerStateI) => {
-      this.playingIcon$.next(state.playing ? 'fa-pause-circle' : 'fa-play-circle');
-    })
   }
 
   public togglePlay() {
@@ -41,7 +39,10 @@ export class PlayerControlsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    
+    this.logger.debug(`PlayerControlsComponent ngOnInit`);
+    this.store.select('player').subscribe((state: PlayerStateI) => {
+      this.playingIcon$.next(state.playing ? 'fa-pause-circle' : 'fa-play-circle');
+    });
   }
 
   ngAfterViewInit() {
