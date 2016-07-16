@@ -20,7 +20,7 @@ import * as _ from 'lodash';
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {LogService, ProgressService, DialogsService, FancyAlertService} from '../../core/index';
-import {PlaylistModel, TrackModel, PLAYER_ACTIONS, COUCHBASE_ACTIONS, ShoutoutService, SHOUTOUT_ACTIONS} from '../index';
+import {PlaylistModel, TrackModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, ShoutoutService, SHOUTOUT_ACTIONS} from '../index';
 
 declare var zonedCallback: Function;
 
@@ -93,7 +93,7 @@ export class PlaylistService extends Analytics {
   public togglePlay(playlistId: string, track?: TrackModel) {
     this.store.take(1).subscribe((s: any) => {
       this.logger.debug('PlaylistService.togglePlay: this.store.take(1).subscribe, should update playlist state');
-      let playlists = [...s.couchbase.playlists];
+      let playlists = [...s.firebase.playlists];
       let currentTrackId = s.player.currentTrackId;
       let playing = !s.player.playing; // new playing state is always assumed the opposite unless the following...
       if (track) {
@@ -189,7 +189,7 @@ export class PlaylistService extends Analytics {
       
         this.ngZone.run(() => {
           this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId, playing } });
-          this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists } });
+          this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists } });
         });
       }  
     });
@@ -229,11 +229,11 @@ export class PlaylistService extends Analytics {
 
   public addTrackTo(playlistId: string) {
     this.store.take(1).subscribe((s: any) => {
-      let playlists = [...s.couchbase.playlists];
+      let playlists = [...s.firebase.playlists];
       for (let item of playlists) {
         if (item.id === playlistId) {
           if (item.addTrack(this.selectedTrack)) {
-            this.store.dispatch({ type: COUCHBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists } } });
+            this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: item });
             this.dialogsService.success('Added!');
             this.selectedTrack.playlistId = playlistId;
             this.promptToRecord(this.selectedTrack);
@@ -252,7 +252,7 @@ export class PlaylistService extends Analytics {
     return new Promise((resolve) => {
       this.fancyalert.prompt(playlist.name, playlist.name, 'Edit', 'edit', (value: any) => {
         playlist.name = value;
-        this.store.dispatch({ type: COUCHBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists: [playlist] } } });
+        this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists: [playlist] } } });
         resolve(playlist);
       });
     });
@@ -276,8 +276,12 @@ export class PlaylistService extends Analytics {
     this.loader.show();
     this.logger.debug(`Creating playlist named '${name}', and adding track: ${track.name}`);
     let newPlaylist = new PlaylistModel({ name });
+
+    // TODO: do NOT addTrack here, instead, only dispatch CREATE then wait to get playlist id back
+    // to properly set playlistId on track
     newPlaylist.addTrack(track);
-    this.store.dispatch({ type: COUCHBASE_ACTIONS.CREATE, payload: newPlaylist });
+    this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE, payload: newPlaylist });
+
     setTimeout(() => {
       this.getRawPlaylists().then((playlists: Array<PlaylistModel>) => {
         for (let p of playlists) {
@@ -297,7 +301,7 @@ export class PlaylistService extends Analytics {
   private getRawPlaylists(): Promise<any> {
     return new Promise((resolve: any) => {
       this.store.take(1).subscribe((s: any) => {
-        resolve([...s.couchbase.playlists]);
+        resolve([...s.firebase.playlists]);
       });
     })
   }
@@ -319,7 +323,7 @@ export class PlaylistEffects {
         let currentTrackId = s.player.currentTrackId;
         if (currentTrackId) {
           this.logger.debug(`PlaylistEffects.LOOP_NEXT`);
-          playlists = [...s.couchbase.playlists];
+          playlists = [...s.firebase.playlists];
           for (let i = 0; i < playlists.length; i++) {
             for (let a = 0; a < playlists[i].tracks.length; a++) {
               if (playlists[i].tracks[a].id === currentTrackId) {

@@ -21,7 +21,7 @@ import * as _ from 'lodash';
 
 // app
 import {BaseComponent, LogService, ProgressService, FancyAlertService} from '../../shared/core/index';
-import {ShoutoutStateI, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, COUCHBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
+import {ShoutoutStateI, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, FIREBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
 import {TrackChooserComponent} from './track-chooser.component';
 
 declare var interop: any, zonedCallback: Function, kCGBlendModeSourceAtop: any, HUGE_VAL: any, kCAFillModeForwards: any, kCAMediaTimingFunctionEaseInEaseOut: any;
@@ -187,16 +187,6 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       this.fancyalert.prompt('Name', '', 'Add your name...', 'edit', (value: any) => {
         this.saveShoutout(value);
       });
-      // dialogs.prompt({
-      //   title: `Please add your name...`,
-      //   okButtonText: 'Ok',
-      //   cancelButtonText: 'Cancel',
-      //   inputType: dialogs.inputType.text
-      // }).then(zonedCallback((r: any) => {
-      //   if (r.result) {
-      //     this.saveShoutout(r.text);
-      //   }
-      // }));
     }, 1200);
   }
 
@@ -214,31 +204,37 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     let newShoutout = new ShoutoutModel({
       author: author,
       trackId: this._chosenTrack.id,
+      playlistId: this._chosenTrack.playlistId,
       recordingPath: this._recordingPath
     });
-    this.store.take(1).subscribe((s: any) => {
-      let playlists = [...s.couchbase.playlists];
-      // update the track inside the correct playlist
-      let updatedPlaylist: PlaylistModel;
-      for (let playlist of playlists) {
-        this.logger.debug('looking for playlist...');
-        if (this._chosenTrack.playlistId === playlist.id) {
-          updatedPlaylist = playlist;
-          this.logger.debug('found playlist');
-          for (let track of updatedPlaylist.tracks) {
-            if (this._chosenTrack.id === track.id) {
-              this.logger.debug('found track');
-              track.shoutoutId = newShoutout.tmpId;
-              break;
-            }
-          }
-        }
-      }
-      this.store.dispatch({ type: COUCHBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists: [updatedPlaylist], shoutouts: [newShoutout] } } });
-      setTimeout(() => {
-        this.location.back();
-      }, 800);
-    });
+    this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE_SHOUTOUT, payload: newShoutout });
+    setTimeout(() => {
+      this.location.back();
+    }, 1000);
+
+    // this.store.take(1).subscribe((s: any) => {
+    //   let playlists = [...s.firebase.playlists];
+    //   // update the track inside the correct playlist
+    //   let updatedPlaylist: PlaylistModel;
+    //   for (let playlist of playlists) {
+    //     this.logger.debug('looking for playlist...');
+    //     if (this._chosenTrack.playlistId === playlist.id) {
+    //       updatedPlaylist = playlist;
+    //       this.logger.debug('found playlist');
+    //       for (let track of updatedPlaylist.tracks) {
+    //         if (this._chosenTrack.id === track.id) {
+    //           this.logger.debug('found track');
+    //           track.shoutoutId = newShoutout.tmpId;
+    //           break;
+    //         }
+    //       }
+    //     }
+    //   }
+    //   this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists: [updatedPlaylist], shoutouts: [newShoutout] } } });
+    //   setTimeout(() => {
+    //     this.location.back();
+    //   }, 800);
+    // });
   }
 
   private togglePlayState(force?: boolean) {

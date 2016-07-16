@@ -3,6 +3,7 @@ import {Injectable, Inject, forwardRef, OnInit, NgZone} from '@angular/core';
 
 // nativescript
 import {EventData} from 'data/observable';
+import * as app from 'application';
 import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
 import {File} from 'file-system';
 
@@ -15,9 +16,9 @@ import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescrip
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {CoreConfigService, LogService, ProgressService, FancyAlertService, TextService} from '../../core/index';
-import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, COUCHBASE_ACTIONS} from '../../shoutoutplay/index';
+import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
-declare var zonedCallback: Function;
+declare var zonedCallback: Function, MPNowPlayingInfoCenter;
 
 // analytics
 const CATEGORY: string = 'Player';
@@ -123,7 +124,7 @@ export class PlayerService extends Analytics {
         this._currentShoutOutPath = undefined;
         // ensure playback is stopped
         this._spotify.togglePlay(null, false); // force stop playback
-        this.store.dispatch({ type: COUCHBASE_ACTIONS.RESET_PLAYLISTS });
+        this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
       }
     });
   }
@@ -167,15 +168,15 @@ export class PlayerService extends Analytics {
     this.setSpotifyVolume(1);
     if (trackId !== this._currentTrackId) {
       this.store.take(1).subscribe((s: any) => {
-        let playlists = [...s.couchbase.playlists];
-        let shoutouts = [...s.couchbase.shoutouts];
+        let playlists = [...s.firebase.playlists];
+        let shoutouts = [...s.firebase.shoutouts];
         // find track and shoutout (if available)
         for (let playlist of playlists) {
           for (let track of playlist.tracks) {
             if (track.id === trackId) {
               if (track.shoutoutId) {
                 for (let shoutout of shoutouts) {
-                  if (shoutout.tmpId === track.shoutoutId) {
+                  if (shoutout.id === track.shoutoutId) {
                     this._currentShoutOutPath = shoutout.recordingPath;
                     if (!File.exists(this._currentShoutOutPath)) {
                       // alert user
@@ -241,7 +242,54 @@ export class PlayerService extends Analytics {
 
   private updateAlbumArt(url: string) {
     this.logger.debug(url);
+    if (app.ios) {
+
+    // //display now playing info on control center
+    // MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = [MPMediaItemPropertyTitle: title, MPMediaItemPropertyArtist: artist]
+    }
   }
+  // NSURL *url = [NSURL URLWithString:urlStr];
+  //   NSData *data = [NSData dataWithContentsOfURL:url];
+
+  //   if (data == nil) {
+  //       NSLog(@"Failed to load data from URL: %@", urlStr);
+
+  //       return;
+  //   }
+
+  //   UIImage *image = [UIImage imageWithData:data];
+//   MPMediaItemArtwork *artwork = [[MPMediaItemArtwork alloc]initWithImage:albumImage];
+
+// NSDictionary *info = @{ MPMediaItemPropertyArtist: artistName,
+//                             MPMediaItemPropertyAlbumTitle: albumName,
+//                             MPMediaItemPropertyTitle: songName };
+
+//     [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = info; 
+ 
+// [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = @{ 
+//     MPMediaItemPropertyTitle : aSong.songTitle,
+//     MPMediaItemPropertyArtist : aSong.artistName,
+//     MPMediaItemPropertyArtwork : artwork,
+//     MPNowPlayingInfoPropertyPlaybackRate : 1.0f
+// };
+  // func remoteControlReceivedWithEvent(receivedEvent:UIEvent)  {
+  //       if (receivedEvent.type == .RemoteControl) {
+  //           switch receivedEvent.subtype {
+  //           case .RemoteControlTogglePlayPause:
+  //               if avQueuePlayer.rate > 0.0 {
+  //                   pause()
+  //               } else {
+  //                   play()
+  //               }
+  //           case .RemoteControlPlay:
+  //               play()
+  //           case .RemoteControlPause:
+  //               pause()
+  //           default:
+  //               println("received sub type \(receivedEvent.subtype) Ignoring")
+  //           }
+  //       }
+  //   }
 
   private updateLogin(loggedIn: boolean) {
     this.store.dispatch({ type: AUTH_ACTIONS.LOGGED_IN_CHANGE, payload: { loggedIn } });

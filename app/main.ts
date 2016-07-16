@@ -30,8 +30,8 @@ import {ANALYTICS_PROVIDERS} from './shared/analytics/index';
 import {
   SHOUTOUTPLAY_PROVIDERS,
   authReducer,
-  couchbaseReducer,
-  CouchbaseEffects,
+  firebaseReducer,
+  FirebaseEffects,
   playerReducer,
   playlistReducer,
   PlaylistEffects,
@@ -62,14 +62,14 @@ nativeScriptBootstrap(AppComponent, [
   },
   provideStore({
     auth: authReducer,
-    couchbase: couchbaseReducer,
+    firebase: firebaseReducer,
     player: playerReducer,
     playlist: playlistReducer,
     search: searchReducer,
     shoutout: shoutoutReducer
   }),
   runEffects(
-    CouchbaseEffects,
+    FirebaseEffects,
     PlaylistEffects
   )
 ], { startPageActionBarHidden: false }); // https://github.com/NativeScript/nativescript-angular/issues/121

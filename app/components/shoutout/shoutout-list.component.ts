@@ -12,7 +12,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {LogService, BaseComponent, FancyAlertService, TextService} from '../../shared/core/index';
-import {ShoutoutModel, COUCHBASE_ACTIONS, ShoutoutService, CouchbaseService} from '../../shared/shoutoutplay/index';
+import {ShoutoutModel, FIREBASE_ACTIONS, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 
@@ -27,7 +27,7 @@ export class ShoutOutListComponent implements OnDestroy {
   private _shoutOutPlayer: any;
   private _currentShoutOut: any;
 
-  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public couchbaseService: CouchbaseService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
     this._shoutOutPlayer = new TNSEZAudioPlayer(true);
     this._shoutOutPlayer.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
       this.logger.debug(`ShoutOutListComponent: audioEvents.on('reachedEnd')`);
@@ -35,13 +35,13 @@ export class ShoutOutListComponent implements OnDestroy {
     }));
 
     this.store.take(1).subscribe((s: any) => {
-      let playlists = [...s.couchbase.playlists];
-      let shoutouts = [...s.couchbase.shoutouts];
+      let playlists = [...s.firebase.playlists];
+      let shoutouts = [...s.firebase.shoutouts];
       for (let s of shoutouts) {
         // find track names
         for (let p of playlists) {
           for (let t of p.tracks) {
-            if (t.shoutoutId === s.tmpId) {
+            if (t.shoutoutId === s.id) {
               s.track = t.name;
               break;
             }
@@ -53,7 +53,7 @@ export class ShoutOutListComponent implements OnDestroy {
   } 
 
   public togglePlay(shoutout: any) {
-    this.toggleShoutOutPlay(shoutout, (this._currentShoutOut ? shoutout.tmpId !== this._currentShoutOut.tmpId : true));
+    this.toggleShoutOutPlay(shoutout, (this._currentShoutOut ? shoutout.id !== this._currentShoutOut.id : true));
   } 
 
   private toggleShoutOutPlay(shoutout?: any, reload?: boolean) {
@@ -70,7 +70,7 @@ export class ShoutOutListComponent implements OnDestroy {
       this._currentShoutOut.playing = !this._currentShoutOut.playing;
       let shoutouts = [...this.shoutouts$.getValue()];
       for (let s of shoutouts) {
-        if (s.tmpId === this._currentShoutOut.tmpId) {
+        if (s.id === this._currentShoutOut.id) {
           s.playing = this._currentShoutOut.playing;
           this.logger.debug(`set playing: ${s.playing}`);
         } else {

@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 
 // app
 import {BaseComponent, CoreConfigService, LogService, ActionBarUtil, DrawerService} from '../../shared/core/index';
-import {AuthService, PlayerService, CouchbaseService, PlaylistService} from '../../shared/shoutoutplay/index';
+import {AuthService, PlayerService, FirebaseService, PlaylistService} from '../../shared/shoutoutplay/index';
 import {PlayerControlsComponent} from '../player/player-controls.component';
 
 // nativescript
@@ -53,7 +53,7 @@ export class HomeComponent implements AfterViewInit, OnInit {
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
   
-  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private couchbase: CouchbaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService) {
+  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
     // this._page.on("loaded", this.onLoaded, this);
   }

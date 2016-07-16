@@ -25,7 +25,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 // app
 import {PlayerControlsComponent} from './components/player/player-controls.component';
 import {ActionBarUtil, BaseComponent, LogService, DrawerService} from './shared/core/index';
-import {AuthService, PlayerService, CouchbaseService, PlaylistService} from './shared/shoutoutplay/index';
+import {AuthService, PlayerService, FirebaseService, PlaylistService} from './shared/shoutoutplay/index';
  
 @BaseComponent({
   moduleId: module.id,
@@ -48,7 +48,7 @@ export class AppComponent implements AfterViewInit {
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
   
-  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private couchbase: CouchbaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService, private ngZone: NgZone) {
+  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService, private ngZone: NgZone) {
     ActionBarUtil.STATUSBAR_STYLE(1);
     this._page.on("loaded", this.onLoaded, this);
   }

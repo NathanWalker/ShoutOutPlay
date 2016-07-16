@@ -7,25 +7,22 @@ export class PlaylistModel {
   public name: string;
   public tracks: Array<TrackModel> = [];
   public playing: boolean = false;
-  public queueDelete: boolean = false;
   public type: string = 'playlist';
   public order: number;
   
   constructor(model?: any) {
     if (model) {
       for (let key in model) {
-        if (key === '_id') {
-          // couchbase id
-          this.id = model[key];
-        } else {
-          this[key] = model[key];  
-          if (key === 'tracks') {
-            for (let t of this[key]) {
-              t = new TrackModel(t);
-              t.playlistId = this.id || model._id;
-            }
+        this[key] = model[key];  
+        if (key === 'tracks') {
+          for (let firebaseTrackId in this.tracks) {   
+            let track = new TrackModel(this.tracks[firebaseTrackId]);
+            track.playlistId = this.id || model.id;
           }
         }
+      }
+      if (!this.order) {
+        this.order = 0;
       }
     }
   }
@@ -39,6 +36,9 @@ export class PlaylistModel {
       return false;
     } else {
       // ensure track state is reset since this gets persisted after adding the track
+      if (this.id) {
+        track.playlistId = this.id;
+      }
       track.playing = false;
       this.tracks.push(track);
       return true;

@@ -12,7 +12,7 @@ import {debounce} from 'lodash';
 
 // app
 import {CoreConfigService, LogService, BaseComponent, DrawerService} from '../../shared/core/index';
-import {COUCHBASE_ACTIONS, PlayerService} from '../../shared/shoutoutplay/index';
+import {FIREBASE_ACTIONS, PlayerService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   moduleId: module.id,

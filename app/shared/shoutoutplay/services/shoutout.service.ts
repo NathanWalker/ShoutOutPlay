@@ -11,7 +11,7 @@ import {Observable} from 'rxjs/Observable';
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {LogService, ProgressService} from '../../core/index';
-import {ShoutoutModel, TrackModel, COUCHBASE_ACTIONS} from '../index';
+import {ShoutoutModel, TrackModel, FIREBASE_ACTIONS} from '../index';
 
 // analytics
 const CATEGORY: string = 'Shoutout';
@@ -71,8 +71,8 @@ export class ShoutoutService extends Analytics {
     return new Promise((resolve) => {
       this.loader.show();
       this.store.take(1).subscribe((state: any) => {
-        let playlists = [...state.couchbase.playlists];  
-        let shoutouts = [...state.couchbase.shoutouts];
+        let playlists = [...state.firebase.playlists];  
+        let shoutouts = [...state.firebase.shoutouts];
         for (let i = 0; i < shoutouts.length; i++) {
           if (shoutouts[i].id === shoutout.id) {
             shoutouts[i].queueDelete = true;
@@ -83,13 +83,13 @@ export class ShoutoutService extends Analytics {
         // update track to clear shoutout
         for (let i = 0; i < playlists.length; i++) {
           for (let track of playlists[i].tracks) {
-            if (track.shoutoutId === shoutout.tmpId) {
+            if (track.shoutoutId === shoutout.id) {
               track.shoutoutId = undefined;
               break;
             }
           }
         }
-        this.store.dispatch({ type: COUCHBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists, shoutouts } } });
+        this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists, shoutouts } } });
         setTimeout(() => {
           resolve();
         }, 1000);

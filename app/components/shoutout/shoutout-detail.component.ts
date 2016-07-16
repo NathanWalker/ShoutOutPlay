@@ -10,7 +10,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {LogService, BaseComponent, ProgressService} from '../../shared/core/index';
-import {ShoutoutModel, COUCHBASE_ACTIONS, ShoutoutService} from '../../shared/shoutoutplay/index';
+import {ShoutoutModel, FIREBASE_ACTIONS, ShoutoutService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   moduleId: module.id,
@@ -24,7 +24,7 @@ export class ShoutOutDetailComponent implements OnDestroy {
   
   constructor(private store: Store<any>, private logger: LogService, private params: ModalDialogParams, private loader: ProgressService, private shoutoutService: ShoutoutService) {
     store.take(1).subscribe((state: any) => {
-      let results = state.couchbase.shoutouts.filter(s => s.tmpId == this.params.context.id);
+      let results = state.firebase.shoutouts.filter(s => s.id == this.params.context.id);
       if (results.length) {
         this.shoutout = results[0];
       }

@@ -10,7 +10,7 @@ import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {ProgressService, LogService} from '../../core/index';
-import {PlayerStateI, PLAYER_ACTIONS, TrackModel, COUCHBASE_ACTIONS} from '../../shoutoutplay/index';
+import {PlayerStateI, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
 // analytics
 const CATEGORY: string = 'Search';
@@ -76,7 +76,7 @@ export class SearchService extends Analytics {
   public togglePreview(track: TrackModel) {
     this.logger.debug(`togglePreview -- track is currently playing: ${track.playing}`);
     this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { previewTrackId: track.id, playing: !track.playing } });
-    this.store.dispatch({ type: COUCHBASE_ACTIONS.RESET_PLAYLISTS });
+    this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
   }
 
   public stopAll() {

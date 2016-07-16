@@ -4,7 +4,7 @@ import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
 
 // app
 import {LogService, BaseComponent} from '../../shared/core/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, COUCHBASE_ACTIONS, CouchbaseService} from '../../shared/shoutoutplay/index';
+import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, FirebaseService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   moduleId: module.id,
@@ -13,7 +13,7 @@ import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, COUCHBAS
 })
 export class PlaylistChooserComponent {
   
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private couchbaseService: CouchbaseService, private params: ModalDialogParams) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private params: ModalDialogParams) {
   } 
 
   public close() {
@@ -22,7 +22,7 @@ export class PlaylistChooserComponent {
 
   public choose(e: any) {
     this.store.take(1).subscribe((s: any) => {
-      this.playlistService.addTrackTo(s.couchbase.playlists[e.index].id);
+      this.playlistService.addTrackTo(s.firebase.playlists[e.index].id);
       this.close();
     });
   }
