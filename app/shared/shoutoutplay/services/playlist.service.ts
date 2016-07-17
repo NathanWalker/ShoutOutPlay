@@ -15,7 +15,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
 import {TNSTrack, Utils} from 'nativescript-spotify';
-import * as _ from 'lodash';
+import {isString, includes} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
@@ -239,7 +239,6 @@ export class PlaylistService extends Analytics {
             this.promptToRecord(this.selectedTrack);
             break;
           } else {
-            // dialogs.alert(`Track was already added to that playlist.`);
             this.fancyalert.show(`Track was already added to that playlist.`);
             break;
           }
@@ -252,10 +251,23 @@ export class PlaylistService extends Analytics {
     return new Promise((resolve) => {
       this.fancyalert.prompt(playlist.name, playlist.name, 'Edit', 'edit', (value: any) => {
         playlist.name = value;
-        this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists: [playlist] } } });
+        this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: playlist });
         resolve(playlist);
       });
     });
+  }
+
+  public clearTrackShoutouts(playlist: PlaylistModel) {
+    if (playlist.tracks.length) {
+      let shoutoutIds = playlist.tracks.filter(track => isString(track.shoutoutId)).map(t => t.shoutoutId);
+      if (shoutoutIds.length) {
+        this.store.take(1).subscribe((s: any) => {
+          let recordingPaths = s.firebase.shoutouts.filter(s => includes(shoutoutIds, s.id)).map(s => s.recordingPath);
+          this.shoutoutService.removeRecordings(recordingPaths);
+          this.logger.debug(`Cleared all local shoutout recording files attached to tracks from deleted playlist. TODO: remove all shoutouts from db and remove their remotely stored files.`);
+        });
+      }
+    }
   }
 
   private promptToRecord(track: TrackModel) {
@@ -275,15 +287,15 @@ export class PlaylistService extends Analytics {
   private create(name: string, track: TrackModel) {
     this.loader.show();
     this.logger.debug(`Creating playlist named '${name}', and adding track: ${track.name}`);
-    let newPlaylist = new PlaylistModel({ name });
+    this.getRawPlaylists().then((playlists: Array<PlaylistModel>) => {
+      let newPlaylist = new PlaylistModel({ name });
+      newPlaylist.order = playlists.length;
+      // TODO: do NOT addTrack here, instead, only dispatch CREATE then wait to get playlist id back
+      // to properly set playlistId on track
+      newPlaylist.addTrack(track);
+      this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE, payload: newPlaylist });
 
-    // TODO: do NOT addTrack here, instead, only dispatch CREATE then wait to get playlist id back
-    // to properly set playlistId on track
-    newPlaylist.addTrack(track);
-    this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE, payload: newPlaylist });
-
-    setTimeout(() => {
-      this.getRawPlaylists().then((playlists: Array<PlaylistModel>) => {
+      setTimeout(() => {       
         for (let p of playlists) {
           for (let t of p.tracks) {
             if (t.id === track.id) {
@@ -292,10 +304,9 @@ export class PlaylistService extends Analytics {
             }
           }
         }
-        this.promptToRecord(track);
-      });
-    }, 1500);
-    
+        this.promptToRecord(track);      
+      }, 1500);
+    });
   }
 
   private getRawPlaylists(): Promise<any> {
@@ -311,9 +322,17 @@ export class PlaylistService extends Analytics {
 export class PlaylistEffects {
   constructor(private store: Store<any>, private logger: LogService, private updates$: StateUpdates<any>, private playlistService: PlaylistService) { }
   
+  @Effect() deletedPlayist$ = this.updates$
+    .whenAction(FIREBASE_ACTIONS.PLAYLIST_DELETED)
+    .do((update) => {
+      this.logger.debug(`PlaylistEffects.PLAYLIST_DELETED`);
+      this.playlistService.clearTrackShoutouts(update.action.payload);
+    })
+    .filter(() => false);
+  
   @Effect() loopNext$ = this.updates$
     .whenAction(PLAYLIST_ACTIONS.LOOP_NEXT)
-    .map((update) => {
+    .do((update) => {
       let playlists = [];
       let playlistIndex = -1;
       let trackIndex = -1;
@@ -356,6 +375,6 @@ export class PlaylistEffects {
       // else {
       //   return ({ type: PLAYLIST_ACTIONS.NOOP });
       // }
-      return ({ type: PLAYLIST_ACTIONS.NOOP });
-    });
+    })
+    .filter(() => false);
 }

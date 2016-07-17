@@ -12,12 +12,16 @@ export class PlaylistModel {
   
   constructor(model?: any) {
     if (model) {
+      if (model.id) 
+        this.id = model.id;
       for (let key in model) {
-        this[key] = model[key];  
-        if (key === 'tracks') {
-          for (let firebaseTrackId in this.tracks) {   
-            let track = new TrackModel(this.tracks[firebaseTrackId]);
-            track.playlistId = this.id || model.id;
+        if (key !== 'id') {
+          this[key] = model[key];  
+          if (key === 'tracks') {
+            for (let firebaseTrackId in this.tracks) {   
+              let track = new TrackModel(this.tracks[firebaseTrackId]);
+              track.playlistId = this.id || model.id;
+            }
           }
         }
       }
@@ -39,6 +43,7 @@ export class PlaylistModel {
       if (this.id) {
         track.playlistId = this.id;
       }
+      track.order = this.tracks.length;
       track.playing = false;
       this.tracks.push(track);
       return true;

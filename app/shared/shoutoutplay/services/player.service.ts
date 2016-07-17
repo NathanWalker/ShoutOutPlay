@@ -243,9 +243,39 @@ export class PlayerService extends Analytics {
   private updateAlbumArt(url: string) {
     this.logger.debug(url);
     if (app.ios) {
+      let metadata: any = this._spotify.currentTrackMetadata();
 
-    // //display now playing info on control center
-    // MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = [MPMediaItemPropertyTitle: title, MPMediaItemPropertyArtist: artist]
+      let nsUrl = NSURL.URLWithString(url);
+      let data = NSData.dataWithContentsOfURL(nsUrl);
+
+      if (!data) {
+        this.logger.debug(`Failed to load data from URL: ${url}`);
+        return;
+      }
+
+      let image = UIImage.imageWithData(data);
+    	let artwork = MPMediaItemArtwork.alloc().initWithImage(image);
+
+      // display now playing info on control center
+      // let nowPlayingInfo = NSDictionary.dictionaryWithDictionary({
+      //   MPMediaItemPropertyTitle: metadata.trackName,
+      //   MPMediaItemPropertyArtist: metadata.artistName,
+      //   MPNowPlayingInfoPropertyPlaybackRate: 1
+      //   // MPMediaItemPropertyArtwork: 2,
+      // });
+      var nowPlayingInfo = new NSMutableDictionary([
+        metadata.trackName,
+        metadata.artistName,
+        artwork,
+        NSNumber.numberWithFloat(1.0)
+      ],
+      [
+        "MPMediaItemPropertyTitle",
+        "MPMediaItemPropertyArtist",
+        "MPMediaItemPropertyArtwork",
+        "MPNowPlayingInfoPropertyPlaybackRate"
+      ]);  
+      MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = nowPlayingInfo;
     }
   }
   // NSURL *url = [NSURL URLWithString:urlStr];

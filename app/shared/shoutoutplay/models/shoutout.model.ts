@@ -9,12 +9,11 @@ export class ShoutoutModel {
   
   constructor(model?: any) {
     if (model) {
+      if (model.id) 
+        this.id = model.id;
       for (let key in model) {
-        if (key === '_id') {
-          // firebase id
-          this.id = model[key];
-        } else {
-          this[key] = model[key];  
+        if (key !== 'id') {
+          this[key] = model[key];
         }
       }
     }

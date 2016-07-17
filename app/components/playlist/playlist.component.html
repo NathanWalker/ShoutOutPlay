@@ -11,7 +11,7 @@
   </StackLayout>
 
   <RadListView id="listview" [items]="(firebaseService.state$ | async)?.playlists" (itemTap)="viewDetail($event)" row="1" colSpan="2" class="full-page"
-  itemSwipe="true" itemReorder="false"
+  itemSwipe="true" itemReorder="true"
   (itemReordered)="onItemReordered($event)"
   (itemSwipeProgressStarted)="onSwipeCellStarted($event)"
   (itemSwipeProgressEnded)="onSwipeCellFinished($event)" 

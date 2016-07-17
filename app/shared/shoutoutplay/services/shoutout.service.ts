@@ -70,30 +70,11 @@ export class ShoutoutService extends Analytics {
   public removeShoutout(shoutout: ShoutoutModel): Promise<any> {
     return new Promise((resolve) => {
       this.loader.show();
-      this.store.take(1).subscribe((state: any) => {
-        let playlists = [...state.firebase.playlists];  
-        let shoutouts = [...state.firebase.shoutouts];
-        for (let i = 0; i < shoutouts.length; i++) {
-          if (shoutouts[i].id === shoutout.id) {
-            shoutouts[i].queueDelete = true;
-            this.removeRecordings([shoutout.recordingPath]);
-            break;
-          }
-        }
-        // update track to clear shoutout
-        for (let i = 0; i < playlists.length; i++) {
-          for (let track of playlists[i].tracks) {
-            if (track.shoutoutId === shoutout.id) {
-              track.shoutoutId = undefined;
-              break;
-            }
-          }
-        }
-        this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists, shoutouts } } });
-        setTimeout(() => {
-          resolve();
-        }, 1000);
-      });
+      this.removeRecordings([shoutout.recordingPath]);
+      this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE, payload: shoutout });
+      setTimeout(() => {
+        resolve();
+      }, 1000);
     });
   }
 

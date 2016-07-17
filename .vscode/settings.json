@@ -7,5 +7,10 @@
     "**/*.js": true,
     "webpack.config.js": false,
     "**/*.css": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.js": true
   }
 }

@@ -10,12 +10,13 @@ import {GestureStateTypes} from 'ui/gestures';
 
 // libs
 import {Store} from '@ngrx/store';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/take';
 import {isString, includes} from 'lodash';
 
 // app
 import {AnimateService, LogService, BaseComponent, ProgressService, FancyAlertService, DrawerService} from '../../shared/core/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYLIST_ACTIONS, PlayerStateI, FirebaseService, FIREBASE_ACTIONS, FirebaseStateI, ShoutoutService, SearchService, EmptyComponent} from '../../shared/shoutoutplay/index';
+import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYLIST_ACTIONS, PlayerStateI, FirebaseService, FIREBASE_ACTIONS, FirebaseStateI, AuthStateI, ShoutoutService, SearchService, EmptyComponent} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 
@@ -32,11 +33,11 @@ export class PlaylistComponent {
     // always stop all tracks playing from search results
     searchService.stopAll();
     
-    // store.select('firebase').subscribe((state: FirebaseStateI) => {
-    //   if (state.selectedPlaylistId && state.selecting) {
-        
-    //   }
-    // });
+    store.select('auth').subscribe((state: AuthStateI) => {
+      if (!state.loggedIn) {
+        this.router.navigate(['/']);
+      }
+    });
   }
 
   public viewDetail(e: any) {
@@ -55,18 +56,9 @@ export class PlaylistComponent {
   }
 
   public remove(e: any) {
-    this.fancyalert.confirm('Are you sure you want to delete this playlist?', 'warning', () => {
+    this.fancyalert.confirm('Are you sure you want to delete this playlist? All ShoutOuts attached to any tracks in this playlist will also be deleted.', 'warning', () => {
       this.store.take(1).subscribe((s: any) => {
         let playlist = s.firebase.playlists[this._currentIndex];
-        if (playlist.tracks.length) {
-          let shoutoutIds = playlist.tracks.filter(track => isString(track.shoutoutId)).map(t => t.shoutoutId);
-          if (shoutoutIds.length) {
-            this.store.take(1).subscribe((s: any) => {
-              let recordingPaths = s.firebase.shoutouts.filter(s => includes(shoutoutIds, s.id)).map(s => s.recordingPath);
-              this.shoutoutService.removeRecordings(recordingPaths);
-            });
-          }
-        }
         this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE, payload: playlist });
       });
     });
@@ -77,7 +69,10 @@ export class PlaylistComponent {
       this.loader.show();
       this.logger.debug(`Creating playlist named '${value}'`);
       let newPlaylist = new PlaylistModel({ name: value });
-      this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE, payload: newPlaylist });
+      this.store.take(1).subscribe((s: any) => {
+        newPlaylist.order = s.firebase.playlists.length;
+        this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE, payload: newPlaylist });
+      });
     });
   } 
 
@@ -106,5 +101,6 @@ export class PlaylistComponent {
 
   public onItemReordered(args: any) {
     this.logger.debug("Item reordered. Old index: " + args.itemIndex + " " + "new index: " + args.data.targetIndex);
+    this.store.dispatch({ type: FIREBASE_ACTIONS.REORDER, payload: { type: 'playlist', itemIndex: args.itemIndex, targetIndex: args.data.targetIndex } });
   }
 }

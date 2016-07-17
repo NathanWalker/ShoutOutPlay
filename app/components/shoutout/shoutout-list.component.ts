@@ -12,7 +12,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {LogService, BaseComponent, FancyAlertService, TextService} from '../../shared/core/index';
-import {ShoutoutModel, FIREBASE_ACTIONS, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
+import {ShoutoutModel, FIREBASE_ACTIONS, FirebaseStateI, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 
@@ -34,15 +34,15 @@ export class ShoutOutListComponent implements OnDestroy {
       this.toggleShoutOutPlay(false, false);
     }));
 
-    this.store.take(1).subscribe((s: any) => {
-      let playlists = [...s.firebase.playlists];
-      let shoutouts = [...s.firebase.shoutouts];
-      for (let s of shoutouts) {
+    this.store.select('firebase').subscribe((s: any) => {
+      let playlists = [...s.playlists];
+      let shoutouts = [...s.shoutouts];
+      for (let shoutout of shoutouts) {
         // find track names
         for (let p of playlists) {
           for (let t of p.tracks) {
             if (t.shoutoutId === s.id) {
-              s.track = t.name;
+              shoutout.track = t.name;
               break;
             }
           }
@@ -89,10 +89,7 @@ export class ShoutOutListComponent implements OnDestroy {
   public remove(e: any) {
     this.fancyalert.confirm('Are you sure you want to delete this ShoutOut?', 'warning', () => {
       let shoutouts = [...this.shoutouts$.getValue()];
-      this.shoutoutService.removeShoutout(shoutouts[this._currentIndex]).then(() => {
-        shoutouts.splice(this._currentIndex, 1);
-        this.shoutouts$.next(shoutouts);
-      });
+      this.shoutoutService.removeShoutout(shoutouts[this._currentIndex]);
     });
   }
 
