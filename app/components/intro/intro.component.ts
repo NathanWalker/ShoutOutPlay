@@ -3,7 +3,7 @@ import {Location} from '@angular/common';
 
 import {device, screen} from 'platform';
 
-import {BaseComponent, CoreConfigService, LogService} from '../../shared/core/index';
+import {BaseComponent, Config, LogService} from '../../shared/core/index';
 
 @BaseComponent({
     moduleId: module.id,
@@ -64,7 +64,7 @@ export class IntroComponent implements OnInit, AfterViewInit {
     }
 
     public close() {
-        CoreConfigService.SET_SEEN_INTRO(true);
+        Config.SET_SEEN_INTRO(true);
         this.location.back();
     }
 

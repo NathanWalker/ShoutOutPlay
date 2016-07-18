@@ -4,9 +4,9 @@ import {Injectable, NgZone} from '@angular/core';
 // nativescript
 import * as app from 'application';
 import * as platform from 'platform';
+import {knownFolders} from 'file-system';
 import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
 import firebase = require("nativescript-plugin-firebase");
-var iosUUID = require("nativescript-ios-uuid");
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
@@ -15,8 +15,8 @@ import {Observable} from 'rxjs/Observable';
 import {isString, isObject, keys, orderBy} from 'lodash';
 
 // app
-import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, AuthStateI} from '../index';
-import {LogService, DialogsService, FancyAlertService} from '../../core/index';
+import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, AuthStateI, SHOUTOUT_ACTIONS} from '../index';
+import {Config, LogService, DialogsService, FancyAlertService} from '../../core/index';
 
 // analytics
 const CATEGORY: string = 'Firebase';
@@ -129,7 +129,6 @@ export class FirebaseService {
   public state$: Observable<FirebaseStateI>;
   private _initialized: boolean = false;
   private _firebaseUser: IFirebaseUser; // logged in firebase user
-  private _firebaseUserKey: any; // key that firebase uses to identify this user
   private _userProduct: any; // cache spotify product to store with firebase user
   private _passSuffix: string = 'A814~'; // make passwords strong
   private _ignoreUpdate: boolean = false;
@@ -201,6 +200,38 @@ export class FirebaseService {
     });
   }
 
+  public downloadFile(filename: string): Promise<any> {
+    let remotePath = `${Config.USER_KEY}/${filename}`;
+    this.logger.debug(`downloading remote file: ${remotePath}`);
+    let documents = knownFolders.documents();
+    let localPath = documents.path + '/' + filename;
+    this.logger.debug(`to: ${localPath}`);
+    return firebase.downloadFile({
+      remoteFullPath: remotePath,
+      localFullPath: localPath
+    });
+  }
+
+  public uploadFile(localPath: string): Promise<any> {
+    let parts = localPath.split('/');
+    let filename = parts[parts.length - 1];
+    this.logger.debug(`uploading file: ${filename}`);
+    let remotePath = `${Config.USER_KEY}/${filename}`;
+    this.logger.debug(`to: ${remotePath}`);
+    return firebase.uploadFile({
+      remoteFullPath: remotePath,
+      localFullPath: localPath
+    });
+  }
+
+  public deleteFile(filename: string): Promise<any> {
+    let remotePath = `${Config.USER_KEY}/${filename}`;
+    this.logger.debug(`deleting remote file: ${remotePath}`);
+    return firebase.deleteFile({
+      remoteFullPath: remotePath
+    });
+  }
+
   /**
    * Following auth methods are based on users Spotify login account
    **/
@@ -266,10 +297,10 @@ export class FirebaseService {
   }
 
   private addNewPlaylist(playlist: PlaylistModel) {
-    if (this._firebaseUserKey) {
+    if (Config.USER_KEY) {
       this.stripFunctions(playlist);
       firebase.push(
-        `/users/${this._firebaseUserKey}/playlists`,
+        `/users/${Config.USER_KEY}/playlists`,
         playlist
       ).then((result: any) => {
         this.logger.debug(`New Playlist created: ${result.key}`);
@@ -278,14 +309,15 @@ export class FirebaseService {
   }
 
   private addNewShoutout(shoutout: ShoutoutModel) {
-    if (this._firebaseUserKey) {
+    if (Config.USER_KEY) {
       this._ignoreUpdate = true;
       this.stripFunctions(shoutout);
       firebase.push(
-        `/users/${this._firebaseUserKey}/shoutouts`,
+        `/users/${Config.USER_KEY}/shoutouts`,
         shoutout
       ).then((result: any) => {
         this.logger.debug(`New Shoutout created: ${result.key}`);
+        this.uploadFile(shoutout.recordingPath);
 
         this.store.take(1).subscribe((s: any) => {
           let playlists = [...s.firebase.playlists];
@@ -314,17 +346,17 @@ export class FirebaseService {
   }
 
   private updatePlaylist(playlist: PlaylistModel) {
-    if (this._firebaseUserKey) {
+    if (Config.USER_KEY) {
       this._ignoreUpdate = false;
       this.logger.debug(`About to update playlist...`);
-      for (let key in playlist) {
-        this.logger.debug(`${key}: ${playlist[key]}`);
-      }
+      // for (let key in playlist) {
+      //   this.logger.debug(`${key}: ${playlist[key]}`);
+      // }
       let id = playlist.id;
       delete playlist.id; // don't store id since firebase uses it as key
       this.logger.debug(`Updating playlist with id: ${id}`);
       firebase.update(
-        `/users/${this._firebaseUserKey}/playlists/${id}`,
+        `/users/${Config.USER_KEY}/playlists/${id}`,
         playlist
       ).then((result: any) => {
         this.logger.debug(`Playlist updated.`);
@@ -333,7 +365,7 @@ export class FirebaseService {
   }
 
   private updatePlaylists(playlists: Array<PlaylistModel>) {
-    if (this._firebaseUserKey) {
+    if (Config.USER_KEY) {
       this._ignoreUpdate = false;
       let playlistsObject = {};
       for (let p of playlists) {
@@ -343,7 +375,7 @@ export class FirebaseService {
       }   
       this.logger.debug(`Updating all playlists: ${playlists.map(p => p.id).join(',')}`);
       firebase.update(
-        `/users/${this._firebaseUserKey}/playlists`,
+        `/users/${Config.USER_KEY}/playlists`,
         playlistsObject
       ).then((result: any) => {
         this.logger.debug(`All playlists updated.`);
@@ -355,7 +387,7 @@ export class FirebaseService {
     // this._ignoreUpdate = false;
     this.logger.debug(`Deleting playlist with id: ${playlist.id}`);
     firebase.remove(
-      `/users/${this._firebaseUserKey}/playlists/${playlist.id}`
+      `/users/${Config.USER_KEY}/playlists/${playlist.id}`
     ).then((result: any) => {
       this.logger.debug(`Playlist deleted.`);
       this.store.dispatch({ type: FIREBASE_ACTIONS.PLAYLIST_DELETED, payload: playlist });
@@ -368,7 +400,7 @@ export class FirebaseService {
   private deleteShoutout(shoutout: ShoutoutModel) {
     this._ignoreUpdate = true;
     firebase.remove(
-      `/users/${this._firebaseUserKey}/shoutouts/${shoutout.id}`
+      `/users/${Config.USER_KEY}/shoutouts/${shoutout.id}`
     ).then((result: any) => {
       this.logger.debug(`Shoutout deleted.`);
       this.ngZone.run(() => {
@@ -380,7 +412,7 @@ export class FirebaseService {
   private deleteRemoteFile(filePath: string) {
     let parts = filePath.split('/');
     let filename = parts[parts.length - 1];
-    this.logger.debug(`TODO: delete remote file from firebase storage: ${this._firebaseUserKey}/${filename}`);
+    this.store.dispatch({ type: SHOUTOUT_ACTIONS.REMOVE_REMOTE, payload: filename });
   }
 
   private reorderPlaylists(data: any) {
@@ -481,30 +513,6 @@ export class FirebaseService {
     }, (error) => {
       this.logger.debug("firebase.init error: " + error);
     });
-
-    
-
-    // // restore state from couchbase    
-    // let playlists = [];
-    // let shoutouts = [];
-
-    // let rows = this.database.executeQuery('playlists');
-    // for (let row of rows) {
-    //   let playlist = new PlaylistModel(row);
-    //   playlist.playing = false;
-    //   // ensuring state is reset
-    //   for (let track of playlist.tracks) {
-    //     track.playing = false;
-    //   }
-    //   playlists.push(playlist);
-    // }
-
-    // rows = this.database.executeQuery('shoutouts');
-    // for (let row of rows) {
-    //   shoutouts.push(new ShoutoutModel(row));
-    // }
-
-    // this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
   }
 
   private listenToUser(uid: string, singleEvent: boolean = true) {
@@ -550,15 +558,16 @@ export class FirebaseService {
     if (!this._ignoreUpdate) {
       this.logger.debug(`userSync ----------------------------`);
       if (result) {
-        for (let key in result) {
-          this.logger.debug(`${key}: ${result[key]}`);
-        }
-        if (result.key && !this._firebaseUserKey) {
+        // for (let key in result) {
+        //   this.logger.debug(`${key}: ${result[key]}`);
+        // }
+        if (result.key && !Config.USER_KEY) {
           this.logger.debug(`ATTN: setting firebase user key ----------------- ${result.key}`);
-          this._firebaseUserKey = result.key;
+          // for static access across other services
+          Config.USER_KEY = result.key;
         }
         if (result.value) {
-          this.logger.debug(`----- VALUE ------`);
+          // this.logger.debug(`----- VALUE ------`);
           for (let key in result.value) {
             this.logger.debug(`${key}: ${result.value[key]}`);
           }
@@ -604,7 +613,7 @@ export class FirebaseService {
           }
         } else {
           this._initialized = true;
-          this.fetchShoutOutFiles(shoutouts);
+          this.store.dispatch({ type: SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS, payload: shoutouts });
         }
 
         this.ngZone.run(() => {
@@ -644,163 +653,19 @@ export class FirebaseService {
     }
   }
 
-  private fetchShoutOutFiles(shoutouts: Array<ShoutoutModel>) {
-    this.logger.debug(`TODO: fetch all shoutout files, make sure they are pulled from firebase user account to app documents folder`);
-    for (let shoutout of shoutouts) {
-      this.logger.debug(shoutout.recordingPath);
-    }
-  }
-
   private resetInitializers() {
     this._firebaseUser = undefined;
-    this._firebaseUserKey = undefined;
+    Config.USER_KEY = undefined;
     this._initialized = false;
     this._ignoreUpdate = false;
     // reset state
-    this.ngZone.run(() => {
-      this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists:[], shoutouts:[] } });
-    });
+    // don't really need to do this since it's reset when user logs back in
+    // also it causes an error if non-premium user tries to play a track in a playlist
+    // since it clears all playlists and messes up view binding
+    // this.ngZone.run(() => {
+    //   this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists:[], shoutouts:[] } });
+    // });
   }
-
-  // private finalizeChanges(startingCnt: any, playlists: Array<PlaylistModel>, shoutouts: Array<ShoutoutModel>) {
-  //   this.logger.debug(`finalizing final changes...`);
-  //   // flush state queue first
-  //   for (let document of this._queuedDocumentChanges) {
-  //     if (_.isObject(document) && document.type) {
-  //       this.logger.debug('create/update');
-  //       // update or insert document
-  //       this.changeHandler(document, playlists, shoutouts);
-  //     } else if (_.isString(document)) {
-  //       // deleted document
-  //       this.logger.debug('delete');
-  //       this.deleteHandler(document, playlists, shoutouts);
-  //     }
-  //   }
-
-  //   this._queuedDocumentChanges = undefined;    
-  //   this._changeTimer = undefined;
-  //   let msg;        
-  //   if (playlists.length < startingCnt.playlists || shoutouts.length < startingCnt.shoutouts) {
-  //     msg = 'Deleted';
-  //   } else if (playlists.length > startingCnt.playlists || shoutouts.length > startingCnt.shoutouts) {
-  //     msg =  'Saved';
-  //   }
-  //   if (msg) {
-  //     this.dialogs.success(msg);
-  //   }
-
-  //   this.ngZone.run(() => {
-  //     this.logger.debug(`ngZone running Couchbase Updates...`);
-  //     this.logger.debug(`playlists.length: ${playlists.length}`);
-  //     this.logger.debug(`shoutouts.length: ${shoutouts.length}`);
-  //     this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
-  //   });
-  // }
-
-  // private changeHandler(document: any, playlists: Array<PlaylistModel>, shoutouts: Array<ShoutoutModel>) {
-  //   this.logger.debug(`changeHandler`);
-  //   this.logger.debug(document.type);
-  //   switch (document.type) {
-  //     case 'playlist':
-  //       var index = (<any>playlists).findIndex(playlist => playlist.id === document._id);
-  //       this.logger.debug(index);
-  //       if (index > -1) {
-  //         // update
-  //         playlists[index] = new PlaylistModel(document);
-  //       } else {
-  //         this.logger.debug('insert new playlist');
-  //         playlists.push(new PlaylistModel(document));
-  //       }
-  //       break;
-  //     case 'shoutout':
-  //       var index = (<any>shoutouts).findIndex(shoutout => shoutout.id === document._id);
-  //       if (index > -1) {
-  //         // update
-  //         shoutouts[index] = new ShoutoutModel(document);
-  //       } else {
-  //         shoutouts.push(new ShoutoutModel(document));
-  //       }
-  //       break;
-  //   }
-  // }
-
-  // private deleteHandler(documentId: any, playlists: Array<PlaylistModel>, shoutouts: Array<ShoutoutModel>) {
-  //   let index = -1;
-  //   for (let i = 0; i < playlists.length; i++) {
-  //     if (documentId === playlists[i].id) {
-  //       index = i;
-  //       break;
-  //     }
-  //   }
-  //   if (index > -1) {
-  //     this.logger.debug(`deleteHandler playlist index:`);
-  //     this.logger.debug(index);
-  //     playlists.splice(index, 1);
-  //   } else {
-  //     for (let i = 0; i < shoutouts.length; i++) {
-  //       if (documentId === shoutouts[i].id) {
-  //         index = i;
-  //         break;
-  //       }
-  //     }
-  //     if (index > -1) {
-  //       this.logger.debug(`deleteHandler shoutout index:`);
-  //       this.logger.debug(index);
-  //       shoutouts.splice(index, 1);
-  //     }
-  //   }
-  // }
-
-  // public addDocument(model: PlaylistModel | ShoutoutModel) {
-  //   this.logger.debug(`addDocument`);
-  //   this.logger.debug(model.type);
-  //   this.stripFunctions(model);
-  //   this.database.createDocument(model);
-  // }
-
-  // public updateDocument(model: PlaylistModel | ShoutoutModel) {
-  //   this.logger.debug(`updateDocument`);
-  //   this.logger.debug(model.type);
-  //   this.logger.debug(model.id);
-  //   this.stripFunctions(model);
-  //   this.database.updateDocument(model.id, model);
-  // }
-
-  // public deleteDocument(model: PlaylistModel | ShoutoutModel) {
-  //   this.logger.debug(`deleteDocument`);
-  //   this.logger.debug(model.type);
-  //   this.database.deleteDocument(model.id);
-  // }
-
-  // public processUpdates(changes: CouchbaseChangesI) {
-  //   this.logger.debug(`Couchbase.service processUpdates`);
-  //   for (let key in changes) {
-  //     this.logger.debug(`changes: ${key}`);
-  //   }
-  //   if (changes.playlists) {
-  //     for (let playlist of changes.playlists) {
-  //       this.logger.debug(`playlistId: ${playlist.id}`);
-  //       if (playlist.queueDelete) {
-  //         this.deleteDocument(playlist);
-  //       } else if (playlist.id) {
-  //         this.updateDocument(playlist);
-  //       } else {
-  //         this.addDocument(playlist);
-  //       }
-  //     }
-  //   }
-  //   if (changes.shoutouts) {
-  //     for (let shoutout of changes.shoutouts) {
-  //       if (shoutout.queueDelete) {
-  //         this.deleteDocument(shoutout);
-  //       } else if (shoutout.id) {
-  //         this.updateDocument(shoutout);
-  //       } else {
-  //         this.addDocument(shoutout);
-  //       }
-  //     }
-  //   }
-  // }
 
   private stripFunctions(model: any) {
     for (let key in model) {

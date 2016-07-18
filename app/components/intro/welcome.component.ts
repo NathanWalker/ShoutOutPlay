@@ -4,7 +4,7 @@ import {Location} from '@angular/common';
 
 import {device, screen} from 'platform';
 
-import {BaseComponent, CoreConfigService, LogService} from '../../shared/core/index';
+import {BaseComponent, Config, LogService} from '../../shared/core/index';
 
 @BaseComponent({
   moduleId: module.id,

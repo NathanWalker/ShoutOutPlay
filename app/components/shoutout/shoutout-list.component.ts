@@ -41,7 +41,7 @@ export class ShoutOutListComponent implements OnDestroy {
         // find track names
         for (let p of playlists) {
           for (let t of p.tracks) {
-            if (t.shoutoutId === s.id) {
+            if (t.shoutoutId === shoutout.id) {
               shoutout.track = t.name;
               break;
             }

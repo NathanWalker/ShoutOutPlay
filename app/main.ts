@@ -10,8 +10,8 @@ import * as app from 'application';
 import {provide} from '@angular/core';
 
 // config
-import {CoreConfigService} from './shared/core/index';
-CoreConfigService.DEBUG.LEVEL_4 = true;
+import {Config} from './shared/core/index';
+Config.DEBUG.LEVEL_4 = true;
 
 // libs
 import {provideStore} from '@ngrx/store';
@@ -36,7 +36,8 @@ import {
   playlistReducer,
   PlaylistEffects,
   searchReducer,
-  shoutoutReducer
+  shoutoutReducer,
+  ShoutoutEffects
 } from './shared/shoutoutplay/index';
 import {AppComponent} from './app.component';
 import {APP_ROUTES_PROVIDER} from './app.routes';
@@ -70,6 +71,7 @@ nativeScriptBootstrap(AppComponent, [
   }),
   runEffects(
     FirebaseEffects,
-    PlaylistEffects
+    PlaylistEffects,
+    ShoutoutEffects
   )
 ], { startPageActionBarHidden: false }); // https://github.com/NativeScript/nativescript-angular/issues/121

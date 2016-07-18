@@ -16,7 +16,7 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import 'rxjs/add/operator/take';
 
 // app
-import {BaseComponent, CoreConfigService, LogService} from '../../shared/core/index';
+import {BaseComponent, Config, LogService} from '../../shared/core/index';
 import {SearchService, AuthService, AuthStateI, PlaylistService, PLAYLIST_ACTIONS, TrackModel, EmptyComponent} from '../../shared/shoutoutplay/index';
 import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
 
@@ -66,10 +66,10 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   ngOnInit() {
     this.logger.debug(`SearchComponent ngOnInit`);
 
-    if (!CoreConfigService.SEEN_INTRO()) {
+    if (!Config.SEEN_INTRO()) {
       this.router.navigate(['/intro']);
     } else {
-      // CoreConfigService.SET_SEEN_INTRO(false);
+      // Config.SET_SEEN_INTRO(false);
       // HACK: search view doesn't render when showing to start
       this.router.navigate(['/welcome']);
     }

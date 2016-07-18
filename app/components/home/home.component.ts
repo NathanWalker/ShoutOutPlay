@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit, ChangeDet
 import {Router} from '@angular/router';
 
 // app
-import {BaseComponent, CoreConfigService, LogService, ActionBarUtil, DrawerService} from '../../shared/core/index';
+import {BaseComponent, Config, LogService, ActionBarUtil, DrawerService} from '../../shared/core/index';
 import {AuthService, PlayerService, FirebaseService, PlaylistService} from '../../shared/shoutoutplay/index';
 import {PlayerControlsComponent} from '../player/player-controls.component';
 
@@ -92,10 +92,10 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
       this.logger.debug(`HomeComponent ngOnInit`);
-    // if (!CoreConfigService.SEEN_INTRO()) {
+    // if (!Config.SEEN_INTRO()) {
     //   this.router.navigate(['/intro']);
     // } else {
-    //   // CoreConfigService.SET_SEEN_INTRO(false);
+    //   // Config.SET_SEEN_INTRO(false);
     //   // HACK: search view doesn't render when showing to start
     //   this.router.navigate(['/welcome']);
     // }  

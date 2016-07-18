@@ -263,8 +263,7 @@ export class PlaylistService extends Analytics {
       if (shoutoutIds.length) {
         this.store.take(1).subscribe((s: any) => {
           let recordingPaths = s.firebase.shoutouts.filter(s => includes(shoutoutIds, s.id)).map(s => s.recordingPath);
-          this.shoutoutService.removeRecordings(recordingPaths);
-          this.logger.debug(`Cleared all local shoutout recording files attached to tracks from deleted playlist. TODO: remove all shoutouts from db and remove their remotely stored files.`);
+          this.shoutoutService.removeRecordings(recordingPaths, true);
         });
       }
     }
