@@ -12,7 +12,7 @@ import {includes} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {Config, LogService, ProgressService} from '../../core/index';
+import {Config, LogService, ProgressService, Utils} from '../../core/index';
 import {ShoutoutModel, TrackModel, FIREBASE_ACTIONS} from '../index';
 import {FirebaseService} from './firebase.service';
 
@@ -86,9 +86,8 @@ export class ShoutoutService extends Analytics {
   public downloadShoutouts(shoutouts: Array<ShoutoutModel>) {
     this._downloadQueue = [];
     for (let shoutout of shoutouts) {
-      if (!fs.File.exists(shoutout.recordingPath)) {
-        let parts = shoutout.recordingPath.split('/');
-        this._downloadQueue.push(parts[parts.length - 1]);
+      if (!fs.File.exists(Utils.documentsPath(shoutout.filename))) {
+        this._downloadQueue.push(shoutout.filename);
       }
     }  
     let advance = () => {
@@ -118,7 +117,7 @@ export class ShoutoutService extends Analytics {
   public removeShoutout(shoutout: ShoutoutModel): Promise<any> {
     return new Promise((resolve) => {
       this.loader.show();
-      this.removeRecordings([shoutout.recordingPath]);
+      this.removeRecordings([shoutout.filename]);
       this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE, payload: shoutout });
       setTimeout(() => {
         resolve();
@@ -126,25 +125,20 @@ export class ShoutoutService extends Analytics {
     });
   }
 
-  public removeRecordings(recordingPaths: Array<string>, shouldDeleteRemote?: boolean) {
+  public removeRecordings(filenames: Array<string>, shouldDeleteRemote?: boolean) {
     // reset quick record
     this.quickRecordTrack = undefined;
     
     console.log('removeRecordings');
-    console.log(recordingPaths.length);
+    console.log(filenames.length);
     let cnt = 0;
     let advance = () => {
       cnt++;
-      if (cnt < recordingPaths.length) {
+      if (cnt < filenames.length) {
         deleteFile();
       } else if (shouldDeleteRemote) {
         // prepare to remove remotely
         cnt = 0;
-        // convert to just filenames
-        recordingPaths = recordingPaths.map((path) => {
-          let parts = path.split('/');
-          return parts[parts.length - 1];   
-        });
         // delete remotely
         deleteRemote();
       }
@@ -154,12 +148,13 @@ export class ShoutoutService extends Analytics {
       deleteRemote();
     };
     let deleteRemote = () => {
-      if (cnt < recordingPaths.length) {
-        this.removeRemote(recordingPaths[cnt]).then(deleteHandler, deleteHandler);
+      if (cnt < filenames.length) {
+        this.removeRemote(filenames[cnt]).then(deleteHandler, deleteHandler);
       }
     };
     let deleteFile = () => {
-      let filePath = recordingPaths[cnt];
+      let filename = filenames[cnt];
+      let filePath = Utils.documentsPath(filename);
       if (fs.File.exists(filePath)) {
         console.log(`removing file: ${filePath}`);
         let nsFile = fs.File.fromPath(filePath);
@@ -176,7 +171,7 @@ export class ShoutoutService extends Analytics {
         advance();
       }
     };
-    if (recordingPaths.length) {
+    if (filenames.length) {
       deleteFile();
     }
   }

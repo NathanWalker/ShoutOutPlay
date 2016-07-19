@@ -16,7 +16,7 @@ import {isString, isObject, keys, orderBy} from 'lodash';
 
 // app
 import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, AuthStateI, SHOUTOUT_ACTIONS} from '../index';
-import {Config, LogService, DialogsService, FancyAlertService} from '../../core/index';
+import {Config, LogService, DialogsService, FancyAlertService, Utils} from '../../core/index';
 
 // analytics
 const CATEGORY: string = 'Firebase';
@@ -180,8 +180,8 @@ export class FirebaseService {
 
   public removeShoutoutFromTrack(shoutout: ShoutoutModel) {
     this._ignoreUpdate = false;
-    // TODO: remove shoutout.recordingPath from remote storage
-    this.deleteRemoteFile(shoutout.recordingPath);
+    // remove remotely
+    this.deleteRemoteFile(shoutout.filename);
 
     this.store.take(1).subscribe((s: any) => {
       let updatedPlaylist;
@@ -203,24 +203,25 @@ export class FirebaseService {
   public downloadFile(filename: string): Promise<any> {
     let remotePath = `${Config.USER_KEY}/${filename}`;
     this.logger.debug(`downloading remote file: ${remotePath}`);
-    let documents = knownFolders.documents();
-    let localPath = documents.path + '/' + filename;
+    let localPath = Utils.documentsPath(filename);
     this.logger.debug(`to: ${localPath}`);
+
+    // this will create or overwrite a local file in the app's documents folder
+    let localFile = knownFolders.documents().getFile(filename);
+
     return firebase.downloadFile({
       remoteFullPath: remotePath,
       localFullPath: localPath
     });
   }
 
-  public uploadFile(localPath: string): Promise<any> {
-    let parts = localPath.split('/');
-    let filename = parts[parts.length - 1];
+  public uploadFile(filename: string): Promise<any> {
     this.logger.debug(`uploading file: ${filename}`);
     let remotePath = `${Config.USER_KEY}/${filename}`;
     this.logger.debug(`to: ${remotePath}`);
     return firebase.uploadFile({
       remoteFullPath: remotePath,
-      localFullPath: localPath
+      localFullPath: Utils.documentsPath(filename)
     });
   }
 
@@ -317,7 +318,7 @@ export class FirebaseService {
         shoutout
       ).then((result: any) => {
         this.logger.debug(`New Shoutout created: ${result.key}`);
-        this.uploadFile(shoutout.recordingPath);
+        this.uploadFile(shoutout.filename);
 
         this.store.take(1).subscribe((s: any) => {
           let playlists = [...s.firebase.playlists];
@@ -409,9 +410,7 @@ export class FirebaseService {
     });
   }  
 
-  private deleteRemoteFile(filePath: string) {
-    let parts = filePath.split('/');
-    let filename = parts[parts.length - 1];
+  private deleteRemoteFile(filename: string) {
     this.store.dispatch({ type: SHOUTOUT_ACTIONS.REMOVE_REMOTE, payload: filename });
   }
 

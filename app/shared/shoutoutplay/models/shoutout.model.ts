@@ -3,7 +3,7 @@ export class ShoutoutModel {
   public author: string;
   public trackId: string;
   public playlistId: string;
-  public recordingPath: string;
+  public filename: string;
   public playing: boolean = false;
   public type: string = 'shoutout';
   

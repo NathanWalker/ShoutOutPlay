@@ -11,7 +11,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 
 // app
-import {LogService, BaseComponent, FancyAlertService, TextService} from '../../shared/core/index';
+import {LogService, BaseComponent, FancyAlertService, TextService, Utils} from '../../shared/core/index';
 import {ShoutoutModel, FIREBASE_ACTIONS, FirebaseStateI, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
@@ -63,9 +63,10 @@ export class ShoutOutListComponent implements OnDestroy {
     }
    
     this.logger.debug(`_shoutOutPlayer.togglePlay`);
-    this.logger.debug(this._currentShoutOut.recordingPath);
-    if (File.exists(this._currentShoutOut.recordingPath)) {
-      this._shoutOutPlayer.togglePlay(this._currentShoutOut.recordingPath, reload); 
+    let fullPath = Utils.documentsPath(this._currentShoutOut.filename);
+    this.logger.debug(fullPath);
+    if (File.exists(fullPath)) {
+      this._shoutOutPlayer.togglePlay(fullPath, reload); 
       // adjust state
       this._currentShoutOut.playing = !this._currentShoutOut.playing;
       let shoutouts = [...this.shoutouts$.getValue()];

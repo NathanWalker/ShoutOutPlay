@@ -5,7 +5,8 @@
         "sourceMap": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "noImplicitUseStrict": true
+        "noImplicitUseStrict": true,
+        "noEmitHelpers": true
     },
     "files": [
         "node_modules/tns-core-modules/tns-core-modules.d.ts",

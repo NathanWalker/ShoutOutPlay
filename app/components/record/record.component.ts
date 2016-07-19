@@ -20,7 +20,7 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import * as _ from 'lodash';
 
 // app
-import {BaseComponent, LogService, ProgressService, FancyAlertService} from '../../shared/core/index';
+import {BaseComponent, LogService, ProgressService, FancyAlertService, Utils} from '../../shared/core/index';
 import {ShoutoutStateI, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, FIREBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
 import {TrackChooserComponent} from './track-chooser.component';
 
@@ -132,9 +132,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       this.toggleRecordState(false);
       this._reloadPlayer = true;
     } else {
-      let audioFolder = fs.knownFolders.documents();
-      this.logger.debug(JSON.stringify(audioFolder));
-      this._recordingPath = `${audioFolder.path}/recording-${Date.now()}.m4a`;
+      this._recordingPath = Utils.documentsPath(`recording-${Date.now()}.m4a`);
       this.logger.debug(this._recordingPath);
       this._sessionRecordings.push({ path: this._recordingPath, saved: false });
       this._recorder.record(this._recordingPath);
@@ -201,11 +199,12 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
   private saveShoutout(author: string) {
     this.setSavedSession();
+
     let newShoutout = new ShoutoutModel({
       author: author,
       trackId: this._chosenTrack.id,
       playlistId: this._chosenTrack.playlistId,
-      recordingPath: this._recordingPath
+      filename: Utils.getFilename(this._recordingPath)
     });
     this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE_SHOUTOUT, payload: newShoutout });
     setTimeout(() => {

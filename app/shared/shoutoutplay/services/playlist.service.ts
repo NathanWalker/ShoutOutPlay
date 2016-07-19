@@ -262,8 +262,8 @@ export class PlaylistService extends Analytics {
       let shoutoutIds = playlist.tracks.filter(track => isString(track.shoutoutId)).map(t => t.shoutoutId);
       if (shoutoutIds.length) {
         this.store.take(1).subscribe((s: any) => {
-          let recordingPaths = s.firebase.shoutouts.filter(s => includes(shoutoutIds, s.id)).map(s => s.recordingPath);
-          this.shoutoutService.removeRecordings(recordingPaths, true);
+          let filenames = s.firebase.shoutouts.filter(s => includes(shoutoutIds, s.id)).map(s => s.filename);
+          this.shoutoutService.removeRecordings(filenames, true);
         });
       }
     }

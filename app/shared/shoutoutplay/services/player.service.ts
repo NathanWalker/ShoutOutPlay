@@ -15,7 +15,7 @@ import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescrip
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {Config, LogService, ProgressService, FancyAlertService, TextService} from '../../core/index';
+import {Config, LogService, ProgressService, FancyAlertService, TextService, Utils} from '../../core/index';
 import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
 declare var zonedCallback: Function, MPNowPlayingInfoCenter;
@@ -208,7 +208,7 @@ export class PlayerService extends Analytics {
               if (track.shoutoutId) {
                 for (let shoutout of shoutouts) {
                   if (shoutout.id === track.shoutoutId) {
-                    this._currentShoutOutPath = shoutout.recordingPath;
+                    this._currentShoutOutPath = Utils.documentsPath(shoutout.filename);
                     if (!File.exists(this._currentShoutOutPath)) {
                       // alert user
                       setTimeout(() => {
