@@ -3,6 +3,7 @@ import {Injectable, Inject, forwardRef, OnInit, NgZone} from '@angular/core';
 
 // nativescript
 import {EventData} from 'data/observable';
+import * as app from 'application';
 import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
 import {File} from 'file-system';
 
@@ -14,10 +15,10 @@ import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescrip
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {CoreConfigService, LogService, ProgressService, FancyAlertService, TextService} from '../../core/index';
-import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, COUCHBASE_ACTIONS} from '../../shoutoutplay/index';
+import {Config, LogService, ProgressService, FancyAlertService, TextService, Utils} from '../../core/index';
+import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
-declare var zonedCallback: Function;
+declare var zonedCallback: Function, MPNowPlayingInfoCenter;
 
 // analytics
 const CATEGORY: string = 'Player';
@@ -82,23 +83,46 @@ export const playerReducer: ActionReducer<PlayerStateI> = (state: PlayerStateI =
  * ngrx end --
  */
 
+// class RemoteEventManager extends UIView {
+//   public initManager() {
+//     UIApplication.sharedApplication().beginReceivingRemoteControlEvents();
+//     this.becomeFirstResponder();
+//   }
+//   public canBecomeFirstResponder() {
+//     return true;
+//   }
+//   public remoteControlReceivedWithEvent(e: any) {
+//     console.log('remoteControlReceivedWithEvent:');
+//     console.log(e.subtype);
+//     console.log(e.type);
+//   }
+// }
+
 @Injectable()
 export class PlayerService extends Analytics {
   public static SHOUTOUT_START: number;
+  public static currentTrack: string;
+  public static isPreview: boolean;
+
   public state$: Observable<any>;
   private _spotify: TNSSpotifyPlayer;
   private _shoutOutPlayer: TNSEZAudioPlayer;
   private _currentTrackId: string;
   private _currentShoutOutPath: string;
   private _shoutoutTimeout: any;
+  private _nowPlayingInfo: any;
+  // private _eventManager: RemoteEventManager;
 
   constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
 
+    // this._eventManager = new RemoteEventManager();
+    // this._eventManager.initManager();
+
     this.state$ = store.select('player');
 
-    PlayerService.SHOUTOUT_START = CoreConfigService.SHOUTOUT_START_TIME();
+    PlayerService.SHOUTOUT_START = Config.SHOUTOUT_START_TIME();
 
     // init player
     loader.show();
@@ -123,15 +147,19 @@ export class PlayerService extends Analytics {
         this._currentShoutOutPath = undefined;
         // ensure playback is stopped
         this._spotify.togglePlay(null, false); // force stop playback
-        this.store.dispatch({ type: COUCHBASE_ACTIONS.RESET_PLAYLISTS });
+        this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
       }
     });
+
+    this.initCommandCenter();
   }
 
-  private togglePlay(trackId: string, isPreview?: boolean, playing?: boolean) {
+  public togglePlay(trackId: string, isPreview?: boolean, playing?: boolean) {
     this.loader.show();
 
     let trackUri: string = `spotify:track:${trackId}`;
+    PlayerService.currentTrack = trackUri;
+    PlayerService.isPreview = isPreview;
 
     if (!isPreview) {
       if (playing) {
@@ -161,22 +189,26 @@ export class PlayerService extends Analytics {
       }
     });
   }
+
+  public cmdTogglePlay() {
+    this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, !this._spotify.isPlaying());
+  }
   
   private queueShoutOut(trackId: string) {
     // always ensure spotify volume is up to start
     this.setSpotifyVolume(1);
     if (trackId !== this._currentTrackId) {
       this.store.take(1).subscribe((s: any) => {
-        let playlists = [...s.couchbase.playlists];
-        let shoutouts = [...s.couchbase.shoutouts];
+        let playlists = [...s.firebase.playlists];
+        let shoutouts = [...s.firebase.shoutouts];
         // find track and shoutout (if available)
         for (let playlist of playlists) {
           for (let track of playlist.tracks) {
             if (track.id === trackId) {
               if (track.shoutoutId) {
                 for (let shoutout of shoutouts) {
-                  if (shoutout.tmpId === track.shoutoutId) {
-                    this._currentShoutOutPath = shoutout.recordingPath;
+                  if (shoutout.id === track.shoutoutId) {
+                    this._currentShoutOutPath = Utils.documentsPath(shoutout.filename);
                     if (!File.exists(this._currentShoutOutPath)) {
                       // alert user
                       setTimeout(() => {
@@ -241,7 +273,130 @@ export class PlayerService extends Analytics {
 
   private updateAlbumArt(url: string) {
     this.logger.debug(url);
+    if (app.ios) {
+      let metadata: any = this._spotify.currentTrackMetadata();
+      for (let key in metadata) {
+        this.logger.debug(metadata[key]);
+      }
+
+      let nsUrl = NSURL.URLWithString(url);
+      let data = NSData.dataWithContentsOfURL(nsUrl);
+      // this.logger.debug(`album url data:`);
+      // this.logger.debug(data);
+
+      if (!data) {
+        this.logger.debug(`Failed to load data from URL: ${url}`);
+        return;
+      }
+
+      let image = UIImage.imageWithData(data);
+      // this.logger.debug(`album image:`);
+      // this.logger.debug(image);
+    	let artwork = MPMediaItemArtwork.alloc().initWithImage(image);
+      // this.logger.debug(`MPMediaItemArtwork:`);
+      // this.logger.debug(artwork);
+
+      // display now playing info on control center
+      // let nowPlayingInfo = NSDictionary.dictionaryWithDictionary({
+      //   MPMediaItemPropertyTitle: metadata.trackName,
+      //   MPMediaItemPropertyArtist: metadata.artistName,
+      //   MPNowPlayingInfoPropertyPlaybackRate: 1
+      //   // MPMediaItemPropertyArtwork: 2,
+      // });
+      if (!this._nowPlayingInfo) {
+        this._nowPlayingInfo = new NSMutableDictionary();
+      }
+      this._nowPlayingInfo.setValueForKey(metadata.trackName, 'MPMediaItemPropertyTitle');
+      this._nowPlayingInfo.setValueForKey(metadata.albumName, 'MPMediaItemPropertyAlbumTitle');
+      this._nowPlayingInfo.setValueForKey(metadata.artistName, 'MPMediaItemPropertyArtist');
+      this._nowPlayingInfo.setValueForKey(artwork, 'MPMediaItemPropertyArtwork');
+      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithFloat(metadata.trackDuration), 'MPMediaItemPropertyPlaybackDuration');
+      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithDouble(1), 'MPNowPlayingInfoPropertyPlaybackRate');
+
+      // this._nowPlayingInfo = new NSMutableDictionary([
+      //   metadata.trackName,
+      //   metadata.albumName,
+      //   metadata.artistName,
+      //   artwork,
+      //   metadata.trackDuration,
+      //   NSNumber.numberWithFloat(1.0)
+      // ],
+      // [
+      //   "MPMediaItemPropertyTitle",
+      //   "MPMediaItemPropertyAlbumTitle",
+      //   "MPMediaItemPropertyArtist",
+      //   "MPMediaItemPropertyArtwork",
+      //   "MPMediaItemPropertyPlaybackDuration",
+      //   "MPNowPlayingInfoPropertyPlaybackRate"
+      //   ]);  
+
+      invokeOnRunLoop(() => {
+        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = this._nowPlayingInfo;
+      });
+    }
   }
+
+  private initCommandCenter() {
+    // MPRemoteCommandCenter.sharedCommandCenter().pauseCommand.addTargetAction(this, () => {
+    //   this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, false);
+    // });
+    // MPRemoteCommandCenter.sharedCommandCenter().playCommand.addTargetAction(this, () => {
+    //   this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, true);
+    // });
+    // MPRemoteCommandCenter.sharedCommandCenter().stopCommand.addTargetAction(this, () => {
+    //   this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, false);
+    // });
+    // MPRemoteCommandCenter.sharedCommandCenter().togglePlayPauseCommand.addTargetAction(this, 'cmdTogglePlay');
+
+
+    // [commandCenter.enableLanguageOptionCommand addTarget:self action:@selector(onEnableLanguageOption:)];
+    // [commandCenter.disableLanguageOptionCommand addTarget:self action:@selector(onDisableLanguageOption:)];
+    // [commandCenter.nextTrackCommand addTarget:self action:@selector(onNextTrack:)];
+    // [commandCenter.previousTrackCommand addTarget:self action:@selector(onPreviousTrack:)];
+    // [commandCenter.seekForwardCommand addTarget:self action:@selector(onSeekForward:)];
+    // [commandCenter.seekBackwardCommand addTarget:self action:@selector(onSeekBackward:)];
+
+    // if ([cmd isEqual: @"@pause"]) {
+    //   remoteCenter.pauseCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"play"]) {
+    //   remoteCenter.playCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"stop"]) {
+    //   remoteCenter.stopCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"togglePlayPause"]) {
+    //   remoteCenter.togglePlayPauseCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"enableLanguageOption"]) {
+    //   remoteCenter.enableLanguageOptionCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"disableLanguageOption"]) {
+    //   remoteCenter.disableLanguageOptionCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"nextTrack"]) {
+    //   remoteCenter.nextTrackCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"previousTrack"]) {
+    //   remoteCenter.previousTrackCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"seekForward"]) {
+    //   remoteCenter.seekForwardCommand.enabled = enabled;
+    // } else if ([cmd isEqual: @"seekBackward"]) {
+    //   remoteCenter.seekBackwardCommand.enabled = enabled;
+    // }
+  }
+  
+  // func remoteControlReceivedWithEvent(receivedEvent:UIEvent)  {
+  //       if (receivedEvent.type == .RemoteControl) {
+  //           switch receivedEvent.subtype {
+  //           case .RemoteControlTogglePlayPause:
+  //               if avQueuePlayer.rate > 0.0 {
+  //                   pause()
+  //               } else {
+  //                   play()
+  //               }
+  //           case .RemoteControlPlay:
+  //               play()
+  //           case .RemoteControlPause:
+  //               pause()
+  //           default:
+  //               println("received sub type \(receivedEvent.subtype) Ignoring")
+  //           }
+  //       }
+  //   }
 
   private updateLogin(loggedIn: boolean) {
     this.store.dispatch({ type: AUTH_ACTIONS.LOGGED_IN_CHANGE, payload: { loggedIn } });
@@ -268,14 +423,32 @@ export class PlayerService extends Analytics {
       if (currentTrackId === trackEndedId) {
         this.logger.debug(`*****     currentTrackId: ${currentTrackId}`);
         this.logger.debug(`*****     trackEndedId: ${trackEndedId}`);
-        this.logger.debug(`*****     spotify.isPlaying(): ${(<any>this._spotify).isPlaying()}`);
-        if (!(<any>this._spotify).isPlaying()) {
+        this.logger.debug(`*****     spotify.isPlaying(): ${this._spotify.isPlaying()}`);
+        if (!this._spotify.isPlaying()) {
           // only if player has stopped
           // otherwise it's just triggered when user clicks to play another track
           this.store.dispatch({ type: PLAYLIST_ACTIONS.LOOP_NEXT });
         }
       }
     });
+  }
+
+  private tmpConnectionError() {
+    this.logger.debug('Temporary connection error.');
+  }
+
+  private streamError(error: any) {
+    this.logger.debug('Stream error:');
+    this.logger.debug(error);
+  }
+
+  private receivedMessage(message: string) {
+    this.logger.debug('Spotify service message:');
+    this.logger.debug(message);
+  }
+
+  private streamDisconnected() {
+    this.logger.debug('Stream has disconnected.');
   }
 
   private setupEvents() {
@@ -294,6 +467,28 @@ export class PlayerService extends Analytics {
         this.trackEnded(eventData.data.url);
       });
     });
+    this._spotify.events.on('temporaryConnectionError', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.tmpConnectionError();
+      });
+    });
+    this._spotify.events.on('streamError', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.streamError(eventData.data.error);
+      });
+    });
+    this._spotify.events.on('receivedMessage', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.receivedMessage(eventData.data.message);
+      });
+    });
+    this._spotify.events.on('streamDisconnected', (eventData: any) => {
+      this.ngZone.run(() => {
+        this.streamDisconnected();
+      });
+    });
+
+    // Auth Events
     this._spotify.auth.events.on('authLoginChange', (eventData: any) => {
       this.ngZone.run(() => {
         this.updateLogin(eventData.data.status);
@@ -316,3 +511,12 @@ export class PlayerService extends Analytics {
     });
   }
 }
+
+export const invokeOnRunLoop = (function() {
+    var runloop = CFRunLoopGetMain();
+    return function(func) {
+        CFRunLoopPerformBlock(runloop, kCFRunLoopDefaultMode, func);
+        CFRunLoopWakeUp(runloop);
+    }
+}());
+

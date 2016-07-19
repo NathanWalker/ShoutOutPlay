@@ -11,8 +11,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 
 // app
-import {LogService, BaseComponent, FancyAlertService, TextService} from '../../shared/core/index';
-import {ShoutoutModel, COUCHBASE_ACTIONS, ShoutoutService, CouchbaseService} from '../../shared/shoutoutplay/index';
+import {LogService, BaseComponent, FancyAlertService, TextService, Utils} from '../../shared/core/index';
+import {ShoutoutModel, FIREBASE_ACTIONS, FirebaseStateI, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 
@@ -27,22 +27,22 @@ export class ShoutOutListComponent implements OnDestroy {
   private _shoutOutPlayer: any;
   private _currentShoutOut: any;
 
-  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public couchbaseService: CouchbaseService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
     this._shoutOutPlayer = new TNSEZAudioPlayer(true);
     this._shoutOutPlayer.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
       this.logger.debug(`ShoutOutListComponent: audioEvents.on('reachedEnd')`);
       this.toggleShoutOutPlay(false, false);
     }));
 
-    this.store.take(1).subscribe((s: any) => {
-      let playlists = [...s.couchbase.playlists];
-      let shoutouts = [...s.couchbase.shoutouts];
-      for (let s of shoutouts) {
+    this.store.select('firebase').subscribe((s: any) => {
+      let playlists = [...s.playlists];
+      let shoutouts = [...s.shoutouts];
+      for (let shoutout of shoutouts) {
         // find track names
         for (let p of playlists) {
           for (let t of p.tracks) {
-            if (t.shoutoutId === s.tmpId) {
-              s.track = t.name;
+            if (t.shoutoutId === shoutout.id) {
+              shoutout.track = t.name;
               break;
             }
           }
@@ -53,7 +53,7 @@ export class ShoutOutListComponent implements OnDestroy {
   } 
 
   public togglePlay(shoutout: any) {
-    this.toggleShoutOutPlay(shoutout, (this._currentShoutOut ? shoutout.tmpId !== this._currentShoutOut.tmpId : true));
+    this.toggleShoutOutPlay(shoutout, (this._currentShoutOut ? shoutout.id !== this._currentShoutOut.id : true));
   } 
 
   private toggleShoutOutPlay(shoutout?: any, reload?: boolean) {
@@ -63,14 +63,15 @@ export class ShoutOutListComponent implements OnDestroy {
     }
    
     this.logger.debug(`_shoutOutPlayer.togglePlay`);
-    this.logger.debug(this._currentShoutOut.recordingPath);
-    if (File.exists(this._currentShoutOut.recordingPath)) {
-      this._shoutOutPlayer.togglePlay(this._currentShoutOut.recordingPath, reload); 
+    let fullPath = Utils.documentsPath(this._currentShoutOut.filename);
+    this.logger.debug(fullPath);
+    if (File.exists(fullPath)) {
+      this._shoutOutPlayer.togglePlay(fullPath, reload); 
       // adjust state
       this._currentShoutOut.playing = !this._currentShoutOut.playing;
       let shoutouts = [...this.shoutouts$.getValue()];
       for (let s of shoutouts) {
-        if (s.tmpId === this._currentShoutOut.tmpId) {
+        if (s.id === this._currentShoutOut.id) {
           s.playing = this._currentShoutOut.playing;
           this.logger.debug(`set playing: ${s.playing}`);
         } else {
@@ -89,10 +90,7 @@ export class ShoutOutListComponent implements OnDestroy {
   public remove(e: any) {
     this.fancyalert.confirm('Are you sure you want to delete this ShoutOut?', 'warning', () => {
       let shoutouts = [...this.shoutouts$.getValue()];
-      this.shoutoutService.removeShoutout(shoutouts[this._currentIndex]).then(() => {
-        shoutouts.splice(this._currentIndex, 1);
-        this.shoutouts$.next(shoutouts);
-      });
+      this.shoutoutService.removeShoutout(shoutouts[this._currentIndex]);
     });
   }
 

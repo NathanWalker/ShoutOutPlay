@@ -1,22 +1,22 @@
-<ActionBar [title]="(couchbaseService.state$ | async)?.playlists[playlistIndex].name">
+<ActionBar [title]="(firebaseService.state$ | async)?.playlists[playlistIndex].name">
   <NavigationButton text="Playlists" android.systemIcon="ic_menu_back" class="action-btn"></NavigationButton>
   <ActionItem (tap)="edit()" ios.position="right" android.position="popup">
     <Button class="fa action-btn" [text]="'fa-pencil' | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
 <StackLayout modal-dialog-host>  
-  <StackLayout class="full-page-message" *ngIf="(couchbaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0">
+  <StackLayout class="full-page-message" *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0">
     <Label [text]="'fa-frown-o' | fonticonPure" class="fa full-page-icon-label"></Label>
     <Label text="There are no tracks here." textWrap="true" class="full-page-message-label"></Label>
   </StackLayout> 
   
-  <RadListView id="listview" [items]="(couchbaseService.state$ | async)?.playlists[playlistIndex].tracks" row="1" colSpan="2" class="full-page"
-  itemSwipe="true" itemReorder="false"
+  <RadListView id="listview" [items]="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks" row="1" colSpan="2" class="full-page"
+  itemSwipe="true" itemReorder="true"
   (itemReordered)="onItemReordered($event)"
   (itemSwipeProgressStarted)="onSwipeCellStarted($event)"
   (itemSwipeProgressEnded)="onSwipeCellFinished($event)"
   itemInsertAnimation="Scale" itemDeleteAnimation="Scale"
-  *ngIf="(couchbaseService.state$ | async)?.playlists[playlistIndex].tracks.length">
+  *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length">
     <template listItemTemplate let-item="item" let-odd="odd" let-even="even">
       <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
         <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="playlistService.togglePlay(item.playlistId, item)" *ngIf="!item.shoutoutId"></Button>

@@ -5,7 +5,10 @@ interface APP_SETTING_KEYSI {
   SHOUTOUT_START: string;
 }
 
-export class CoreConfigService {
+export class Config {
+
+  // easy use throughout codebase (firebase user key)
+  public static USER_KEY: string;
   
   public static APP_SETTING_KEYS: APP_SETTING_KEYSI = {
     INTRO: `viewed-intro`,
@@ -14,19 +17,19 @@ export class CoreConfigService {
 
   public static SEEN_INTRO(): boolean {
     // return true;
-    return appSettings.getBoolean(CoreConfigService.APP_SETTING_KEYS.INTRO, false);
+    return appSettings.getBoolean(Config.APP_SETTING_KEYS.INTRO, false);
   }
 
   public static SET_SEEN_INTRO(value: boolean): void {
-    appSettings.setBoolean(CoreConfigService.APP_SETTING_KEYS.INTRO, value);
+    appSettings.setBoolean(Config.APP_SETTING_KEYS.INTRO, value);
   }
 
   public static SHOUTOUT_START_TIME(): number {
-    return appSettings.getNumber(CoreConfigService.APP_SETTING_KEYS.SHOUTOUT_START, 6000);
+    return appSettings.getNumber(Config.APP_SETTING_KEYS.SHOUTOUT_START, 6000);
   }
 
   public static SET_SHOUTOUT_START_TIME(value: number): void {
-    appSettings.setNumber(CoreConfigService.APP_SETTING_KEYS.SHOUTOUT_START, value);
+    appSettings.setNumber(Config.APP_SETTING_KEYS.SHOUTOUT_START, value);
   }
 
   public static DEBUG: any = {
@@ -37,8 +40,8 @@ export class CoreConfigService {
   };
   
   public static IS_DEBUG_MODE(): boolean {
-    for (let key in CoreConfigService.DEBUG) {
-      if (CoreConfigService.DEBUG[key]) {
+    for (let key in Config.DEBUG) {
+      if (Config.DEBUG[key]) {
         // if any level is on, debug mode is on
         return true;
       }
@@ -48,8 +51,8 @@ export class CoreConfigService {
   
   // reset debug defaults
   public static RESET() {
-    for (let key in CoreConfigService.DEBUG) {
-      CoreConfigService.DEBUG[key] = false; 
+    for (let key in Config.DEBUG) {
+      Config.DEBUG[key] = false; 
     }
   }
 }

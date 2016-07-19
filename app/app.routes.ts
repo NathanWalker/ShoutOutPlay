@@ -1,4 +1,11 @@
-import {RouterConfig} from '@angular/router';
+import {Injectable} from '@angular/core';
+import {RouterConfig, CanActivate, RouterOutletMap} from '@angular/router';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/delay';
+import 'rxjs/add/observable/of';
+
+// nativescript
+import {nsProvideRouter} from 'nativescript-angular/router';
 
 import {HomeComponent} from './components/home/home.component';
 import {IntroComponent} from './components/intro/intro.component';
@@ -12,6 +19,15 @@ import {GeneralComponent} from './components/settings/general.component';
 import {HelpComponent} from './components/settings/help.component';
 import {AboutComponent} from './components/settings/about.component';
 import {WelcomeComponent} from './components/intro/welcome.component';
+
+@Injectable()
+export class DelayGuard implements CanActivate {
+  canActivate() {
+    return Observable.of(true).delay(2000);
+  }
+}
+
+// canActivate: [DelayGuard] 
 
 // export const routes: RouterConfig = [
 //   {
@@ -51,3 +67,9 @@ export const routes: RouterConfig = [
   { path: "playlist/:id", component: PlaylistDetailComponent },
   { path: "welcome", component: WelcomeComponent }
 ];
+
+export const APP_ROUTES_PROVIDER = [
+  nsProvideRouter(routes, {
+    enableTracing: false
+  })
+]

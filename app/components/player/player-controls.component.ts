@@ -7,7 +7,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 import {device, screen} from 'platform';
 
-import {BaseComponent, CoreConfigService, LogService} from '../../shared/core/index';
+import {BaseComponent, Config, LogService} from '../../shared/core/index';
 import {PlayerStateI, TrackModel} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({

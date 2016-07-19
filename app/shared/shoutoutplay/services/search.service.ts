@@ -10,7 +10,7 @@ import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {ProgressService, LogService} from '../../core/index';
-import {PlayerStateI, PLAYER_ACTIONS, TrackModel, COUCHBASE_ACTIONS} from '../../shoutoutplay/index';
+import {PlayerStateI, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
 // analytics
 const CATEGORY: string = 'Search';
@@ -76,7 +76,7 @@ export class SearchService extends Analytics {
   public togglePreview(track: TrackModel) {
     this.logger.debug(`togglePreview -- track is currently playing: ${track.playing}`);
     this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { previewTrackId: track.id, playing: !track.playing } });
-    this.store.dispatch({ type: COUCHBASE_ACTIONS.RESET_PLAYLISTS });
+    this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
   }
 
   public stopAll() {
@@ -108,24 +108,27 @@ export class SearchService extends Analytics {
     this.logger.debug(`loading offset: ${this._currentOffset}`);
     
     TNSSpotifySearch.QUERY(query, queryType, offset).then((result) => {
-      this._hasMore = result.hasNextPage;
-      // for (let key in result) {
-      //     console.log('---');
-      //     console.log(key);
-      //     console.log(result[key]);
-      //   }
-      if (this._currentOffset > 0) {
-        this.store.take(1).subscribe((s: any) => {
-          if (s.search) {
-            this.resultChange([...s.search.results, ...result.tracks], query);
-          }
-        });
+      if (result && result.tracks) {
+        this._hasMore = result.hasNextPage;
+        // for (let key in result) {
+        //     console.log('---');
+        //     console.log(key);
+        //     console.log(result[key]);
+        //   }
+        if (this._currentOffset > 0) {
+          this.store.take(1).subscribe((s: any) => {
+            if (s.search) {
+              this.resultChange([...s.search.results, ...result.tracks], query);
+            }
+          });
+        } else {
+          this.resultChange(result.tracks, query);
+        }
       } else {
-        this.resultChange(result.tracks, query);
-      }
+        this.searchError();
+      }    
     }, () => {
-      this.loader.hide();
-      Utils.alert('No tracks found. Try using only 2 words of the track name.');
+      this.searchError();
     });
   }
 
@@ -134,6 +137,11 @@ export class SearchService extends Analytics {
       this._currentOffset = this._currentOffset + 20;
       this.search(this._currentQuery, null, this._currentOffset);
     }
+  }
+
+  private searchError() {
+    this.loader.hide();
+    Utils.alert('No tracks found. Try using only 2 words of the track name.');
   }
 
   private resultChange(tracks: Array<TNSTrack>, term: string) {

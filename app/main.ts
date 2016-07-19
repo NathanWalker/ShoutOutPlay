@@ -2,7 +2,6 @@
 import {nativeScriptBootstrap} from 'nativescript-angular/application';
 
 // nativescript
-import {nsProvideRouter} from 'nativescript-angular/router';
 import {SIDEDRAWER_PROVIDERS} from "nativescript-telerik-ui-pro/sidedrawer/angular";
 import {LISTVIEW_PROVIDERS} from 'nativescript-telerik-ui-pro/listview/angular';
 import * as app from 'application';
@@ -11,8 +10,8 @@ import * as app from 'application';
 import {provide} from '@angular/core';
 
 // config
-import {CoreConfigService} from './shared/core/index';
-CoreConfigService.DEBUG.LEVEL_4 = true;
+import {Config} from './shared/core/index';
+Config.DEBUG.LEVEL_4 = true;
 
 // libs
 import {provideStore} from '@ngrx/store';
@@ -31,16 +30,17 @@ import {ANALYTICS_PROVIDERS} from './shared/analytics/index';
 import {
   SHOUTOUTPLAY_PROVIDERS,
   authReducer,
-  couchbaseReducer,
-  CouchbaseEffects,
+  firebaseReducer,
+  FirebaseEffects,
   playerReducer,
   playlistReducer,
   PlaylistEffects,
   searchReducer,
-  shoutoutReducer
+  shoutoutReducer,
+  ShoutoutEffects
 } from './shared/shoutoutplay/index';
 import {AppComponent} from './app.component';
-import {routes} from './app.routes';
+import {APP_ROUTES_PROVIDER} from './app.routes';
 
 // Spotify setup
 if (app.ios) {
@@ -48,7 +48,7 @@ if (app.ios) {
 }
 
 nativeScriptBootstrap(AppComponent, [
-  nsProvideRouter(routes, { enableTracing: false }),
+  APP_ROUTES_PROVIDER,
   SIDEDRAWER_PROVIDERS,
   LISTVIEW_PROVIDERS,
   { provide: ConsoleService, useValue: console },
@@ -63,14 +63,15 @@ nativeScriptBootstrap(AppComponent, [
   },
   provideStore({
     auth: authReducer,
-    couchbase: couchbaseReducer,
+    firebase: firebaseReducer,
     player: playerReducer,
     playlist: playlistReducer,
     search: searchReducer,
     shoutout: shoutoutReducer
   }),
   runEffects(
-    CouchbaseEffects,
-    PlaylistEffects
+    FirebaseEffects,
+    PlaylistEffects,
+    ShoutoutEffects
   )
 ], { startPageActionBarHidden: false }); // https://github.com/NativeScript/nativescript-angular/issues/121

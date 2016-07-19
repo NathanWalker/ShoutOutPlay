@@ -11,8 +11,8 @@ import {Observable} from 'data/observable';
 import {debounce} from 'lodash';
 
 // app
-import {CoreConfigService, LogService, BaseComponent, DrawerService} from '../../shared/core/index';
-import {COUCHBASE_ACTIONS, PlayerService} from '../../shared/shoutoutplay/index';
+import {Config, LogService, BaseComponent, DrawerService} from '../../shared/core/index';
+import {FIREBASE_ACTIONS, PlayerService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   moduleId: module.id,
@@ -41,7 +41,7 @@ export class GeneralComponent implements AfterViewInit {
         });
       });
     }
-    let start = CoreConfigService.SHOUTOUT_START_TIME();
+    let start = Config.SHOUTOUT_START_TIME();
     this.shoutoutTime = start/1000;
     this.shoutoutTime$.next(`${this.shoutoutTime} seconds`);
   }  
@@ -60,7 +60,7 @@ export class GeneralComponent implements AfterViewInit {
       let rawValue = Math.floor(this.shoutoutTime);
       this.logger.debug(`setStartOutTime: ${rawValue}`);
       let newTime = rawValue * 1000;
-      CoreConfigService.SET_SHOUTOUT_START_TIME(newTime);
+      Config.SET_SHOUTOUT_START_TIME(newTime);
       PlayerService.SHOUTOUT_START = newTime;
       this.shoutoutTime$.next(`${rawValue} seconds`);
     });

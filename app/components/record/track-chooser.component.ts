@@ -8,7 +8,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {LogService, BaseComponent} from '../../shared/core/index';
-import {TrackModel, PlaylistModel, CouchbaseStateI} from '../../shared/shoutoutplay/index';
+import {TrackModel, PlaylistModel, FirebaseStateI} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   moduleId: module.id,
@@ -22,7 +22,7 @@ export class TrackChooserComponent implements OnDestroy {
   
   constructor(private store: Store<any>, private logger: LogService, private params: ModalDialogParams) {
     store.take(1).subscribe((state: any) => {
-      this.initTracks(state.couchbase.playlists);
+      this.initTracks(state.firebase.playlists);
     });
   } 
 

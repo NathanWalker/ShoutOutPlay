@@ -13,7 +13,7 @@ import {Store} from '@ngrx/store';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService} from '../../shared/core/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, COUCHBASE_ACTIONS, CouchbaseStateI, CouchbaseService, EmptyComponent} from '../../shared/shoutoutplay/index';
+import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, FirebaseStateI, FirebaseService, EmptyComponent} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 declare var zonedCallback: Function;
@@ -31,13 +31,13 @@ export class PlaylistDetailComponent {
   private _swipedView: any;
   private _currentIndex: number;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private couchbaseService: CouchbaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
     ar.params.map(r => r['id']).take(1).subscribe((id: string) => {
       console.log(`PlaylistDetailComponent id: ${id}`);
       store.take(1).subscribe((s: any) => {
-        for (let i = 0; i < s.couchbase.playlists.length; i++) {
-          if (s.couchbase.playlists[i].id === id) {
-            this._playlist = Object.assign({}, s.couchbase.playlists[i]);
+        for (let i = 0; i < s.firebase.playlists.length; i++) {
+          if (s.firebase.playlists[i].id === id) {
+            this._playlist = Object.assign({}, s.firebase.playlists[i]);
             this.playlistIndex = i;
             break;
           }
@@ -70,13 +70,17 @@ export class PlaylistDetailComponent {
     this.fancyalert.confirm('Are you sure you want to remove this track?', 'warning', () => {
       let playlistId = this._playlist.id;
       let track = this._playlist.tracks[this._currentIndex];
-      this.store.dispatch({ type: COUCHBASE_ACTIONS.DELETE_TRACK, payload: { track, playlistId } });
+      if (track.shoutoutId) {
+        // TODO: remove shoutout here via shoutoutService
+        // Or change these to PROCESS_UPDATES for both (playlist/shoutouts)
+      }
+      this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE_TRACK, payload: { track, playlistId } });
       // AnimateService.SWIPE_RESET(this._swipedView);
     });
     // dialogs.confirm('Are you sure you want to remove this track?').then(zonedCallback((result) => {
     //   if (result) {
     //     let playlistId = this._playlist.id;
-    //     this.store.dispatch({ type: COUCHBASE_ACTIONS.DELETE_TRACK, payload: { track, playlistId } });
+    //     this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE_TRACK, payload: { track, playlistId } });
     //     AnimateService.SWIPE_RESET(this._swipedView);
     //   }
     // }));
@@ -103,5 +107,6 @@ export class PlaylistDetailComponent {
 
   public onItemReordered(args: any) {
     this.logger.debug("Item reordered. Old index: " + args.itemIndex + " " + "new index: " + args.data.targetIndex);
+    this.store.dispatch({ type: FIREBASE_ACTIONS.REORDER, payload: { type: 'track', itemIndex: args.itemIndex, targetIndex: args.data.targetIndex, playlist: this._playlist } });
   }
 }

@@ -36,6 +36,9 @@ export class TrackModel implements TNSTrack {
           }
         }
       }
+      if (!this.order) {
+        this.order = 0;
+      }
     }
   }
 }

@@ -15,12 +15,12 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
 import {TNSTrack, Utils} from 'nativescript-spotify';
-import * as _ from 'lodash';
+import {isString, includes} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {LogService, ProgressService, DialogsService, FancyAlertService} from '../../core/index';
-import {PlaylistModel, TrackModel, PLAYER_ACTIONS, COUCHBASE_ACTIONS, ShoutoutService, SHOUTOUT_ACTIONS} from '../index';
+import {PlaylistModel, TrackModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, ShoutoutService, SHOUTOUT_ACTIONS} from '../index';
 
 declare var zonedCallback: Function;
 
@@ -83,7 +83,7 @@ export class PlaylistService extends Analytics {
   public state$: Observable<any>;
   private selectedTrack: TrackModel;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private ngZone: NgZone, private fancyalert: FancyAlertService, @Inject(forwardRef(() => ShoutoutService)) private shoutoutService) {//private _router: Router
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private ngZone: NgZone, private fancyalert: FancyAlertService, @Inject(forwardRef(() => ShoutoutService)) private shoutoutService) {//private router: Router
     super(analytics);
     this.category = CATEGORY;
 
@@ -93,7 +93,7 @@ export class PlaylistService extends Analytics {
   public togglePlay(playlistId: string, track?: TrackModel) {
     this.store.take(1).subscribe((s: any) => {
       this.logger.debug('PlaylistService.togglePlay: this.store.take(1).subscribe, should update playlist state');
-      let playlists = [...s.couchbase.playlists];
+      let playlists = [...s.firebase.playlists];
       let currentTrackId = s.player.currentTrackId;
       let playing = !s.player.playing; // new playing state is always assumed the opposite unless the following...
       if (track) {
@@ -189,7 +189,7 @@ export class PlaylistService extends Analytics {
       
         this.ngZone.run(() => {
           this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId, playing } });
-          this.store.dispatch({ type: COUCHBASE_ACTIONS.UPDATE, payload: { playlists } });
+          this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists } });
         });
       }  
     });
@@ -229,17 +229,16 @@ export class PlaylistService extends Analytics {
 
   public addTrackTo(playlistId: string) {
     this.store.take(1).subscribe((s: any) => {
-      let playlists = [...s.couchbase.playlists];
+      let playlists = [...s.firebase.playlists];
       for (let item of playlists) {
         if (item.id === playlistId) {
           if (item.addTrack(this.selectedTrack)) {
-            this.store.dispatch({ type: COUCHBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists } } });
+            this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: item });
             this.dialogsService.success('Added!');
             this.selectedTrack.playlistId = playlistId;
             this.promptToRecord(this.selectedTrack);
             break;
           } else {
-            // dialogs.alert(`Track was already added to that playlist.`);
             this.fancyalert.show(`Track was already added to that playlist.`);
             break;
           }
@@ -252,10 +251,22 @@ export class PlaylistService extends Analytics {
     return new Promise((resolve) => {
       this.fancyalert.prompt(playlist.name, playlist.name, 'Edit', 'edit', (value: any) => {
         playlist.name = value;
-        this.store.dispatch({ type: COUCHBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists: [playlist] } } });
+        this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: playlist });
         resolve(playlist);
       });
     });
+  }
+
+  public clearTrackShoutouts(playlist: PlaylistModel) {
+    if (playlist.tracks.length) {
+      let shoutoutIds = playlist.tracks.filter(track => isString(track.shoutoutId)).map(t => t.shoutoutId);
+      if (shoutoutIds.length) {
+        this.store.take(1).subscribe((s: any) => {
+          let filenames = s.firebase.shoutouts.filter(s => includes(shoutoutIds, s.id)).map(s => s.filename);
+          this.shoutoutService.removeRecordings(filenames, true);
+        });
+      }
+    }
   }
 
   private promptToRecord(track: TrackModel) {
@@ -275,11 +286,15 @@ export class PlaylistService extends Analytics {
   private create(name: string, track: TrackModel) {
     this.loader.show();
     this.logger.debug(`Creating playlist named '${name}', and adding track: ${track.name}`);
-    let newPlaylist = new PlaylistModel({ name });
-    newPlaylist.addTrack(track);
-    this.store.dispatch({ type: COUCHBASE_ACTIONS.CREATE, payload: newPlaylist });
-    setTimeout(() => {
-      this.getRawPlaylists().then((playlists: Array<PlaylistModel>) => {
+    this.getRawPlaylists().then((playlists: Array<PlaylistModel>) => {
+      let newPlaylist = new PlaylistModel({ name });
+      newPlaylist.order = playlists.length;
+      // TODO: do NOT addTrack here, instead, only dispatch CREATE then wait to get playlist id back
+      // to properly set playlistId on track
+      newPlaylist.addTrack(track);
+      this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE, payload: newPlaylist });
+
+      setTimeout(() => {       
         for (let p of playlists) {
           for (let t of p.tracks) {
             if (t.id === track.id) {
@@ -288,16 +303,15 @@ export class PlaylistService extends Analytics {
             }
           }
         }
-        this.promptToRecord(track);
-      });
-    }, 1500);
-    
+        this.promptToRecord(track);      
+      }, 1500);
+    });
   }
 
   private getRawPlaylists(): Promise<any> {
     return new Promise((resolve: any) => {
       this.store.take(1).subscribe((s: any) => {
-        resolve([...s.couchbase.playlists]);
+        resolve([...s.firebase.playlists]);
       });
     })
   }
@@ -307,9 +321,17 @@ export class PlaylistService extends Analytics {
 export class PlaylistEffects {
   constructor(private store: Store<any>, private logger: LogService, private updates$: StateUpdates<any>, private playlistService: PlaylistService) { }
   
+  @Effect() deletedPlayist$ = this.updates$
+    .whenAction(FIREBASE_ACTIONS.PLAYLIST_DELETED)
+    .do((update) => {
+      this.logger.debug(`PlaylistEffects.PLAYLIST_DELETED`);
+      this.playlistService.clearTrackShoutouts(update.action.payload);
+    })
+    .filter(() => false);
+  
   @Effect() loopNext$ = this.updates$
     .whenAction(PLAYLIST_ACTIONS.LOOP_NEXT)
-    .map((update) => {
+    .do((update) => {
       let playlists = [];
       let playlistIndex = -1;
       let trackIndex = -1;
@@ -319,7 +341,7 @@ export class PlaylistEffects {
         let currentTrackId = s.player.currentTrackId;
         if (currentTrackId) {
           this.logger.debug(`PlaylistEffects.LOOP_NEXT`);
-          playlists = [...s.couchbase.playlists];
+          playlists = [...s.firebase.playlists];
           for (let i = 0; i < playlists.length; i++) {
             for (let a = 0; a < playlists[i].tracks.length; a++) {
               if (playlists[i].tracks[a].id === currentTrackId) {
@@ -352,6 +374,6 @@ export class PlaylistEffects {
       // else {
       //   return ({ type: PLAYLIST_ACTIONS.NOOP });
       // }
-      return ({ type: PLAYLIST_ACTIONS.NOOP });
-    });
+    })
+    .filter(() => false);
 }
