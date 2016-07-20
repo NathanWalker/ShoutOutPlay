@@ -18,7 +18,7 @@ import {Analytics, AnalyticsService} from '../../analytics/index';
 import {Config, LogService, ProgressService, FancyAlertService, TextService, Utils} from '../../core/index';
 import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
-declare var zonedCallback: Function, MPNowPlayingInfoCenter;
+declare var zonedCallback: Function, MPNowPlayingInfoCenter, interop;
 
 // analytics
 const CATEGORY: string = 'Player';
@@ -136,7 +136,6 @@ export class PlayerService extends Analytics {
       this.toggleShoutOutPlay();
     }));
 
-    // react to search previews
     this.state$.subscribe((player: PlayerStateI) => {
       if (player.previewTrackId || player.currentTrackId) {
         // only if tracks are defined
@@ -331,12 +330,25 @@ export class PlayerService extends Analytics {
       //   ]);  
 
       invokeOnRunLoop(() => {
+        this.logger.debug(`setting MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo`);
         MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = this._nowPlayingInfo;
+        this.logger.debug(MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo);
       });
     }
   }
 
   private initCommandCenter() {
+    // let errorRef = new interop.Reference();
+    // AVAudioSession.sharedInstance().setCategoryError(AVAudioSessionCategoryPlayback);
+    // // if (errorRef) {
+    // //   console.log(`setCategoryError: ${errorRef.value}`);
+    // // }
+    // AVAudioSession.sharedInstance().setActiveError(true);
+    // this.logger.debug(`MPRemoteCommandCenter.sharedCommandCenter():`);
+    // for (let key in MPRemoteCommandCenter.sharedCommandCenter()) {
+    //   this.logger.debug(key);
+    // }
+
     // MPRemoteCommandCenter.sharedCommandCenter().pauseCommand.addTargetAction(this, () => {
     //   this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, false);
     // });

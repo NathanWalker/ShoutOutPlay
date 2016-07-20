@@ -4,6 +4,7 @@ import {Location} from '@angular/common';
 // libs
 import {Store} from '@ngrx/store';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/take';
 import {device, screen} from 'platform';
 
@@ -26,6 +27,7 @@ export class PlayerControlsComponent implements OnInit, AfterViewInit {
       name: 'artist'
     }
   }); 
+  private _sub: Subscription;
 
   constructor(public store: Store<any>, private logger: LogService) {
   }
@@ -40,12 +42,19 @@ export class PlayerControlsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.logger.debug(`PlayerControlsComponent ngOnInit`);
-    this.store.select('player').subscribe((state: PlayerStateI) => {
+    this._sub = this.store.select('player').subscribe((state: PlayerStateI) => {
       this.playingIcon$.next(state.playing ? 'fa-pause-circle' : 'fa-play-circle');
     });
   }
 
   ngAfterViewInit() {
 
+  }
+
+  ngOnDestroy() {
+    if (this._sub) {
+      this._sub.unsubscribe();
+    }
+    
   }
 }

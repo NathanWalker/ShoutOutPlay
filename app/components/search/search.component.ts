@@ -13,6 +13,7 @@ import {AnimationCurve} from 'ui/enums';
 // libs
 import {Store} from '@ngrx/store';
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Subscription} from "rxjs/Subscription";
 import 'rxjs/add/operator/take';
 
 // app
@@ -32,6 +33,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   // @ViewChild('emptyArrow') emptyArrowEl: ElementRef;
   // @ViewChild('emptyLabel') emptyLabelEl: ElementRef;
   private _loadingMore: boolean = false;
+  private _sub: Subscription;
 
   constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private router: Router, private loc: Location) {
     logger.debug(`SearchComponent constructor`);
@@ -74,7 +76,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
       this.router.navigate(['/welcome']);
     }
       
-    this.playlistService.state$.subscribe((state: any) => {
+    this._sub = this.playlistService.state$.subscribe((state: any) => {
       if (state.showPicker) {
         this.ngZone.run(() => {
           this.logger.debug(`SearchComponent trying to show modal: PlaylistChooserComponent`);
@@ -143,5 +145,8 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.logger.debug(`SearchComponent ngOnDestroy...`);
+    if (this._sub) {
+      this._sub.unsubscribe();
+    }
   }
 }

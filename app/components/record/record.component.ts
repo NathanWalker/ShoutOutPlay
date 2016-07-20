@@ -17,6 +17,7 @@ import {AnimationCurve} from 'ui/enums';
 // libs
 import {Store} from '@ngrx/store';
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Subscription} from "rxjs/Subscription";
 import * as _ from 'lodash';
 
 // app
@@ -68,6 +69,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _reloadPlayer: boolean = false;
   private _sessionRecordings: Array<any> = [];
   private _chosenTrack: TrackModel;
+  private _sub: Subscription;
 
   constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private progress: ProgressService, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService) {
     // always stop all tracks playing from search results
@@ -111,7 +113,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       this.togglePlay();
     }));
 
-    store.select('shoutout').subscribe((state: ShoutoutStateI) => {
+    this._sub = store.select('shoutout').subscribe((state: ShoutoutStateI) => {
       if (state.showTrackPicker) {
         let options: ModalDialogOptions = {
           fullscreen: false
@@ -507,5 +509,8 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this._player = undefined;
     // set av category session back to playback
     
+    if (this._sub) {
+      this._sub.unsubscribe();
+    }
   }
 }

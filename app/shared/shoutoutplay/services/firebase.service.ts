@@ -255,7 +255,7 @@ export class FirebaseService {
           // user not found, create one
           this.createUser(email, pass);
         } else if (error.indexOf('The password is invalid') > -1) {
-          this.fancyalert.show('It appears your password may be incorrect for that account. Please try again. If you continue to receive this message, please send a quick email to: shoutoutplayapp@gmail.com with your account email to reset the password.');
+          this.fancyalert.show('It appears your password may be incorrect for that account. Please try again. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
           TNSSpotifyAuth.LOGOUT();
         }  
       } else if (isObject(error)) {
@@ -422,7 +422,7 @@ export class FirebaseService {
       this.logger.debug(`Reordering playlists, setting order: ${targetItem.order} of ${playlists.length} playlists.`);
       for (var i = 0; i < playlists.length; i++) {
         if (targetItem.id !== playlists[i].id) {
-          this.logger.debug(`setting order: ${i}`);
+          this.logger.debug(`${playlists[i].name} - setting order: ${i}`);
           playlists[i].order = i;
         }
       }
@@ -437,7 +437,7 @@ export class FirebaseService {
       this.logger.debug(`Reordering tracks, setting order: ${targetItem.order} of ${data.playlist.tracks.length} tracks.`);
       for (var i = 0; i < data.playlist.tracks.length; i++) {
         if (targetItem.id !== data.playlist.tracks[i].id) {
-          this.logger.debug(`setting order: ${i}`);
+          this.logger.debug(`${data.playlist.tracks[i].name} - setting order: ${i}`);
           data.playlist.tracks[i].order = i;
         }
       }

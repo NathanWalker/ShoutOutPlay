@@ -11,6 +11,7 @@ import {GestureStateTypes} from 'ui/gestures';
 // libs
 import {Store} from '@ngrx/store';
 import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/take';
 import {isString, includes} from 'lodash';
 
@@ -28,16 +29,11 @@ declare var zonedCallback: Function;
 })
 export class PlaylistComponent {
   private _currentIndex: number;
+  private _sub: Subscription;
 
   constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, public firebaseService: FirebaseService, public drawerService: DrawerService, private loader: ProgressService, private shoutoutService: ShoutoutService, private router: Router, private searchService: SearchService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
     // always stop all tracks playing from search results
     searchService.stopAll();
-    
-    store.select('auth').subscribe((state: AuthStateI) => {
-      if (!state.loggedIn) {
-        this.router.navigate(['/']);
-      }
-    });
   }
 
   public viewDetail(e: any) {
@@ -102,5 +98,19 @@ export class PlaylistComponent {
   public onItemReordered(args: any) {
     this.logger.debug("Item reordered. Old index: " + args.itemIndex + " " + "new index: " + args.data.targetIndex);
     this.store.dispatch({ type: FIREBASE_ACTIONS.REORDER, payload: { type: 'playlist', itemIndex: args.itemIndex, targetIndex: args.data.targetIndex } });
+  }
+
+  ngOnInit() {
+    this._sub = this.store.select('auth').subscribe((state: AuthStateI) => {
+      if (!state.loggedIn) {
+        this.router.navigate(['/']);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this._sub) {
+      this._sub.unsubscribe();
+    } 
   }
 }

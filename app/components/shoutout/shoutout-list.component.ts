@@ -8,6 +8,7 @@ import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
 // libs
 import {Store} from '@ngrx/store';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/take';
 
 // app
@@ -26,6 +27,7 @@ export class ShoutOutListComponent implements OnDestroy {
   private _currentIndex: number;
   private _shoutOutPlayer: any;
   private _currentShoutOut: any;
+  private _sub: Subscription;
 
   constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
     this._shoutOutPlayer = new TNSEZAudioPlayer(true);
@@ -34,7 +36,7 @@ export class ShoutOutListComponent implements OnDestroy {
       this.toggleShoutOutPlay(false, false);
     }));
 
-    this.store.select('firebase').subscribe((s: any) => {
+    this._sub = this.store.select('firebase').subscribe((s: any) => {
       let playlists = [...s.playlists];
       let shoutouts = [...s.shoutouts];
       for (let shoutout of shoutouts) {
@@ -113,6 +115,9 @@ export class ShoutOutListComponent implements OnDestroy {
     if (this._shoutOutPlayer) {
       this._shoutOutPlayer.delegate().audioEvents.off('reachedEnd');
       this._shoutOutPlayer = undefined;
+    }
+    if (this._sub) {
+      this._sub.unsubscribe();
     }
   }
 }
