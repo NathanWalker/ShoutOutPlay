@@ -5,9 +5,9 @@ import {LogService, BaseComponent} from '../../shared/core/index';
 import {FIREBASE_ACTIONS} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'settings-help',
-  templateUrl: `help.component.html`
+  templateUrl: './components/settings/help.component.html'
 })
 export class HelpComponent {
 

@@ -7,6 +7,7 @@ export class PlaylistModel {
   public name: string;
   public tracks: Array<TrackModel> = [];
   public playing: boolean = false;
+  public spotifyUri: string;
   public type: string = 'playlist';
   public order: number;
   
@@ -14,13 +15,27 @@ export class PlaylistModel {
     if (model) {
       if (model.id) 
         this.id = model.id;
+      if (model.uri)
+        this.spotifyUri = model.uri;
+      
       for (let key in model) {
-        if (key !== 'id') {
+        if (key !== 'id' && key !== 'uri') {
           this[key] = model[key];  
           if (key === 'tracks') {
-            for (let firebaseTrackId in this.tracks) {   
-              let track = new TrackModel(this.tracks[firebaseTrackId]);
-              track.playlistId = this.id || model.id;
+            if (this.spotifyUri) {
+              // from spotify
+              for (let i = 0; i < this.tracks.length; i++) {
+                let track = this.tracks[i];
+                track = new TrackModel(track);
+                track.playlistId = this.id || model.id;
+                this.order = i;
+              }
+            } else {
+              // from firebase
+              for (let firebaseTrackId in this.tracks) {   
+                let track = new TrackModel(this.tracks[firebaseTrackId]);
+                track.playlistId = this.id || model.id;
+              }
             }
           }
         }

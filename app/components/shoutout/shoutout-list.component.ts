@@ -18,9 +18,9 @@ import {ShoutoutModel, FIREBASE_ACTIONS, FirebaseStateI, ShoutoutService, Fireba
 declare var zonedCallback: Function;
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'shoutout-list',
-  templateUrl: `shoutout-list.component.html`
+  templateUrl: './components/shoutout/shoutout-list.component.html'
 })
 export class ShoutOutListComponent implements OnDestroy {
   public shoutouts$: BehaviorSubject<Array<any>> = new BehaviorSubject([]);

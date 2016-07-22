@@ -1,9 +1,9 @@
-<StackLayout>
+<StackLayout class="player-controls" top="50" left="0" backgroundColor="purple">
   <GridLayout rows="auto, *, auto" columns="*" *ngIf="!(minimized$ | async)" class="player-full-screen">
     <Button [text]="'fa-chevron' | fonticonPure" (tap)="minimize()" row="0" col="0" class="fa"></Button>
     <Image src="res://logo-160.png" row="1" col="0"></Image>
     <GridLayout rows="auto" columns="*,*,*" row="2" col="0">
-      <Button text="rwd" (tap)="togglePlay()" row="0" col="0"></Button>
+      <Button text="rwd" (tap)="togglePlay()" row=  "0" col="0"></Button>
       <Button [text]="(playingIcon$ | async) | fonticonPure" (tap)="togglePlay()" class="play-btn fa" row="0" col="1"></Button>
       <Button text="fwd" (tap)="togglePlay()" row="0" col="2"></Button>
     </GridLayout>

@@ -8,25 +8,26 @@ import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
 import {Observable} from 'data/observable';
 
 // libs
+import {Store} from '@ngrx/store';
 import {debounce} from 'lodash';
 
 // app
-import {Config, LogService, BaseComponent, DrawerService} from '../../shared/core/index';
+import {Config, LogService, BaseComponent, DrawerService, FancyAlertService} from '../../shared/core/index';
 import {FIREBASE_ACTIONS, PlayerService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'settings-general',
-  templateUrl: `general.component.html`
+  templateUrl: './components/settings/general.component.html'
 })
 export class GeneralComponent implements AfterViewInit {
   @ViewChild('slider') public slider: ElementRef;
-  public displayName$: BehaviorSubject<string> = new BehaviorSubject('');
-  public emailAddress$: BehaviorSubject<string> = new BehaviorSubject('');
+  public displayName$: BehaviorSubject<string> = new BehaviorSubject('Loading...');
+  public emailAddress$: BehaviorSubject<string> = new BehaviorSubject('...');
   public shoutoutTime: number = 6;
   public shoutoutTime$: BehaviorSubject<string> = new BehaviorSubject(`6 seconds`);
 
-  constructor(private logger: LogService, private ngZone: NgZone, private router: Router, private drawerService: DrawerService, private loc: Location) {
+  constructor(private logger: LogService, private store: Store<any>, private ngZone: NgZone, private router: Router, private drawerService: DrawerService, private loc: Location, private fancyalert: FancyAlertService) {
     if (TNSSpotifyAuth.SESSION) {
       TNSSpotifyAuth.CURRENT_USER().then((user: any) => {
         this.ngZone.run(() => {
@@ -36,8 +37,14 @@ export class GeneralComponent implements AfterViewInit {
             this.emailAddress$.next(user.emailAddress);
           } else {
             this.displayName$.next(`Non-premium user`);
+            this.emailAddress$.next('');
           }
           
+        });
+      }, () => {
+        this.ngZone.run(() => {
+          this.displayName$.next(`N/A`);
+          this.emailAddress$.next('');
         });
       });
     }
@@ -45,6 +52,12 @@ export class GeneralComponent implements AfterViewInit {
     this.shoutoutTime = start/1000;
     this.shoutoutTime$.next(`${this.shoutoutTime} seconds`);
   }  
+
+  public removeConfirm() {
+    this.fancyalert.confirm('Are you sure you want to reset your account? This will clear all playlists and shoutouts. Upon logging out and back into Spotify, your playlists will be restored to the latest changes on Spotify.', 'warning', () => {
+      this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_ACCOUNT });
+    });
+  }
 
   public logout() {
     TNSSpotifyAuth.LOGOUT();

@@ -28,9 +28,9 @@ import {ActionBarUtil, BaseComponent, LogService, DrawerService} from './shared/
 import {AuthService, PlayerService, FirebaseService, PlaylistService} from './shared/shoutoutplay/index';
  
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'my-app',
-  templateUrl: 'app.component.html',
+  templateUrl: './app.component.html',
   directives: [PlayerControlsComponent],
   changeDetection: ChangeDetectionStrategy.Default
 }) 
@@ -45,6 +45,7 @@ export class AppComponent implements AfterViewInit {
     about: false
   };
   @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
+  @ViewChild('playerControls') public playerControlsComponent: ElementRef;
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
   
@@ -90,18 +91,23 @@ export class AppComponent implements AfterViewInit {
     this.drawerService.drawer = this.drawerComponent.sideDrawer;
     this._changeDetectionRef.detectChanges();
 
+    this.logger.debug(`this.playerControlsComponent:`);
+    this.logger.debug(this.playerControlsComponent);
 
-    // setTimeout(() => {
-    //   this.logger.debug(`Dimensions: ${screen.mainScreen.widthDIPs}x${screen.mainScreen.heightDIPs}`);
-    //   this.logger.debug(this.drawerService.drawer.mainContent);
-    //   this._playerControls = this.drawerService.drawer.mainContent.getViewById('playerControls');
+    this.logger.debug(this.playerControlsComponent.nativeElement);
 
-    //   this.logger.debug(`this._playerControls:`);
-    //   this.logger.debug(this._playerControls);
-    //   this.logger.debug(this._playerControls.top);
 
-    //   AbsoluteLayout.setTop(this._playerControls, 360);
-    //   this.logger.debug(this._playerControls.top);
-    // }, 1000);
+    setTimeout(() => {
+      this.logger.debug(`Dimensions: ${screen.mainScreen.widthDIPs}x${screen.mainScreen.heightDIPs}`);
+      // this.logger.debug(this.drawerService.drawer.mainContent);
+      // this._playerControls = this.drawerService.drawer.mainContent.getViewById('playerControls');
+
+      // this.logger.debug(`this._playerControls:`);
+      // this.logger.debug(this._playerControls);
+      // this.logger.debug(this._playerControls.top);
+
+      // AbsoluteLayout.setTop(this._playerControls, 360);
+      // this.logger.debug(this._playerControls.top);
+    }, 1000);
   }
 }

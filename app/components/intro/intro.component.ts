@@ -6,10 +6,10 @@ import {device, screen} from 'platform';
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
 
 @BaseComponent({
-    moduleId: module.id,
+    // moduleId: module.id,
     selector: 'intro',
-    templateUrl: `intro.component.html`,
-    styleUrls: [`intro.component.css`]
+    templateUrl: './components/intro/intro.component.html',
+    styleUrls: ['./components/intro/intro.component.css']
 })
 export class IntroComponent implements OnInit, AfterViewInit {
     public gifs: Array<string> = [];

@@ -22,9 +22,9 @@ import {SearchService, AuthService, AuthStateI, PlaylistService, PLAYLIST_ACTION
 import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'search',
-  templateUrl: `search.component.html`,
+  templateUrl: './components/search/search.component.html',
   directives: [ModalDialogHost, EmptyComponent],
   providers: [ModalDialogService]
 })

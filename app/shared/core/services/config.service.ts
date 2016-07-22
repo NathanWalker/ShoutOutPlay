@@ -9,6 +9,8 @@ export class Config {
 
   // easy use throughout codebase (firebase user key)
   public static USER_KEY: string;
+  // fallback when playlistId is not defined on tracks (from bulk spotify playlist creation)
+  public static SELECTED_PLAYLIST_ID: string;
   
   public static APP_SETTING_KEYS: APP_SETTING_KEYSI = {
     INTRO: `viewed-intro`,

@@ -104,7 +104,7 @@ export class SearchService extends Analytics {
       this._currentOffset = offset = 0;
     }
     
-    this.loader.show({ message: this._currentOffset > 0 ? 'Finding more results...' : 'Searching...' });
+    this.loader.show({ message: this._currentOffset > 0 ? 'Loading more results...' : 'Searching...' });
     this.logger.debug(`loading offset: ${this._currentOffset}`);
     
     TNSSpotifySearch.QUERY(query, queryType, offset).then((result) => {
@@ -136,6 +136,10 @@ export class SearchService extends Analytics {
     if (this._hasMore) {
       this._currentOffset = this._currentOffset + 20;
       this.search(this._currentQuery, null, this._currentOffset);
+      setTimeout(() => {
+        // fallback to prevent infinte spin in case search above never returns
+        this.loader.hide();
+      }, 2000);
     }
   }
 

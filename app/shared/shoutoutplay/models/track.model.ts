@@ -5,14 +5,12 @@ import {TNSTrack} from 'nativescript-spotify';
 // only identifier and name are strings... others are platform specific data types like NSArray, NSURL etc.
 const supportedAnyKeys = ['identifier', 'name']; //'uri', 'playableUri', 'sharingURL', 'covers', 'smallestCover', 'largestCover', 'type'];
 
-export class TrackModel implements TNSTrack {
+export class TrackModel {
   public id: string; // spotify track id
   public name: string;
   public artist: any;
-  public duration: number;
-  public playableUri: string;
-  public previewUrl: string;
   public album: any;
+  public duration: number;
   public shoutoutId: string;
   public playlistId: string;
   public playing: boolean;

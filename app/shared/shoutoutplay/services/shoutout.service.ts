@@ -1,5 +1,5 @@
 // angular
-import {Injectable} from '@angular/core';
+import {Injectable, NgZone} from '@angular/core';
 
 // nativescript
 import * as fs from 'file-system';
@@ -70,7 +70,7 @@ export class ShoutoutService extends Analytics {
   public quickRecordTrack: TrackModel;
   private _downloadQueue: Array<string>;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private firebaseService: FirebaseService) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private firebaseService: FirebaseService, private ngZone: NgZone) {
     super(analytics);
     this.category = CATEGORY;
   }
@@ -112,6 +112,13 @@ export class ShoutoutService extends Analytics {
 
   public removeRemote(filename: string): Promise<any> {
     return this.firebaseService.deleteFile(filename);
+  }
+
+  public removeRemoteComplete() {
+    this.ngZone.run(() => {
+      this.loader.hide();
+      this.store.dispatch({type: FIREBASE_ACTIONS.UPDATE});
+    });
   }
 
   public removeShoutout(shoutout: ShoutoutModel): Promise<any> {
@@ -194,7 +201,7 @@ export class ShoutoutEffects {
     .do((update) => {
       this.logger.debug(`ShoutoutEffects.REMOVE_REMOTE`);
       let handler = () => {
-        this.logger.debug(`removeRemote handler. noop.`);
+        this.shoutoutService.removeRemoteComplete();
       };
       this.shoutoutService.removeRemote(update.action.payload).then(handler, handler);
     })

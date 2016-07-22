@@ -12,10 +12,9 @@ import {BaseComponent, Config, LogService} from '../../shared/core/index';
 import {PlayerStateI, TrackModel} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'player-controls',
-  templateUrl: `player-controls.component.html`,
-  styleUrls: [`player-controls.component.css`]
+  templateUrl: './components/player/player-controls.component.html'
 })
 export class PlayerControlsComponent implements OnInit, AfterViewInit {
   public minimized$: BehaviorSubject<boolean> = new BehaviorSubject(true);

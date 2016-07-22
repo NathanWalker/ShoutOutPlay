@@ -1,6 +1,6 @@
 // angular
 import {NgZone} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 
 // nativescript
 import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
@@ -12,16 +12,16 @@ import * as utils from 'utils/utils';
 import {Store} from '@ngrx/store';
 
 // app
-import {AnimateService, LogService, BaseComponent, FancyAlertService} from '../../shared/core/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, FirebaseStateI, FirebaseService, EmptyComponent} from '../../shared/shoutoutplay/index';
+import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} from '../../shared/core/index';
+import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, FirebaseStateI, FirebaseService, EmptyComponent, ShoutoutService} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 declare var zonedCallback: Function;
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'playlist-detail',
-  templateUrl: `playlist-detail.component.html`,
+  templateUrl: './components/playlist/playlist-detail.component.html',
   directives: [ModalDialogHost, EmptyComponent],
   providers: [ModalDialogService]
 })
@@ -31,7 +31,7 @@ export class PlaylistDetailComponent {
   private _swipedView: any;
   private _currentIndex: number;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService) {
     ar.params.map(r => r['id']).take(1).subscribe((id: string) => {
       console.log(`PlaylistDetailComponent id: ${id}`);
       store.take(1).subscribe((s: any) => {
@@ -48,13 +48,19 @@ export class PlaylistDetailComponent {
 
   public viewShoutout(track: TrackModel) {
     this.ngZone.run(() => {
-      let options: ModalDialogOptions = {
-        context: { id: track.shoutoutId },
-        fullscreen: false
-      };
-      this.modal.showModal(ShoutOutDetailComponent, options).then(zonedCallback(() => {
-        
-      }));
+      if (track.shoutoutId) {
+        let options: ModalDialogOptions = {
+          context: { id: track.shoutoutId },
+          fullscreen: false
+        };
+        this.modal.showModal(ShoutOutDetailComponent, options).then(zonedCallback(() => {
+          
+        }));
+      } else {
+        Config.SELECTED_PLAYLIST_ID = this._playlist.id;
+        this.shoutoutService.quickRecordTrack = track;
+        this.router.navigate(['/record']);
+      }
     });
   }
 

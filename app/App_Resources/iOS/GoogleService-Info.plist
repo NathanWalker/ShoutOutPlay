@@ -7,34 +7,34 @@
 	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
 	<string>ca-app-pub-3940256099942544/4411468910</string>
 	<key>CLIENT_ID</key>
-	<string>275512021485-1fepk6n0uj0n9cfebpupadhu5hsm1p4k.apps.googleusercontent.com</string>
+	<string>434970005394-l61rniam8cdu4ves0sdnjb2lmetnjsqi.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.275512021485-1fepk6n0uj0n9cfebpupadhu5hsm1p4k</string>
+	<string>com.googleusercontent.apps.434970005394-l61rniam8cdu4ves0sdnjb2lmetnjsqi</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAZO7FPyuYB-NpkXQp3J3C7-bXb8gquhOs</string>
+	<string>AIzaSyBUHaKK3Jzx67A7ccSNmKAFlelPhflXmf0</string>
 	<key>GCM_SENDER_ID</key>
-	<string>275512021485</string>
+	<string>434970005394</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.wwwalkerrun.ShoutOutPlay</string>
 	<key>PROJECT_ID</key>
-	<string>shoutoutplay</string>
+	<string>shoutoutplay-d3392</string>
 	<key>STORAGE_BUCKET</key>
-	<string>shoutoutplay.appspot.com</string>
+	<string>shoutoutplay-d3392.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<true/>
 	<key>IS_ANALYTICS_ENABLED</key>
 	<false/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<false/>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
 	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
 	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:275512021485:ios:00dc8dc35e226cbf</string>
+	<string>1:434970005394:ios:00dc8dc35e226cbf</string>
 	<key>DATABASE_URL</key>
-	<string>https://shoutoutplay.firebaseio.com</string>
+	<string>https://shoutoutplay-d3392.firebaseio.com</string>
 </dict>
 </plist>

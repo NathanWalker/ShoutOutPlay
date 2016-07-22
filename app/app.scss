@@ -33,10 +33,19 @@ SearchBar {
 }
 
 .white-label {
-  padding:40;
+  font-size:12;
+  margin:5;
   color:#fff;
   width:100%;
   text-align: center;
+
+  &.header {
+    margin:10;
+    font-size:14;
+  }
+  &.mention {
+    color:rgba(255,255,255, .6);
+  }
 }
 
 .fa {
@@ -201,7 +210,7 @@ SearchBar {
   margin-top:19;
 }
 .divider-margin {
-  margin:5 10 5 10;
+  margin:10;
 }
 
 .row-center {
@@ -209,8 +218,13 @@ SearchBar {
   vertical-align:center;
 }
 
-.has-shoutout {
-  color:$bright;
+.shoutout-mic {
+  color:rgba($bright, .2);
+  padding-right:25;
+
+  &.active {
+    color: $bright;
+  }
 }
 
 .btn {
@@ -222,6 +236,10 @@ SearchBar {
   font-size: 30;
   color:#fff;
   margin:0 5 0 5;
+
+  &.track-plain {
+    margin: 0 20 0 12;
+  }
 }
 .play-btn-img {
   margin:0 5 0 5;
@@ -288,6 +306,7 @@ SearchBar {
   background-color:$action-bar-match;
 }
 
+/* Player controls */
 .player-full-screen,
 .player-minimized {
   background-color:$primary;
@@ -304,6 +323,12 @@ SearchBar {
   width:100%;
   background-color:$primary;
 }
+.player-full-screen {
+  width:100%;
+  height:100%;
+}
+
+
 .settings-list {
   padding:20;
 }
@@ -327,7 +352,15 @@ ListView {
 
 .odd.playing,
 .even.playing {
-  background-color: #87C2FF;
+  background-color: $primary;
+
+  .title-sub {
+    color: $base;
+  }  
+
+  .detail-btn {
+    color: $base;
+  }
 }
 
 .search {

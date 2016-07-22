@@ -21,17 +21,17 @@ import {Subscription} from "rxjs/Subscription";
 import * as _ from 'lodash';
 
 // app
-import {BaseComponent, LogService, ProgressService, FancyAlertService, Utils} from '../../shared/core/index';
+import {BaseComponent, LogService, ProgressService, FancyAlertService, Utils, Config} from '../../shared/core/index';
 import {ShoutoutStateI, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, FIREBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
 import {TrackChooserComponent} from './track-chooser.component';
 
 declare var interop: any, zonedCallback: Function, kCGBlendModeSourceAtop: any, HUGE_VAL: any, kCAFillModeForwards: any, kCAMediaTimingFunctionEaseInEaseOut: any;
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'record',
-  templateUrl: `record.component.html`,
-  styleUrls: [`record.component.css`],
+  templateUrl: './components/record/record.component.html',
+  styleUrls: ['./components/record/record.component.css'],
   directives: [ModalDialogHost],
   providers: [ModalDialogService]
 })
@@ -509,6 +509,9 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this._player = undefined;
     // set av category session back to playback
     
+    // reset fallback (issue stems from spotify playlist bulk creation - when tracks have no playlistId)
+    Config.SELECTED_PLAYLIST_ID = undefined;
+
     if (this._sub) {
       this._sub.unsubscribe();
     }

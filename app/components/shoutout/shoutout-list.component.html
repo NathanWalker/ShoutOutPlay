@@ -22,7 +22,7 @@
         <StackLayout row="0" col="1" class="row-center">
           <!--<Label [text]="item.name" textWrap="true" class="title"></Label> -->
           <Label [text]="'By: ' + item.author" textWrap="true" class="title"></Label> 
-          <Label [text]="'Track: ' + item.track" textWrap="true" class="title-sub"></Label> 
+          <Label [text]="'Track: ' + item.track" textWrap="true" class="title-sub" *ngIf="item.track"></Label> 
         </StackLayout>
         <!--<Button row="0" col="2" [text]="'fa-chevron-right' | fonticonPure" class="detail-btn fa"></Button>-->
         <!--<StackLayout class="divider divider2" row="1" colSpan="3"></StackLayout>-->

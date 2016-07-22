@@ -11,9 +11,9 @@ import {LogService, BaseComponent} from '../../shared/core/index';
 import {TrackModel, PlaylistModel, FirebaseStateI} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'track-chooser',
-  templateUrl: `track-chooser.component.html`
+  templateUrl: './components/record/track-chooser.component.html'
 })
 export class TrackChooserComponent implements OnDestroy {
   public tracks$: BehaviorSubject<Array<TrackModel>> = new BehaviorSubject([]);
@@ -31,8 +31,26 @@ export class TrackChooserComponent implements OnDestroy {
   }
 
   public choose(e: any) {
-    this.close(this._tracks[e.index]);
+    // this.close(this._tracks[e.index]);
+    this.logger.debug(e);
+    this.logger.debug(e.name);
+    this.close(e);
   }
+
+  public search(e: any) {
+    if (e && e.object) {
+      this.logger.debug(e.object.text);
+      let filteredTracks = this._tracks.filter((t: TrackModel) => {
+        return t.name.indexOf(e.object.text) > -1 || t.artist.name.indexOf(e.object.text) > -1;
+      }); 
+      this.tracks$.next(filteredTracks);
+    }
+  }
+
+  public clear() {
+    this.logger.debug('clear');
+    this.tracks$.next(this._tracks);
+  } 
 
   private initTracks(playlists: Array<PlaylistModel>) {
     for (let playlist of playlists) {

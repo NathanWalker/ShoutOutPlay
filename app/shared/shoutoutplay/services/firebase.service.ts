@@ -5,14 +5,14 @@ import {Injectable, NgZone} from '@angular/core';
 import * as app from 'application';
 import * as platform from 'platform';
 import {knownFolders} from 'file-system';
-import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
+import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlaylist} from 'nativescript-spotify';
 import firebase = require("nativescript-plugin-firebase");
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
 import {Effect, toPayload, StateUpdates} from '@ngrx/effects';
 import {Observable} from 'rxjs/Observable';
-import {isString, isObject, keys, orderBy} from 'lodash';
+import {isString, isObject, keys, orderBy, includes} from 'lodash';
 
 // app
 import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, AuthStateI, SHOUTOUT_ACTIONS} from '../index';
@@ -56,6 +56,7 @@ interface FIREBASE_ACTIONSI {
   SELECT_PLAYLIST: string;
   RESET_PLAYLISTS: string;
   REORDER: string;
+  RESET_ACCOUNT: string;
 }
 
 export const FIREBASE_ACTIONS: FIREBASE_ACTIONSI = {
@@ -70,7 +71,8 @@ export const FIREBASE_ACTIONS: FIREBASE_ACTIONSI = {
   SHOUTOUT_DELETED: `[${CATEGORY}] SHOUTOUT_DELETED`,
   SELECT_PLAYLIST: `[${CATEGORY}] SELECT_PLAYLIST`,
   RESET_PLAYLISTS: `[${CATEGORY}] RESET_PLAYLISTS`,
-  REORDER: `[${CATEGORY}] REORDER`
+  REORDER: `[${CATEGORY}] REORDER`,
+  RESET_ACCOUNT: `[${CATEGORY}] RESET_ACCOUNT`
 };
 
 export const firebaseReducer: ActionReducer<FirebaseStateI> = (state: FirebaseStateI = initialState, action: Action) => {
@@ -130,6 +132,7 @@ export class FirebaseService {
   private _initialized: boolean = false;
   private _firebaseUser: IFirebaseUser; // logged in firebase user
   private _userProduct: any; // cache spotify product to store with firebase user
+  private _fetchedSpotifyPlaylists: boolean = false;
   private _passSuffix: string = 'A814~'; // make passwords strong
   private _ignoreUpdate: boolean = false;
 
@@ -138,43 +141,51 @@ export class FirebaseService {
   }
 
   public processUpdates(data: any) {
-    switch (data.type) {
-      case 'playlist':
-        this.updatePlaylist(data);
-        break;
+    if (data) {
+      switch (data.type) {
+        case 'playlist':
+          this.updatePlaylist(data);
+          break;
+      }
     }
   }
 
   public addDocument(data: any) {
-    switch (data.type) {
-      case 'playlist':
-        this.addNewPlaylist(data);
-        break;
-      case 'shoutout':
-        this.addNewShoutout(data);
-        break;
+    if (data) {
+      switch (data.type) {
+        case 'playlist':
+          this.addNewPlaylist(data);
+          break;
+        case 'shoutout':
+          this.addNewShoutout(data);
+          break;
+      }
     }
   }
 
   public deleteDocument(data: any) {
-    switch (data.type) {
-      case 'playlist':
-        this.deletePlaylist(data);
-        break;
-      case 'shoutout':
-        this.deleteShoutout(data);
-        break;
+    if (data) {
+      switch (data.type) {
+        case 'playlist':
+          this.deletePlaylist(data);
+          break;
+        case 'shoutout':
+          this.deleteShoutout(data);
+          break;
+      }
     }
   }
 
   public reorder(data: any) {
-    switch (data.type) {
-      case 'playlist':
-        this.reorderPlaylists(data);
-        break;
-      case 'track':
-        this.reorderTracks(data);
-        break;
+    if (data) {
+      switch (data.type) {
+        case 'playlist':
+          this.reorderPlaylists(data);
+          break;
+        case 'track':
+          this.reorderTracks(data);
+          break;
+      }
     }
   }
 
@@ -255,7 +266,7 @@ export class FirebaseService {
           // user not found, create one
           this.createUser(email, pass);
         } else if (error.indexOf('The password is invalid') > -1) {
-          this.fancyalert.show('It appears your password may be incorrect for that account. Please try again. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
+          this.fancyalert.show('It appears your password may be incorrect for that account. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
           TNSSpotifyAuth.LOGOUT();
         }  
       } else if (isObject(error)) {
@@ -297,16 +308,29 @@ export class FirebaseService {
     });
   }
 
-  private addNewPlaylist(playlist: PlaylistModel) {
-    if (Config.USER_KEY) {
-      this.stripFunctions(playlist);
-      firebase.push(
-        `/users/${Config.USER_KEY}/playlists`,
-        playlist
-      ).then((result: any) => {
-        this.logger.debug(`New Playlist created: ${result.key}`);
-      })
-    }
+  public resetAccount() {
+    // clear all playlists
+    this.logger.debug(`Deleting all playlists...`);
+    firebase.remove(
+      `/users/${Config.USER_KEY}/playlists`
+    ).then((result: any) => {
+      this.logger.debug(`All Playlists deleted.`);
+    });
+  }
+
+  private addNewPlaylist(playlist: PlaylistModel): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (Config.USER_KEY) {
+        this.stripFunctions(playlist);
+        firebase.push(
+          `/users/${Config.USER_KEY}/playlists`,
+          playlist
+        ).then((result: any) => {
+          this.logger.debug(`New Playlist created: ${result.key}`);
+          resolve();
+        })
+      }
+    });
   }
 
   private addNewShoutout(shoutout: ShoutoutModel) {
@@ -320,6 +344,15 @@ export class FirebaseService {
         this.logger.debug(`New Shoutout created: ${result.key}`);
         this.uploadFile(shoutout.filename);
 
+        let findPlaylistId;        
+        if (shoutout.playlistId) {
+          findPlaylistId = shoutout.playlistId;
+        } else {
+          // a shoutout won't have a playlistId if was from bulk spotify playlist create
+          // fallback 
+          findPlaylistId = Config.SELECTED_PLAYLIST_ID;
+        }
+
         this.store.take(1).subscribe((s: any) => {
           let playlists = [...s.firebase.playlists];
           // update the track inside the correct playlist
@@ -327,19 +360,33 @@ export class FirebaseService {
 
           for (let playlist of playlists) {
             this.logger.debug('looking for playlist...');
-            if (shoutout.playlistId === playlist.id) {
-              updatedPlaylist = playlist;
-              this.logger.debug('found playlist');
-              for (let track of updatedPlaylist.tracks) {
+            
+            if (findPlaylistId) {
+              if (findPlaylistId === playlist.id) {
+                updatedPlaylist = playlist;
+                this.logger.debug('found playlist');
+                for (let track of updatedPlaylist.tracks) {
+                  if (shoutout.trackId === track.id) {
+                    this.logger.debug('found track');
+                    track.shoutoutId = result.key;
+                    break;
+                  }
+                }
+              }
+            } else {
+              // not coming from a playlist, likely using mic on search page
+              // must find by track.id instead (not 100% guarantee since same track can exist across multiple playlists)
+              for (let track of playlist.tracks) {
                 if (shoutout.trackId === track.id) {
                   this.logger.debug('found track');
                   track.shoutoutId = result.key;
+                  updatedPlaylist = playlist;
                   break;
                 }
               }
             }
           }   
-
+       
           this.updatePlaylist(updatedPlaylist);
         });
       })
@@ -399,7 +446,7 @@ export class FirebaseService {
   }
 
   private deleteShoutout(shoutout: ShoutoutModel) {
-    this._ignoreUpdate = true;
+    // this._ignoreUpdate = true;
     firebase.remove(
       `/users/${Config.USER_KEY}/shoutouts/${shoutout.id}`
     ).then((result: any) => {
@@ -421,10 +468,10 @@ export class FirebaseService {
       targetItem.order = data.targetIndex;
       this.logger.debug(`Reordering playlists, setting order: ${targetItem.order} of ${playlists.length} playlists.`);
       for (var i = 0; i < playlists.length; i++) {
-        if (targetItem.id !== playlists[i].id) {
+        // if (targetItem.id !== playlists[i].id) {
           this.logger.debug(`${playlists[i].name} - setting order: ${i}`);
           playlists[i].order = i;
-        }
+        // }
       }
       this.updatePlaylists(playlists);
     });
@@ -436,10 +483,10 @@ export class FirebaseService {
       targetItem.order = data.targetIndex;
       this.logger.debug(`Reordering tracks, setting order: ${targetItem.order} of ${data.playlist.tracks.length} tracks.`);
       for (var i = 0; i < data.playlist.tracks.length; i++) {
-        if (targetItem.id !== data.playlist.tracks[i].id) {
+        // if (targetItem.id !== data.playlist.tracks[i].id) {
           this.logger.debug(`${data.playlist.tracks[i].name} - setting order: ${i}`);
           data.playlist.tracks[i].order = i;
-        }
+        // }
       }
       this.updatePlaylist(data.playlist);
     }
@@ -473,7 +520,12 @@ export class FirebaseService {
                 this.resetInitializers();
                 login();
               });
-            }     
+            } else {
+              // currently logged in via firebase, go ahead and process playlists
+              this.store.take(1).subscribe((s: any) => {
+                this.handleSpotifyPlaylists(s.firebase.playlists);
+              });
+            }    
           } 
         }, (error: any) => {
           this.logger.debug(`spotify current_user error:`);
@@ -495,16 +547,18 @@ export class FirebaseService {
      **/
     firebase.init({
       persist: true,
-      storageBucket: 'gs://shoutoutplay.appspot.com',
+      storageBucket: 'gs://shoutoutplay-d3392.appspot.com',// 'gs://shoutoutplay.appspot.com',
       // iOSEmulatorFlush: true,
       onAuthStateChanged: (data) => {
         // optional but useful to immediately re-logon the user when he re-visits your app
         this.logger.debug(`Logged ${data.loggedIn ? 'into' : 'out of'} firebase.`);
-        if (data.loggedIn && !this._firebaseUser) {
-          this.logger.debug(`User's email address: ${data.user.email ? data.user.email : 'N/A'}`);
-          this.logger.debug(`User's uid: ${data.user.uid}`);
-          this._firebaseUser = <any>data.user;
-          this.listenToUser(this._firebaseUser.uid);
+        if (data.loggedIn) {
+          if (!this._firebaseUser) {
+            this.logger.debug(`User's email address: ${data.user.email ? data.user.email : 'N/A'}`);
+            this.logger.debug(`User's uid: ${data.user.uid}`);
+            this._firebaseUser = <any>data.user;
+            this.listenToUser(this._firebaseUser.uid);
+          } 
         }
       }
     }).then((instance) => {
@@ -615,6 +669,8 @@ export class FirebaseService {
           this.store.dispatch({ type: SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS, payload: shoutouts });
         }
 
+        this.handleSpotifyPlaylists(playlists);
+
         this.ngZone.run(() => {
           this.logger.debug(`ngZone State Updates...`);
           this.logger.debug(`playlists.length: ${playlists.length}`);
@@ -652,8 +708,78 @@ export class FirebaseService {
     }
   }
 
+  private handleSpotifyPlaylists(playlists: Array<PlaylistModel>) {
+    if (this._initialized && !this._fetchedSpotifyPlaylists && (this._userProduct == 1 || this._userProduct == 2)) {
+      this._fetchedSpotifyPlaylists = true;
+      // only if premium or unlimited user
+      this.fetchSpotifyPlaylists(playlists);
+    }
+  }
+
+  private fetchSpotifyPlaylists(playlists: Array<PlaylistModel>) {
+    TNSSpotifyPlaylist.MINE().then((result: any) => {
+      console.log('fetched all user playlists:');
+      console.log(result.playlists);
+      console.log(result.playlists.length);
+      let existingSpotifyPlaylists = playlists.filter(p => isString(p.spotifyUri) && p.spotifyUri.length > 0).map(p => p.spotifyUri);
+      this.logger.debug(`${existingSpotifyPlaylists.length} existing playlists in firebase are from Spotify.`);
+      let cnt = 0;
+
+      // set order to the end of the current playlists
+      // spotify playlists will add to the end
+      let currentOrder = playlists.length; 
+
+      let advance = () => {
+        cnt++;
+        currentOrder++; // tracks correct order for playlists
+        if (cnt < result.playlists.length) {
+          addPlaylist();
+        } 
+      };
+      let addPlaylist = () => {
+        let spotifyPlaylist = result.playlists[cnt];
+        if (spotifyPlaylist.name === 'Discover Weekly') {
+          // ignore discover weekly (spotify creates that for users)
+          advance();
+        } else {
+          if (includes(existingSpotifyPlaylists, spotifyPlaylist.uri)) {
+            this.logger.debug(`Spotify playlist already exists in firebase, skipping.`);
+            // already exists, skip and advance to next
+            // TODO: instead of advancing, check for changes and update firebase
+            this._ignoreUpdate = false; // reset before advancing in case it's last one
+            advance();
+
+            if (cnt === result.playlists.length) {
+              // TODO: may need to manually fetch latest firebase playlists and manually dispatch state
+              // could occur if this is last after creating new playlists before
+              this.logger.debug('NOTE: if playlists are missing, this may need to be addressed.');
+            }
+          } else {
+
+            if ((cnt + 1) === result.playlists.length) {
+              // processing last playlist, allow state updates
+              this._ignoreUpdate = false;
+            } else {
+              // disable state updates while processing
+              this._ignoreUpdate = true;
+            }
+            
+            let playlist = new PlaylistModel(spotifyPlaylist);
+            playlist.order = currentOrder;
+            this.addNewPlaylist(playlist).then(advance, advance);
+          }
+        }
+      };
+      if (result.playlists.length) {
+        addPlaylist();
+      }
+    });
+  }
+
   private resetInitializers() {
     this._firebaseUser = undefined;
+    this._userProduct = undefined;
+    this._fetchedSpotifyPlaylists = false;
     Config.USER_KEY = undefined;
     this._initialized = false;
     this._ignoreUpdate = false;
@@ -668,7 +794,9 @@ export class FirebaseService {
 
   private stripFunctions(model: any) {
     for (let key in model) {
-      if (typeof model[key] === 'function') {
+      if (key === 'playing') {
+        delete model[key];
+      } else if (typeof model[key] === 'function') {
         console.log(`stripping function: ${key}`);
         delete model[key];
       }
@@ -751,4 +879,12 @@ export class FirebaseEffects {
         payload: updatedPlaylist
       });
     });
+  
+  @Effect() resetAccount$ = this.updates$
+    .whenAction(FIREBASE_ACTIONS.RESET_ACCOUNT)
+    .do((update) => {
+      this.logger.debug(`FirebaseEffects.RESET_ACCOUNT`);
+      this.firebaseService.resetAccount();
+    })
+    .filter(() => false);
 }

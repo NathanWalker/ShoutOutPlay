@@ -22,9 +22,9 @@ import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYLIST_ACTIONS, Player
 declare var zonedCallback: Function;
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'playlist',
-  templateUrl: `playlist.component.html`,
+  templateUrl: './components/playlist/playlist.component.html',
   directives: [EmptyComponent]
 })
 export class PlaylistComponent {

@@ -7,9 +7,9 @@ import {LogService, BaseComponent} from '../../shared/core/index';
 import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, FirebaseService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'playlist-chooser',
-  templateUrl: `playlist-chooser.component.html`
+  templateUrl: './components/playlist/playlist-chooser.component.html'
 })
 export class PlaylistChooserComponent {
   

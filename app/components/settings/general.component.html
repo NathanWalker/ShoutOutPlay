@@ -1,17 +1,25 @@
-<StackLayout class="full-page settings-list">
-  <GridLayout rows="auto" columns="*,auto" width="100%">
-      <Label text="Logged in:" textWrap="true" class="medium-heading" row="0" col="0"></Label>
-      <Button text="Logout" (tap)="logout()" class="settings-btn" textAlign="right" row="0" col="1"></Button>
-  </GridLayout>  
-  <Label [text]="displayName$ | async" textWrap="true" class="large-heading"></Label>
-  <Label [text]="emailAddress$ | async" textWrap="true" class="small-heading"></Label>
-  <StackLayout class="divider divider-margin"></StackLayout>
-  <Label text="ShoutOut start time:" textWrap="true" class="medium-heading"></Label>
-  <Label text="The time each ShoutOut will play over the top of each track." textWrap="true" class="small-heading"></Label>
-  <StackLayout padding="5 10 5 10">
-    <Slider #slider minValue="0" maxValue="60" [(ngModel)]="shoutoutTime" ></Slider>  
-    <Label [text]="shoutoutTime$ | async" textWrap="true" class="small-heading"></Label>
-     
+<ScrollView orientation="vertical">
+  <StackLayout class="full-page settings-list">
+    <GridLayout rows="auto" columns="*,auto" width="100%">
+        <Label text="Logged in:" textWrap="true" class="medium-heading" row="0" col="0"></Label>
+        <Button text="Logout" (tap)="logout()" class="settings-btn" textAlign="right" row="0" col="1"></Button>
+    </GridLayout>  
+    <Label [text]="displayName$ | async" textWrap="true" class="large-heading"></Label>
+    <Label [text]="emailAddress$ | async" textWrap="true" class="small-heading"></Label>
+
+    <StackLayout class="divider divider-margin"></StackLayout>
+    <Label text="ShoutOut start time:" textWrap="true" class="medium-heading"></Label>
+    <Label text="The time each ShoutOut will play over the top of each track." textWrap="true" class="small-heading"></Label>
+    <StackLayout padding="5 10 5 10">
+      <Slider #slider minValue="0" maxValue="60" [(ngModel)]="shoutoutTime" ></Slider>  
+      <Label [text]="shoutoutTime$ | async" textWrap="true" class="small-heading"></Label>
+    </StackLayout>
+    
+    <StackLayout class="divider divider-margin"></StackLayout>
+    <StackLayout padding="10">
+      <Label text="This will reset your account clearing all playlists. You can then Logout and back in to restore playlists from Spotify. Since ShoutOutPlay does not sync your playlists with Spotify, sometimes you may want to reset to get updates from your Spotify playlists." textWrap="true" class="small-heading"></Label>
+      <Button text="Reset Playlists" (tap)="removeConfirm()" class="delete-btn-wide" marginTop="10"></Button>
+    </StackLayout>
+    
   </StackLayout>
-  
-</StackLayout>
+</ScrollView>

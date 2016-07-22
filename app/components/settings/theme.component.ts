@@ -9,9 +9,9 @@ import {LogService, BaseComponent} from '../../shared/core/index';
 import {FIREBASE_ACTIONS} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'settings-theme',
-  templateUrl: `theme.component.html`
+  templateUrl: './components/settings/theme.component.html'
 })
 export class ThemeComponent {
 

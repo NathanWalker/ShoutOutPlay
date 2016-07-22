@@ -13,9 +13,9 @@ import {LogService, BaseComponent, ProgressService} from '../../shared/core/inde
 import {ShoutoutModel, FIREBASE_ACTIONS, ShoutoutService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'shoutout-detail',
-  templateUrl: `shoutout-detail.component.html`
+  templateUrl: './components/shoutout/shoutout-detail.component.html'
 })
 export class ShoutOutDetailComponent implements OnDestroy {
   public shoutout: ShoutoutModel;

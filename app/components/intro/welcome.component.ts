@@ -7,9 +7,9 @@ import {device, screen} from 'platform';
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'welcome',
-  templateUrl: `welcome.component.html`
+  templateUrl: './components/intro/welcome.component.html'
 })
 export class WelcomeComponent implements OnInit, AfterViewInit {
 

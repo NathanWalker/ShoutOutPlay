@@ -18,9 +18,9 @@ import {AbsoluteLayout} from 'ui/layouts/absolute-layout';
 import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 @BaseComponent({
-  moduleId: module.id,
+  // moduleId: module.id,
   selector: 'home',
-  templateUrl: `home.component.html`,
+  templateUrl: './components/home/home.component.html',
   directives: [PlayerControlsComponent]
 })
 export class HomeComponent implements AfterViewInit, OnInit {

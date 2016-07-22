@@ -1,6 +1,19 @@
-<StackLayout class="full-page settings-list">
-    <Label text="Built w/ NativeScript + Angular" (tap)="viewPage()" textWrap="true" class="white-label"></Label>
-    <Image src="~/assets/nng.png" padding="20" (tap)="viewPage()" horizontalAlignment="center" textAlign="center" stretch="none"></Image>
-    <Label text="By Nathan Walker" textWrap="true" class="white-label" fontSize="14" (tap)="viewGH()"></Label>
-    
-</StackLayout>
+<ScrollView orientation="vertical">
+  <StackLayout class="full-page settings-list">
+      <Label text="Built w/ NativeScript + Angular" (tap)="viewPage()" textWrap="true" class="white-label header"></Label>
+      <Image src="~/assets/nng.png" padding="20" (tap)="viewPage()" horizontalAlignment="center" textAlign="center" height="150"></Image>
+      <Label text="By Nathan Walker" textWrap="true" class="white-label header" (tap)="viewGH()"></Label>
+      <Label text="Community plugins used:" textWrap="true" class="white-label mention"></Label>
+      <Label text="nativescript-spotify" textWrap="true" class="white-label" (tap)="viewPlugin(1)"></Label>
+      <Label text="nativescript-ezaudio" textWrap="true" class="white-label" (tap)="viewPlugin(2)"></Label>
+      <Label text="nativescript-fancyalert" textWrap="true" class="white-label" (tap)="viewPlugin(3)"></Label>
+      <Label text="nativescript-gif" textWrap="true" class="white-label" (tap)="viewPlugin(4)"></Label>
+      <Label text="nativescript-loading-indicator" textWrap="true" class="white-label" (tap)="viewPlugin(5)"></Label>
+      <Label text="nativescript-ng2-fonticon" textWrap="true" class="white-label" (tap)="viewPlugin(6)"></Label>
+      <Label text="nativescript-plugin-firebase" textWrap="true" class="white-label" (tap)="viewPlugin(7)"></Label>
+      <Label text="nativescript-slides" textWrap="true" class="white-label" (tap)="viewPlugin(8)"></Label>
+      <Label text="nativescript-splashscreen" textWrap="true" class="white-label" (tap)="viewPlugin(9)"></Label>
+      <Label text="nativescript-telerik-ui-pro" textWrap="true" class="white-label" (tap)="viewPlugin(10)"></Label>
+      <Label text="nativescript-themes" textWrap="true" class="white-label" (tap)="viewPlugin(11)"></Label>
+  </StackLayout>
+</ScrollView>
