@@ -46,7 +46,6 @@
     "zone.js": "0.6.12"
   },
   "devDependencies": {
-    "block-loader": "^2.1.0",
     "nativescript-dev-sass": "^0.1.0",
     "nativescript-dev-typescript": "^0.3.2",
     "nativescript-dev-webpack": "0.0.19",
