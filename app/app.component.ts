@@ -27,11 +27,25 @@ import {PlayerControlsComponent} from './components/player/player-controls.compo
 import {ActionBarUtil, BaseComponent, LogService, DrawerService} from './shared/core/index';
 import {AuthService, PlayerService, FirebaseService, PlaylistService} from './shared/shoutoutplay/index';
  
+// @BaseComponent({
+//   selector: 'main-view',
+//   template: `
+//   <AbsoluteLayout class="page-bg">
+//       <page-router-outlet class="page-bg" top="0" left="0" width="100%" height="100%"></page-router-outlet>
+//       <player-controls #playerControls top="50" left="0" width="100%" height="50"></player-controls>
+//   </AbsoluteLayout>
+//   `,
+//   directives: [PlayerControlsComponent]
+// })
+// class MainViewComponent {
+
+// }  
+
 @BaseComponent({
   // moduleId: module.id,
   selector: 'my-app',
   templateUrl: './app.component.html',
-  directives: [PlayerControlsComponent],
+  // directives: [MainViewComponent],
   changeDetection: ChangeDetectionStrategy.Default
 }) 
 export class AppComponent implements AfterViewInit {
@@ -45,9 +59,9 @@ export class AppComponent implements AfterViewInit {
     about: false
   };
   @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
-  @ViewChild('playerControls') public playerControlsComponent: ElementRef;
+  // @ViewChild(PlayerControlsComponent) public playerControlsComponent: PlayerControlsComponent;
   private _sideDrawerTransition: DrawerTransitionBase;
-  private _playerControls: any;
+  // private _playerControls: any;
   
   constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService, private ngZone: NgZone) {
     ActionBarUtil.STATUSBAR_STYLE(1);
@@ -91,23 +105,23 @@ export class AppComponent implements AfterViewInit {
     this.drawerService.drawer = this.drawerComponent.sideDrawer;
     this._changeDetectionRef.detectChanges();
 
-    this.logger.debug(`this.playerControlsComponent:`);
-    this.logger.debug(this.playerControlsComponent);
+    // this.logger.debug(`this.playerControlsComponent:`);
+    // this.logger.debug(this.playerControlsComponent);
 
-    this.logger.debug(this.playerControlsComponent.nativeElement);
+    // this.logger.debug(this.playerControlsComponent.nativeElement);
 
 
-    setTimeout(() => {
-      this.logger.debug(`Dimensions: ${screen.mainScreen.widthDIPs}x${screen.mainScreen.heightDIPs}`);
-      // this.logger.debug(this.drawerService.drawer.mainContent);
-      // this._playerControls = this.drawerService.drawer.mainContent.getViewById('playerControls');
+    // setTimeout(() => {
+    //   this.logger.debug(`Dimensions: ${screen.mainScreen.widthDIPs}x${screen.mainScreen.heightDIPs}`);
+    //   // this.logger.debug(this.drawerService.drawer.mainContent);
+    //   // this._playerControls = this.drawerService.drawer.mainContent.getViewById('playerControls');
 
-      // this.logger.debug(`this._playerControls:`);
-      // this.logger.debug(this._playerControls);
-      // this.logger.debug(this._playerControls.top);
+    //   // this.logger.debug(`this._playerControls:`);
+    //   // this.logger.debug(this._playerControls);
+    //   // this.logger.debug(this._playerControls.top);
 
-      // AbsoluteLayout.setTop(this._playerControls, 360);
-      // this.logger.debug(this._playerControls.top);
-    }, 1000);
+    //   // AbsoluteLayout.setTop(this._playerControls, 360);
+    //   // this.logger.debug(this._playerControls.top);
+    // }, 1000);
   }
 }

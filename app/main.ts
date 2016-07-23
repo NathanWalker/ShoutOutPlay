@@ -7,7 +7,7 @@ import {LISTVIEW_PROVIDERS} from 'nativescript-telerik-ui-pro/listview/angular';
 import * as app from 'application';
 
 // angular
-import {provide} from '@angular/core';
+import {provide, enableProdMode} from '@angular/core';
 
 // config
 import {Config} from './shared/core/index';
@@ -46,6 +46,8 @@ import {APP_ROUTES_PROVIDER} from './app.routes';
 if (app.ios) {
   app.ios.delegate = SpotifyAppDelegate;
 }
+
+enableProdMode();
 
 nativeScriptBootstrap(AppComponent, [
   APP_ROUTES_PROVIDER,
