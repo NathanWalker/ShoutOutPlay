@@ -6,6 +6,14 @@ import {SIDEDRAWER_PROVIDERS} from "nativescript-telerik-ui-pro/sidedrawer/angul
 import {LISTVIEW_PROVIDERS} from 'nativescript-telerik-ui-pro/listview/angular';
 import * as app from 'application';
 
+// NJA: Fix for iOS font registration during webpack
+if (global.NSObject && global.NSString) {
+  var font = require("ui/styling/font");
+  font.ios.registerFont('RobotoRegular.ttf');
+  font.ios.registerFont('fontawesome-webfont.ttf');
+}
+
+
 // angular
 import {provide, enableProdMode} from '@angular/core';
 
