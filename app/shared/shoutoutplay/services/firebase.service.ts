@@ -12,7 +12,7 @@ import firebase = require("nativescript-plugin-firebase");
 import {Store, ActionReducer, Action} from '@ngrx/store';
 import {Effect, toPayload, StateUpdates} from '@ngrx/effects';
 import {Observable} from 'rxjs/Observable';
-import {isString, isObject, keys, orderBy, includes} from 'lodash';
+import {isString, isObject, keys, orderBy, includes, find} from 'lodash';
 
 // app
 import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, AuthStateI, SHOUTOUT_ACTIONS} from '../index';
@@ -255,6 +255,7 @@ export class FirebaseService {
       email: email,
       password: pass
     }).then((result: any) => {
+      TNSSpotifyAuth.CLEAR_COOKIES = false;
       // the result object has these properties: uid, provider, expiresAtUnixEpochSeconds, profileImageURL, token
       this.logger.debug(`firebase authenticate success.`);
       // no need to handle anything here since we use `onAuthStateChanged` in init
@@ -267,6 +268,7 @@ export class FirebaseService {
           this.createUser(email, pass);
         } else if (error.indexOf('The password is invalid') > -1) {
           this.fancyalert.show('It appears your password may be incorrect for that account. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
+          TNSSpotifyAuth.CLEAR_COOKIES = true;
           TNSSpotifyAuth.LOGOUT();
         }  
       } else if (isObject(error)) {
@@ -402,6 +404,12 @@ export class FirebaseService {
       // }
       let id = playlist.id;
       delete playlist.id; // don't store id since firebase uses it as key
+      delete playlist.playing // never store playing state
+      if (playlist.tracks) {
+        for (let t of playlist.tracks) {
+          delete t.playing // ignore playing state
+        }
+      }
       this.logger.debug(`Updating playlist with id: ${id}`);
       firebase.update(
         `/users/${Config.USER_KEY}/playlists/${id}`,
@@ -419,6 +427,12 @@ export class FirebaseService {
       for (let p of playlists) {
         let id = p.id;
         delete p.id;
+        delete p.playing // never store playing state
+        if (p.tracks) {
+          for (let t of p.tracks) {
+            delete t.playing // ignore playing state
+          }
+        }
         playlistsObject[id] = p;
       }   
       this.logger.debug(`Updating all playlists: ${playlists.map(p => p.id).join(',')}`);
@@ -639,9 +653,41 @@ export class FirebaseService {
         };
         let playlists = [];
         let shoutouts = [];
+
+        // used to maintain playing state when syncing with remote changes        
+        let currentTrackId = s.player.currentTrackId;
+        let isPlaying = s.player.playing;
+
         if (user.playlists) {
           for (let id in user.playlists) {
-            playlists.push(new PlaylistModel(Object.assign({ id: id }, user.playlists[id])));
+            let localPlayState = false;
+            
+            if (this._initialized && isPlaying) {
+              // maintain playing state when syncing (only care after initialization)
+              // this.logger.debug(`maintaining play state, finding playlist.id: ${id}`);
+              let localPlaylist: any = find(s.firebase.playlists, { id: id });
+              // this.logger.debug(`localPlaylist ----`);
+              // this.logger.debug(localPlaylist);
+
+              if (localPlaylist) {
+                // since `playing` is not persisted, ensure local state is same when remote changes sync
+                localPlayState = localPlaylist.playing;
+                // this.logger.debug(`localPlaylist.playing:`);
+                // this.logger.debug(localPlaylist.playing);
+                if (localPlayState && currentTrackId) {
+                  this.logger.debug('maintaining track playing state...')
+                  // update track state
+                  for (let trackId in user.playlists[id].tracks) {
+                    if (user.playlists[id].tracks[trackId].id === currentTrackId) {
+                      user.playlists[id].tracks[trackId].playing = true;
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+            let playlist = new PlaylistModel(Object.assign({ id: id }, user.playlists[id], { playing: localPlayState }));
+            playlists.push(playlist);
           }
         }
         if (user.shoutouts) {

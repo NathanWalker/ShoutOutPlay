@@ -13,7 +13,7 @@ export class TrackModel {
   public duration: number;
   public shoutoutId: string;
   public playlistId: string;
-  public playing: boolean;
+  public playing: boolean = false;
   public order: number;
   
   constructor(track: any) {

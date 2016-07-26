@@ -37,7 +37,7 @@ export class PlaylistDetailComponent {
       store.take(1).subscribe((s: any) => {
         for (let i = 0; i < s.firebase.playlists.length; i++) {
           if (s.firebase.playlists[i].id === id) {
-            this._playlist = Object.assign({}, s.firebase.playlists[i]);
+            this._playlist = Object.assign({id: id}, s.firebase.playlists[i]);
             this.playlistIndex = i;
             break;
           }

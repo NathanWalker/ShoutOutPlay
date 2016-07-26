@@ -1,8 +1,12 @@
 <ScrollView orientation="vertical">
-  <StackLayout class="full-page settings-list">
-      <Label text="Built w/ NativeScript + Angular" (tap)="viewPage()" textWrap="true" class="white-label header"></Label>
-      <Image src="~/assets/nng.png" padding="20" (tap)="viewPage()" horizontalAlignment="center" textAlign="center" height="150"></Image>
-      <Label text="By Nathan Walker" textWrap="true" class="white-label header" (tap)="viewGH()"></Label>
+  <StackLayout class="full-page">
+    <StackLayout class="settings-list">
+        <Label text="Built w/ NativeScript + Angular" (tap)="viewPage()" textWrap="true" class="white-label header"></Label>
+        <Image src="~/assets/nng.png" padding="20" (tap)="viewPage()" horizontalAlignment="center" textAlign="center" height="150"></Image>
+        <Label text="By Nathan Walker" textWrap="true" class="white-label header" (tap)="viewGH()"></Label>
+    </StackLayout>
+    <StackLayout class="settings-list settings-bottom">
+      <Label text="A very special thanks to Nathaneal Anderson for his incredible expertise. Tap to learn more if you need technical help of any sort." textWrap="true" class="white-label header" (tap)="emailNA()"></Label>
       <Label text="Community plugins used:" textWrap="true" class="white-label mention"></Label>
       <Label text="nativescript-spotify" textWrap="true" class="white-label" (tap)="viewPlugin(1)"></Label>
       <Label text="nativescript-ezaudio" textWrap="true" class="white-label" (tap)="viewPlugin(2)"></Label>
@@ -15,5 +19,7 @@
       <Label text="nativescript-splashscreen" textWrap="true" class="white-label" (tap)="viewPlugin(9)"></Label>
       <Label text="nativescript-telerik-ui-pro" textWrap="true" class="white-label" (tap)="viewPlugin(10)"></Label>
       <Label text="nativescript-themes" textWrap="true" class="white-label" (tap)="viewPlugin(11)"></Label>
+        
+    </StackLayout>
   </StackLayout>
 </ScrollView>

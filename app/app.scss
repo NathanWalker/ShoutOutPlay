@@ -332,6 +332,10 @@ SearchBar {
 .settings-list {
   padding:20;
 }
+.settings-bottom {
+  background-color:$primary;
+  height: 100%;
+}
 .settings-btn {
   margin:10 0 10 0;
   color:$highlight;

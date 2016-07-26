@@ -305,11 +305,11 @@ export class PlayerService extends Analytics {
       if (!this._nowPlayingInfo) {
         this._nowPlayingInfo = new NSMutableDictionary();
       }
-      this._nowPlayingInfo.setValueForKey(metadata.trackName, 'MPMediaItemPropertyTitle');
-      this._nowPlayingInfo.setValueForKey(metadata.albumName, 'MPMediaItemPropertyAlbumTitle');
-      this._nowPlayingInfo.setValueForKey(metadata.artistName, 'MPMediaItemPropertyArtist');
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.trackName), 'MPMediaItemPropertyTitle');
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.albumName), 'MPMediaItemPropertyAlbumTitle');
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.artistName), 'MPMediaItemPropertyArtist');
       this._nowPlayingInfo.setValueForKey(artwork, 'MPMediaItemPropertyArtwork');
-      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithFloat(metadata.trackDuration), 'MPMediaItemPropertyPlaybackDuration');
+      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithFloat(parseFloat(metadata.trackDuration)), 'MPMediaItemPropertyPlaybackDuration');
       this._nowPlayingInfo.setValueForKey(NSNumber.numberWithDouble(1), 'MPNowPlayingInfoPropertyPlaybackRate');
 
       // this._nowPlayingInfo = new NSMutableDictionary([
@@ -317,7 +317,7 @@ export class PlayerService extends Analytics {
       //   metadata.albumName,
       //   metadata.artistName,
       //   artwork,
-      //   metadata.trackDuration,
+      //   NSNumber.numberWithFloat(metadata.trackDuration),
       //   NSNumber.numberWithFloat(1.0)
       // ],
       // [

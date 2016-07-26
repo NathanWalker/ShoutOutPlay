@@ -20,23 +20,26 @@ export class PlaylistModel {
       
       for (let key in model) {
         if (key !== 'id' && key !== 'uri') {
-          this[key] = model[key];  
           if (key === 'tracks') {
             if (this.spotifyUri) {
               // from spotify
-              for (let i = 0; i < this.tracks.length; i++) {
-                let track = this.tracks[i];
+              for (let i = 0; i < model.tracks.length; i++) {
+                let track = model.tracks[i];
                 track = new TrackModel(track);
                 track.playlistId = this.id || model.id;
+                this.tracks.push(track);
                 this.order = i;
               }
             } else {
               // from firebase
-              for (let firebaseTrackId in this.tracks) {   
-                let track = new TrackModel(this.tracks[firebaseTrackId]);
+              for (let firebaseTrackId in model.tracks) {   
+                let track = new TrackModel(model.tracks[firebaseTrackId]);
                 track.playlistId = this.id || model.id;
+                this.tracks.push(track);
               }
             }
+          } else {
+            this[key] = model[key];  
           }
         }
       }

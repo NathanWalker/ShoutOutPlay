@@ -13,7 +13,6 @@ if (global.NSObject && global.NSString) {
   font.ios.registerFont('fontawesome-webfont.ttf');
 }
 
-
 // angular
 import {provide, enableProdMode} from '@angular/core';
 

@@ -18,6 +18,10 @@ export class AboutComponent {
     utils.openUrl('https://github.com/NathanWalker');
   }
 
+  public emailNA() {
+    utils.openUrl('https://github.com/nathanaela');
+  }
+
   public viewPlugin(target: number) {
     switch (target) {
       case 1:
