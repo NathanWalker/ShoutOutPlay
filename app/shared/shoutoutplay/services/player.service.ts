@@ -111,6 +111,7 @@ export class PlayerService extends Analytics {
   private _currentShoutOutPath: string;
   private _shoutoutTimeout: any;
   private _nowPlayingInfo: any;
+  private _playConnectingTimeout: any;
   // private _eventManager: RemoteEventManager;
 
   constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
@@ -125,7 +126,7 @@ export class PlayerService extends Analytics {
     PlayerService.SHOUTOUT_START = Config.SHOUTOUT_START_TIME();
 
     // init player
-    loader.show();
+    // loader.show();
     this._spotify = new TNSSpotifyPlayer();
     this._spotify.initPlayer(true);
     this.setupEvents();
@@ -154,7 +155,20 @@ export class PlayerService extends Analytics {
   }
 
   public togglePlay(trackId: string, isPreview?: boolean, playing?: boolean) {
-    this.loader.show();
+    if (playing) {
+      this.loader.show();
+      this.resetConnectionTimeout();
+      // helps prevent infinte spins in case of non-responsive Spotify service
+      this._playConnectingTimeout = setTimeout(() => {
+        if (!this._spotify.isPlaying()) {
+          // still not playing, alert user there could be an issue
+          this.fancyalert.show(TextService.SPOTIFY_PLAY_DELAY_NOTICE);
+          this.playerUIStateReset();
+        } 
+      }, 5500);
+    } else {
+      this.resetConnectionTimeout();
+    }
 
     let trackUri: string = `spotify:track:${trackId}`;
     PlayerService.currentTrack = trackUri;
@@ -175,13 +189,13 @@ export class PlayerService extends Analytics {
     this.logger.debug(trackId);
     this.logger.debug(`playing: ${playing}`);
     this._spotify.togglePlay(trackUri, playing).then((isPlaying: boolean) => {
-      this.loader.hide();
+      this.playerUIStateReset();
       // this.track(PLAYER_ACTIONS.TOGGLE_PLAY, { label: `${trackUri} ${isPlaying ? 'playing' : 'paused'}` });
     }, (error) => {
       this.logger.debug(`togglePlay error:`);
       this.logger.debug(error);
       
-      this.loader.hide();
+      this.playerUIStateReset();
       this.track(`[${CATEGORY}] ERROR`, { label: error.toString() });
       if (error === 'login') {
         this.updateLogin(false);
@@ -191,6 +205,18 @@ export class PlayerService extends Analytics {
 
   public cmdTogglePlay() {
     this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, !this._spotify.isPlaying());
+  }
+
+  private resetConnectionTimeout() {
+    if (this._playConnectingTimeout) {
+      clearTimeout(this._playConnectingTimeout);
+      this._playConnectingTimeout = undefined;
+    }
+  }
+
+  private playerUIStateReset() {
+    this.loader.hide();
+    this.resetConnectionTimeout();
   }
   
   private queueShoutOut(trackId: string) {
