@@ -64,28 +64,30 @@ export class ShoutOutListComponent implements OnDestroy {
       this._currentShoutOut = Object.assign({}, shoutout);
     }
    
-    this.logger.debug(`_shoutOutPlayer.togglePlay`);
-    let fullPath = Utils.documentsPath(this._currentShoutOut.filename);
-    this.logger.debug(fullPath);
-    if (File.exists(fullPath)) {
-      this._shoutOutPlayer.togglePlay(fullPath, reload); 
-      // adjust state
-      this._currentShoutOut.playing = !this._currentShoutOut.playing;
-      let shoutouts = [...this.shoutouts$.getValue()];
-      for (let s of shoutouts) {
-        if (s.id === this._currentShoutOut.id) {
-          s.playing = this._currentShoutOut.playing;
-          this.logger.debug(`set playing: ${s.playing}`);
-        } else {
-          s.playing = false;
+    if (this._currentShoutOut && this._currentShoutOut.filename) {
+      this.logger.debug(`_shoutOutPlayer.togglePlay`);
+      let fullPath = Utils.documentsPath(this._currentShoutOut.filename);
+      this.logger.debug(fullPath);
+      if (File.exists(fullPath)) {
+        this._shoutOutPlayer.togglePlay(fullPath, reload); 
+        // adjust state
+        this._currentShoutOut.playing = !this._currentShoutOut.playing;
+        let shoutouts = [...this.shoutouts$.getValue()];
+        for (let s of shoutouts) {
+          if (s.id === this._currentShoutOut.id) {
+            s.playing = this._currentShoutOut.playing;
+            this.logger.debug(`set playing: ${s.playing}`);
+          } else {
+            s.playing = false;
+          }
         }
+        this.ngZone.run(() => {
+          this.shoutouts$.next([...shoutouts]);
+        });
+      } else {
+        // alert user
+        this.fancyalert.show(TextService.SHOUTOUT_NOT_FOUND);
       }
-      this.ngZone.run(() => {
-        this.shoutouts$.next([...shoutouts]);
-      });
-    } else {
-      // alert user
-      this.fancyalert.show(TextService.SHOUTOUT_NOT_FOUND);
     }
   }
 

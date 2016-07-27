@@ -473,11 +473,13 @@ export class PlayerService extends Analytics {
 
   private tmpConnectionError() {
     this.logger.debug('Temporary connection error.');
+    this.playerUIStateReset();
   }
 
   private streamError(error: any) {
     this.logger.debug('Stream error:');
     this.logger.debug(error);
+    this.playerUIStateReset();
   }
 
   private receivedMessage(message: string) {
@@ -487,6 +489,8 @@ export class PlayerService extends Analytics {
 
   private streamDisconnected() {
     this.logger.debug('Stream has disconnected.');
+    this.playerUIStateReset();
+    this.fancyalert.show(TextService.STREAM_DISCONNECT);
   }
 
   private setupEvents() {
