@@ -1,3 +1,8 @@
+<ActionBar title="Help">
+  <ActionItem (tap)="drawerService.toggle()">
+    <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
+  </ActionItem>
+</ActionBar>
 <ScrollView orientation="vertical">
   <StackLayout class="full-page settings-list">
       <Label text="How to use?" textWrap="true" class="large-heading"></Label>

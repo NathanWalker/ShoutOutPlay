@@ -1,7 +1,7 @@
 import {Router} from '@angular/router';
 
 // app
-import {LogService, BaseComponent} from '../../shared/core/index';
+import {LogService, BaseComponent, DrawerService} from '../../shared/core/index';
 import {FIREBASE_ACTIONS} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
@@ -11,7 +11,7 @@ import {FIREBASE_ACTIONS} from '../../shared/shoutoutplay/index';
 })
 export class HelpComponent {
 
-  constructor(private router: Router) {
+  constructor(public drawerService: DrawerService, private router: Router) {
 
   }  
 

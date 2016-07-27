@@ -1,9 +1,9 @@
 // angular
 import {ChangeDetectionStrategy, ChangeDetectorRef, Inject, ViewChild, AfterViewInit, ElementRef, OnInit, NgZone} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, ROUTER_DIRECTIVES, NavigationEnd} from '@angular/router';
 
 // nativescript
-import {NS_ROUTER_DIRECTIVES, nsProvideRouter} from 'nativescript-angular/router';
+import {NS_ROUTER_DIRECTIVES, RouterExtensions, nsProvideRouter} from 'nativescript-angular/router';
 import {RadSideDrawerComponent} from 'nativescript-telerik-ui-pro/sidedrawer/angular';
 import {PushTransition, DrawerTransitionBase, SlideInOnTopTransition} from 'nativescript-telerik-ui-pro/sidedrawer';
 import {Page} from "ui/page";
@@ -46,6 +46,7 @@ import {AuthService, PlayerService, FirebaseService, PlaylistService} from './sh
   selector: 'my-app',
   templateUrl: './app.component.html',
   // directives: [MainViewComponent],
+  directives: [ROUTER_DIRECTIVES, NS_ROUTER_DIRECTIVES],
   changeDetection: ChangeDetectionStrategy.Default
 }) 
 export class AppComponent implements AfterViewInit {
@@ -62,35 +63,36 @@ export class AppComponent implements AfterViewInit {
   // @ViewChild(PlayerControlsComponent) public playerControlsComponent: PlayerControlsComponent;
   private _sideDrawerTransition: DrawerTransitionBase;
   // private _playerControls: any;
+  private _routerSub: any;
   
-  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService, private ngZone: NgZone) {
+  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService, private ngZone: NgZone, private nav: RouterExtensions) {
     ActionBarUtil.STATUSBAR_STYLE(1);
     this._page.on("loaded", this.onLoaded, this);
   }
 
-  public navItem(type: string) {
-    let isChange = true;
-    for (let key in this.activeRoute) {
-      if (this.activeRoute[key]) {
-        if (key == 'search' && type == '' || key == type) {
-          // clicked on active item
-          isChange = false;
-        }
-      }
-      this.activeRoute[key] = false;
-    }
-    if (type == '') {
-      this.activeRoute.search = true;
-    } else {
-      this.activeRoute[type] = true;
-    }
-    this.activeRoute = Object.assign({}, this.activeRoute);
-    if (isChange && type !== '') {
-      this.router.navigate([`/${type}`]);  
-    } else {
-      this.drawerService.toggle(false);
-    }
-  }
+  // public navItem(type: string) {
+  //   let isChange = true;
+  //   for (let key in this.activeRoute) {
+  //     if (this.activeRoute[key]) {
+  //       if (key == 'search' && type == '' || key == type) {
+  //         // clicked on active item
+  //         isChange = false;
+  //       }
+  //     }
+  //     this.activeRoute[key] = false;
+  //   }
+  //   if (type == '') {
+  //     this.activeRoute.search = true;
+  //   } else {
+  //     this.activeRoute[type] = true;
+  //   }
+  //   this.activeRoute = Object.assign({}, this.activeRoute);
+  //   if (isChange && type !== '') {
+  //     this.router.navigate([`/${type}`]);  
+  //   } else {
+  //     this.drawerService.toggle(false);
+  //   }
+  // }
 
   public get sideDrawerTransition(): DrawerTransitionBase {
     return this._sideDrawerTransition;
@@ -98,6 +100,39 @@ export class AppComponent implements AfterViewInit {
 
   public onLoaded(args) {
     this._sideDrawerTransition = new SlideInOnTopTransition();
+  }
+
+  ngOnInit() {
+    this._routerSub = this.router.events.subscribe((value: any) => {
+      if (value instanceof NavigationEnd) {
+        this.logger.debug(`Route navigated.`);
+        let type = this.router.routerState.snapshot.url.replace('/', '');
+        this.logger.debug(type);
+        let isChange = true;
+        for (let key in this.activeRoute) {
+          if (this.activeRoute[key]) {
+            if (key == 'search' && type == '' || key == type) {
+              // clicked on active item
+              isChange = false;
+            }
+          }
+          this.activeRoute[key] = false;
+        }
+        if (type == '') {
+          this.activeRoute.search = true;
+        } else {
+          // since playlist has detail page
+          if (type.indexOf('playlist') > -1) type = 'playlist';
+          this.activeRoute[type] = true;
+        }
+        this.activeRoute = Object.assign({}, this.activeRoute);
+        // if (isChange && type !== '') {
+        //   this.router.navigate([`/${type}`]);  
+        // } else {
+          this.drawerService.toggle(false);
+        // }
+      } 
+    });
   }
 
   ngAfterViewInit() {
@@ -123,5 +158,9 @@ export class AppComponent implements AfterViewInit {
     //   // AbsoluteLayout.setTop(this._playerControls, 360);
     //   // this.logger.debug(this._playerControls.top);
     // }, 1000);
+  }
+
+  ngOnDestroy() {
+    if (this._routerSub) this._routerSub.unsubscribe();
   }
 }

@@ -1,14 +1,19 @@
 import {Injectable} from '@angular/core';
 import {SideDrawerType} from 'nativescript-telerik-ui-pro/sidedrawer/angular';
 
+import {LogService} from './log.service';
+
 @Injectable()
 export class DrawerService {
 
   public drawer: SideDrawerType;
 
+  constructor(private logger: LogService) { }
+
   public toggle(force?: boolean) {
-    // console.log(`drawerservice toggle force:`);
-    // console.log(force);
+    this.logger.debug(`drawerservice toggle force:`);
+    this.logger.debug(force);
+
     if (typeof force !== 'undefined') {
       if (force === false) {
         this.drawer.closeDrawer();
@@ -16,7 +21,7 @@ export class DrawerService {
 
       }
     } else {
-      // console.log(`calling toggleDrawerState`);
+      this.logger.debug(`calling toggleDrawerState`);
       this.drawer.toggleDrawerState();
     }
   }

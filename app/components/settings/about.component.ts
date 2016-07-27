@@ -1,7 +1,7 @@
 import * as utils from 'utils/utils';
 
 // app
-import {LogService, BaseComponent} from '../../shared/core/index';
+import {LogService, BaseComponent, DrawerService} from '../../shared/core/index';
 
 @BaseComponent({
   // moduleId: module.id,
@@ -10,6 +10,8 @@ import {LogService, BaseComponent} from '../../shared/core/index';
 })
 export class AboutComponent {
 
+  constructor(public drawerService: DrawerService) { }
+  
   public viewPage() {
     utils.openUrl('https://www.nativescript.org/nativescript-is-how-you-build-native-mobile-apps-with-angular');
   }

@@ -27,7 +27,7 @@ export class GeneralComponent implements AfterViewInit {
   public shoutoutTime: number = 6;
   public shoutoutTime$: BehaviorSubject<string> = new BehaviorSubject(`6 seconds`);
 
-  constructor(private logger: LogService, private store: Store<any>, private ngZone: NgZone, private router: Router, private drawerService: DrawerService, private loc: Location, private fancyalert: FancyAlertService) {
+  constructor(public drawerService: DrawerService, private logger: LogService, private store: Store<any>, private ngZone: NgZone, private router: Router, private loc: Location, private fancyalert: FancyAlertService) {
     if (TNSSpotifyAuth.SESSION) {
       TNSSpotifyAuth.CURRENT_USER().then((user: any) => {
         this.ngZone.run(() => {
