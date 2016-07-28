@@ -83,26 +83,86 @@ export const playerReducer: ActionReducer<PlayerStateI> = (state: PlayerStateI =
  * ngrx end --
  */
 
-// class RemoteEventManager extends UIView {
-//   public initManager() {
-//     UIApplication.sharedApplication().beginReceivingRemoteControlEvents();
-//     this.becomeFirstResponder();
-//   }
-//   public canBecomeFirstResponder() {
-//     return true;
-//   }
-//   public remoteControlReceivedWithEvent(e: any) {
-//     console.log('remoteControlReceivedWithEvent:');
-//     console.log(e.subtype);
-//     console.log(e.type);
-//   }
-// }
+/**
+ * iOS Control Center integration (lock screen and bottom fly up)
+ */
+class CommandCenterHandler extends NSObject {
+	private _owner: WeakRef<any>;
+	private selected = false;
+
+	public static initWithOwner(owner: WeakRef<any>): CommandCenterHandler {
+		let handler = <CommandCenterHandler>CommandCenterHandler.new();
+    handler._owner = owner;
+    UIApplication.sharedApplication().beginReceivingRemoteControlEvents();
+		return handler;
+	}
+
+	public cmdPause(args) {
+    let owner = <any>this._owner.get();
+    console.log(`CommandCenterHandler cmdPause`);
+    owner.cmdTogglePlay(false);
+  }
+  
+  public cmdPlay(args) {
+    let owner = <any>this._owner.get();
+    console.log(`CommandCenterHandler cmdPlay`);
+    owner.cmdTogglePlay(true);
+  }
+  
+  public cmdStop(args) {
+    let owner = <any>this._owner.get();
+    console.log(`CommandCenterHandler cmdStop`);
+    owner.cmdTogglePlay(false);
+	}
+
+  public cmdTogglePlay(args) {
+    let owner = <any>this._owner.get();
+    console.log(`CommandCenterHandler cmdTogglePlay`);
+    owner.cmdTogglePlay();
+  }
+  
+  public cmdNext(args) {
+    let owner = <any>this._owner.get();
+    console.log(`CommandCenterHandler cmdNext`);
+    owner.cmdPrevNext(1);
+  }
+  
+  public cmdPrev(args) {
+    let owner = <any>this._owner.get();
+    console.log(`CommandCenterHandler cmdPrev`);
+    owner.cmdPrevNext(0);
+  }
+  
+  public cmdSeekFwd(args) {
+    let owner = <any>this._owner.get();
+    console.log(`CommandCenterHandler cmdSeekFwd`);
+    owner.cmdSeek(args);
+  }
+  
+  public cmdSeekBack(args) {
+    let owner = <any>this._owner.get();
+    console.log(`CommandCenterHandler cmdSeekBack`);
+    owner.cmdSeek(args);
+	}
+
+	public static ObjCExposedMethods = {
+    'cmdPause': { returns: interop.types.void, params: [interop.types.id] },
+    'cmdPlay': { returns: interop.types.void, params: [interop.types.id] },
+    'cmdStop': { returns: interop.types.void, params: [interop.types.id] },
+    'cmdTogglePlay': { returns: interop.types.void, params: [interop.types.id] },
+    'cmdNext': { returns: interop.types.void, params: [interop.types.id] },
+    'cmdPrev': { returns: interop.types.void, params: [interop.types.id] },
+    'cmdSeekFwd': { returns: interop.types.void, params: [interop.types.id] },
+    'cmdSeekBack': { returns: interop.types.void, params: [interop.types.id] }
+	};
+}
 
 @Injectable()
 export class PlayerService extends Analytics {
   public static SHOUTOUT_START: number;
-  public static currentTrack: string;
+  public static currentTrackId: string;
   public static isPreview: boolean;
+  public static isPlaying: boolean;
 
   public state$: Observable<any>;
   private _spotify: TNSSpotifyPlayer;
@@ -112,21 +172,17 @@ export class PlayerService extends Analytics {
   private _shoutoutTimeout: any;
   private _nowPlayingInfo: any;
   private _playConnectingTimeout: any;
-  // private _eventManager: RemoteEventManager;
+  private _cmdCenterHandler: any;
 
   constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
-
-    // this._eventManager = new RemoteEventManager();
-    // this._eventManager.initManager();
 
     this.state$ = store.select('player');
 
     PlayerService.SHOUTOUT_START = Config.SHOUTOUT_START_TIME();
 
     // init player
-    // loader.show();
     this._spotify = new TNSSpotifyPlayer();
     this._spotify.initPlayer(true);
     this.setupEvents();
@@ -145,6 +201,7 @@ export class PlayerService extends Analytics {
         // reset when tracks are cleared
         // normally used in conjunction with STOP (recording component clears them)
         this._currentShoutOutPath = undefined;
+        PlayerService.isPlaying = false;
         // ensure playback is stopped
         this._spotify.togglePlay(null, false); // force stop playback
         this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
@@ -171,8 +228,9 @@ export class PlayerService extends Analytics {
     }
 
     let trackUri: string = `spotify:track:${trackId}`;
-    PlayerService.currentTrack = trackUri;
+    PlayerService.currentTrackId = trackId;
     PlayerService.isPreview = isPreview;
+    PlayerService.isPlaying = playing;
 
     if (!isPreview) {
       if (playing) {
@@ -190,7 +248,6 @@ export class PlayerService extends Analytics {
     this.logger.debug(`playing: ${playing}`);
     this._spotify.togglePlay(trackUri, playing).then((isPlaying: boolean) => {
       this.playerUIStateReset();
-      // this.track(PLAYER_ACTIONS.TOGGLE_PLAY, { label: `${trackUri} ${isPlaying ? 'playing' : 'paused'}` });
     }, (error) => {
       this.logger.debug(`togglePlay error:`);
       this.logger.debug(error);
@@ -203,8 +260,39 @@ export class PlayerService extends Analytics {
     });
   }
 
-  public cmdTogglePlay() {
-    this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, !this._spotify.isPlaying());
+  public cmdTogglePlay(playing?: boolean) {
+    this.logger.debug(`this.cmdTogglePlay:`);
+    this.logger.debug(playing);
+    // if (typeof playing === 'undefined') playing = !this._spotify.isPlaying();
+    if (typeof playing === 'undefined') playing = !PlayerService.isPlaying;
+    this.logger.debug(`playing: ${playing}`);
+    this.ngZone.run(() => {
+      this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: PlayerService.currentTrackId, playing: playing } });
+    });
+  }
+
+  public cmdPrevNext(direction: number) {
+    this.ngZone.run(() => {
+      if (direction) {
+        this.store.dispatch({ type: PLAYLIST_ACTIONS.SKIP_NEXT });
+      } else {
+        this.store.dispatch({ type: PLAYLIST_ACTIONS.SKIP_BACK });
+      }
+    });
+  }
+  
+  public cmdSeek(args: any) {
+    this.ngZone.run(() => {
+      this.logger.debug(`cmdSeek...`);
+      this.logger.debug(args);
+      // let offset = 
+      // this._spotify.player.seekToOffsetCallback(offset, (error: any) => {
+      //   if (error != null) {
+      //     this.logger.debug(`Spotify seek error:`);
+      //     this.logger.debug(error);
+      //   }
+      // });
+    });
   }
 
   private resetConnectionTimeout() {
@@ -277,7 +365,7 @@ export class PlayerService extends Analytics {
     if (this._shoutOutPlayer.isPlaying()) {
       this._shoutOutPlayer.togglePlay(this._currentShoutOutPath);
     }
-    if (this._shoutoutTimeout) {
+    if (this._shoutoutTimeout) {  
       clearTimeout(this._shoutoutTimeout);
       this._shoutoutTimeout = undefined;
     }
@@ -299,16 +387,9 @@ export class PlayerService extends Analytics {
   private updateAlbumArt(url: string) {
     this.logger.debug(url);
     if (app.ios) {
-      let metadata: any = this._spotify.currentTrackMetadata();
-      for (let key in metadata) {
-        this.logger.debug(metadata[key]);
-      }
 
       let nsUrl = NSURL.URLWithString(url);
       let data = NSData.dataWithContentsOfURL(nsUrl);
-      // this.logger.debug(`album url data:`);
-      // this.logger.debug(data);
-
       if (!data) {
         this.logger.debug(`Failed to load data from URL: ${url}`);
         return;
@@ -320,46 +401,31 @@ export class PlayerService extends Analytics {
     	let artwork = MPMediaItemArtwork.alloc().initWithImage(image);
       // this.logger.debug(`MPMediaItemArtwork:`);
       // this.logger.debug(artwork);
+      this.updateiOSControlCenter(artwork);
+    }
+  }
 
-      // display now playing info on control center
-      // let nowPlayingInfo = NSDictionary.dictionaryWithDictionary({
-      //   MPMediaItemPropertyTitle: metadata.trackName,
-      //   MPMediaItemPropertyArtist: metadata.artistName,
-      //   MPNowPlayingInfoPropertyPlaybackRate: 1
-      //   // MPMediaItemPropertyArtwork: 2,
-      // });
+  private updateiOSControlCenter(artwork?: any) {
+    let metadata: any = this._spotify.currentTrackMetadata();
+    // for (let key in metadata) {
+    //   this.logger.debug(metadata[key]);
+    // }
+    if (metadata) {
       if (!this._nowPlayingInfo) {
         this._nowPlayingInfo = new NSMutableDictionary();
       }
-      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.trackName), 'MPMediaItemPropertyTitle');
-      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.albumName), 'MPMediaItemPropertyAlbumTitle');
-      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.artistName), 'MPMediaItemPropertyArtist');
-      this._nowPlayingInfo.setValueForKey(artwork, 'MPMediaItemPropertyArtwork');
-      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithFloat(parseFloat(metadata.trackDuration)), 'MPMediaItemPropertyPlaybackDuration');
-      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithDouble(1), 'MPNowPlayingInfoPropertyPlaybackRate');
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.trackName), MPMediaItemPropertyTitle);
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.albumName), MPMediaItemPropertyAlbumTitle);
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.artistName), MPMediaItemPropertyArtist);
+      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithFloat(parseFloat(metadata.trackDuration)), MPMediaItemPropertyPlaybackDuration);
+      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithDouble(1.0), MPNowPlayingInfoPropertyPlaybackRate); 
 
-      // this._nowPlayingInfo = new NSMutableDictionary([
-      //   metadata.trackName,
-      //   metadata.albumName,
-      //   metadata.artistName,
-      //   artwork,
-      //   NSNumber.numberWithFloat(metadata.trackDuration),
-      //   NSNumber.numberWithFloat(1.0)
-      // ],
-      // [
-      //   "MPMediaItemPropertyTitle",
-      //   "MPMediaItemPropertyAlbumTitle",
-      //   "MPMediaItemPropertyArtist",
-      //   "MPMediaItemPropertyArtwork",
-      //   "MPMediaItemPropertyPlaybackDuration",
-      //   "MPNowPlayingInfoPropertyPlaybackRate"
-      //   ]);  
+      if (artwork) {
+        this._nowPlayingInfo.setValueForKey(artwork, MPMediaItemPropertyArtwork);
+      }
 
-      invokeOnRunLoop(() => {
-        this.logger.debug(`setting MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo`);
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = this._nowPlayingInfo;
-        this.logger.debug(MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo);
-      });
+      // this.logger.debug(`setting MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo`);
+      MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = this._nowPlayingInfo;
     }
   }
 
@@ -375,24 +441,18 @@ export class PlayerService extends Analytics {
     //   this.logger.debug(key);
     // }
 
-    // MPRemoteCommandCenter.sharedCommandCenter().pauseCommand.addTargetAction(this, () => {
-    //   this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, false);
-    // });
-    // MPRemoteCommandCenter.sharedCommandCenter().playCommand.addTargetAction(this, () => {
-    //   this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, true);
-    // });
-    // MPRemoteCommandCenter.sharedCommandCenter().stopCommand.addTargetAction(this, () => {
-    //   this.togglePlay(PlayerService.currentTrack, PlayerService.isPreview, false);
-    // });
-    // MPRemoteCommandCenter.sharedCommandCenter().togglePlayPauseCommand.addTargetAction(this, 'cmdTogglePlay');
-
+    this._cmdCenterHandler = CommandCenterHandler.initWithOwner(new WeakRef(<any>this));
+    MPRemoteCommandCenter.sharedCommandCenter().pauseCommand.addTargetAction(this._cmdCenterHandler, 'cmdPause');
+    MPRemoteCommandCenter.sharedCommandCenter().playCommand.addTargetAction(this._cmdCenterHandler, 'cmdPlay');
+    MPRemoteCommandCenter.sharedCommandCenter().stopCommand.addTargetAction(this._cmdCenterHandler, 'cmdStop');
+    MPRemoteCommandCenter.sharedCommandCenter().togglePlayPauseCommand.addTargetAction(this._cmdCenterHandler, 'cmdTogglePlay');
+    MPRemoteCommandCenter.sharedCommandCenter().nextTrackCommand.addTargetAction(this._cmdCenterHandler, 'cmdNext');
+    MPRemoteCommandCenter.sharedCommandCenter().previousTrackCommand.addTargetAction(this._cmdCenterHandler, 'cmdPrev');
+    MPRemoteCommandCenter.sharedCommandCenter().seekForwardCommand.addTargetAction(this._cmdCenterHandler, 'cmdSeekFwd');
+    MPRemoteCommandCenter.sharedCommandCenter().seekBackwardCommand.addTargetAction(this._cmdCenterHandler, 'cmdSeekBack');
 
     // [commandCenter.enableLanguageOptionCommand addTarget:self action:@selector(onEnableLanguageOption:)];
     // [commandCenter.disableLanguageOptionCommand addTarget:self action:@selector(onDisableLanguageOption:)];
-    // [commandCenter.nextTrackCommand addTarget:self action:@selector(onNextTrack:)];
-    // [commandCenter.previousTrackCommand addTarget:self action:@selector(onPreviousTrack:)];
-    // [commandCenter.seekForwardCommand addTarget:self action:@selector(onSeekForward:)];
-    // [commandCenter.seekBackwardCommand addTarget:self action:@selector(onSeekBackward:)];
 
     // if ([cmd isEqual: @"@pause"]) {
     //   remoteCenter.pauseCommand.enabled = enabled;
@@ -416,25 +476,6 @@ export class PlayerService extends Analytics {
     //   remoteCenter.seekBackwardCommand.enabled = enabled;
     // }
   }
-  
-  // func remoteControlReceivedWithEvent(receivedEvent:UIEvent)  {
-  //       if (receivedEvent.type == .RemoteControl) {
-  //           switch receivedEvent.subtype {
-  //           case .RemoteControlTogglePlayPause:
-  //               if avQueuePlayer.rate > 0.0 {
-  //                   pause()
-  //               } else {
-  //                   play()
-  //               }
-  //           case .RemoteControlPlay:
-  //               play()
-  //           case .RemoteControlPause:
-  //               pause()
-  //           default:
-  //               println("received sub type \(receivedEvent.subtype) Ignoring")
-  //           }
-  //       }
-  //   }
 
   private updateLogin(loggedIn: boolean) {
     this.store.dispatch({ type: AUTH_ACTIONS.LOGGED_IN_CHANGE, payload: { loggedIn } });
@@ -489,6 +530,7 @@ export class PlayerService extends Analytics {
 
   private streamDisconnected() {
     this.logger.debug('Stream has disconnected.');
+    PlayerService.isPlaying = false;
     this.playerUIStateReset();
     this.fancyalert.show(TextService.STREAM_DISCONNECT);
   }
@@ -553,12 +595,4 @@ export class PlayerService extends Analytics {
     });
   }
 }
-
-export const invokeOnRunLoop = (function() {
-    var runloop = CFRunLoopGetMain();
-    return function(func) {
-        CFRunLoopPerformBlock(runloop, kCFRunLoopDefaultMode, func);
-        CFRunLoopWakeUp(runloop);
-    }
-}());
 

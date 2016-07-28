@@ -41,6 +41,8 @@ interface PLAYLIST_ACTIONSI {
   LOOP_NEXT: string;
   NOOP: string;
   SHOW_RECORD: string;
+  SKIP_NEXT: string;
+  SKIP_BACK: string;
 }
 
 export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
@@ -48,7 +50,9 @@ export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
   CLOSE_PICKER: `[${CATEGORY}] CLOSE_PICKER`,
   LOOP_NEXT: `[${CATEGORY}] LOOP_NEXT`,
   NOOP: `[${CATEGORY}] NOOP`,
-  SHOW_RECORD: `[${CATEGORY}] SHOW_RECORD`
+  SHOW_RECORD: `[${CATEGORY}] SHOW_RECORD`,
+  SKIP_NEXT: `[${CATEGORY}] SKIP_NEXT`,
+  SKIP_BACK: `[${CATEGORY}] SKIP_BACK`
 };
 
 export const playlistReducer: ActionReducer<PlaylistStateI> = (state: PlaylistStateI = {}, action: Action) => {
@@ -269,6 +273,55 @@ export class PlaylistService extends Analytics {
     }
   }
 
+  public skipNextPrev(direction: number) {
+    let playlists = [];
+    let playlistIndex = -1;
+    let trackIndex = -1;
+    let playlistId;
+    let track;
+
+    this.store.take(1).subscribe((s: any) => {
+      let currentTrackId = s.player.currentTrackId;
+      if (currentTrackId) {
+        playlists = [...s.firebase.playlists];
+        for (let i = 0; i < playlists.length; i++) {
+          for (let a = 0; a < playlists[i].tracks.length; a++) {
+            if (playlists[i].tracks[a].id === currentTrackId) {
+              playlistId = playlists[i].id;
+              track = playlists[i].tracks[a];
+              playlistIndex = i;
+              trackIndex = a;
+              this.logger.debug(`skipNextPrev, found indices, playlistIndex: ${playlistIndex}, trackIndex: ${trackIndex}`);
+              break;
+            }
+          }
+        }
+
+        if (playlists.length && playlistIndex > -1 && trackIndex > -1) {
+          if (direction) {
+            // next track
+            trackIndex++;       
+          } else {
+            // prev track
+            trackIndex--;
+          }
+
+          let trackId;
+          if (trackIndex > -1 && trackIndex < playlists[playlistIndex].tracks.length) {
+            trackId = playlists[playlistIndex].tracks[trackIndex].id;
+            track = playlists[playlistIndex].tracks[trackIndex];
+          } else {
+            // start over from start
+            trackId = playlists[playlistIndex].tracks[0].id;
+            track = playlists[playlistIndex].tracks[0];
+          }
+          this.togglePlay(playlistId, track);
+        }
+      }
+    });
+    
+  }
+
   private promptToRecord(track: TrackModel) {
     setTimeout(() => {
       this.fancyalert.action('Record a ShoutOut?', null, 'microphone', [
@@ -329,51 +382,27 @@ export class PlaylistEffects {
     })
     .filter(() => false);
   
+  @Effect() skipNext$ = this.updates$
+    .whenAction(PLAYLIST_ACTIONS.SKIP_NEXT)
+    .do((update) => {
+      this.logger.debug(`PlaylistEffects.SKIP_NEXT`);
+      this.playlistService.skipNextPrev(1);
+    })
+    .filter(() => false);
+  
+  @Effect() skipBack$ = this.updates$
+    .whenAction(PLAYLIST_ACTIONS.SKIP_BACK)
+    .do((update) => {
+      this.logger.debug(`PlaylistEffects.SKIP_BACK`);
+      this.playlistService.skipNextPrev(0);
+    })
+    .filter(() => false);
+  
   @Effect() loopNext$ = this.updates$
     .whenAction(PLAYLIST_ACTIONS.LOOP_NEXT)
     .do((update) => {
-      let playlists = [];
-      let playlistIndex = -1;
-      let trackIndex = -1;
-      let playlistId;
-      let track;
-      this.store.take(1).subscribe((s: any) => {
-        let currentTrackId = s.player.currentTrackId;
-        if (currentTrackId) {
-          this.logger.debug(`PlaylistEffects.LOOP_NEXT`);
-          playlists = [...s.firebase.playlists];
-          for (let i = 0; i < playlists.length; i++) {
-            for (let a = 0; a < playlists[i].tracks.length; a++) {
-              if (playlists[i].tracks[a].id === currentTrackId) {
-                playlistId = playlists[i].id;
-                track = playlists[i].tracks[a];
-                playlistIndex = i;
-                trackIndex = a;
-                this.logger.debug(`PlaylistEffects, found indices, playlistIndex: ${playlistIndex}, trackIndex: ${trackIndex}`);
-                break;
-              }
-            }
-          }
-        }
-      });
-      if (playlists.length && playlistIndex > -1 && trackIndex > -1) {
-        // loop playback
-        trackIndex++;
-        let trackId;
-        if (trackIndex < playlists[playlistIndex].tracks.length) {
-          trackId = playlists[playlistIndex].tracks[trackIndex].id;
-          track = playlists[playlistIndex].tracks[trackIndex];
-        } else {
-          // start over from start
-          trackId = playlists[playlistIndex].tracks[0].id;
-          track = playlists[playlistIndex].tracks[0];
-        }
-        this.playlistService.togglePlay(playlistId, track);
-        // return ({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: trackId, playing: true } });
-      }
-      // else {
-      //   return ({ type: PLAYLIST_ACTIONS.NOOP });
-      // }
+      this.logger.debug(`PlaylistEffects.LOOP_NEXT`);
+      this.playlistService.skipNextPrev(1);
     })
     .filter(() => false);
 }
