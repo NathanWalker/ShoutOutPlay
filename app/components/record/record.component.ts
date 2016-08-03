@@ -6,8 +6,10 @@ import {Location} from '@angular/common';
 // nativescript
 import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import {TNSEZRecorder, TNSEZAudioPlayer, AudioPlot} from 'nativescript-ezaudio';
+import * as app from 'application';
 import * as dialogs from 'ui/dialogs';
 import * as fs from 'file-system';
+import {isIOS} from 'platform';
 import {Color} from 'color';
 import {screen} from 'platform';
 import {Animation} from 'ui/animation';
@@ -55,7 +57,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   public saveTxt: string;
   public saveBtnWidth: string;
   public saveBtnTxtWidth: string;
-  public showRecord: boolean = false;
+  public isSmallerScreen: boolean = false;
 
   private _recorder: any;
   private _player: any;
@@ -69,6 +71,9 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _reloadPlayer: boolean = false;
   private _sessionRecordings: Array<any> = [];
   private _chosenTrack: TrackModel;
+  private _showingGiantRecordUI: boolean = true;
+  private _firstPlayShow: boolean = false; 
+  private _glowiOSView;  
   private _sub: Subscription;
 
   constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private progress: ProgressService, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService) {
@@ -152,8 +157,8 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this.showPlayBtn = !state;
     if (this.isRecording) {
       this.recordBtn$.next('fa-stop');
-      if (!this.showRecord) {
-        this.startTransition();
+      if (this._showingGiantRecordUI) {
+        this.hideGiantRecordUI();
       } else {
         this.showPlayControls(false);
       }
@@ -212,30 +217,6 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.location.back();
     }, 1000);
-
-    // this.store.take(1).subscribe((s: any) => {
-    //   let playlists = [...s.firebase.playlists];
-    //   // update the track inside the correct playlist
-    //   let updatedPlaylist: PlaylistModel;
-    //   for (let playlist of playlists) {
-    //     this.logger.debug('looking for playlist...');
-    //     if (this._chosenTrack.playlistId === playlist.id) {
-    //       updatedPlaylist = playlist;
-    //       this.logger.debug('found playlist');
-    //       for (let track of updatedPlaylist.tracks) {
-    //         if (this._chosenTrack.id === track.id) {
-    //           this.logger.debug('found track');
-    //           track.shoutoutId = newShoutout.tmpId;
-    //           break;
-    //         }
-    //       }
-    //     }
-    //   }
-    //   this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: { changes: { playlists: [updatedPlaylist], shoutouts: [newShoutout] } } });
-    //   setTimeout(() => {
-    //     this.location.back();
-    //   }, 800);
-    // });
   }
 
   private togglePlayState(force?: boolean) {
@@ -250,8 +231,6 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private _firstPlayShow: boolean = false; 
-  public isSmallerScreen: boolean = false;
   private showPlayControls(enable: boolean) {
     this.logger.debug(`showPlayControls: ${enable}`);
     
@@ -332,8 +311,8 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     }, 100);    
   }
 
-  private startTransition() {
-    this.showRecord = true;
+  private hideGiantRecordUI() {
+    this._showingGiantRecordUI = false;
     let animateDefs = [];
     animateDefs.push({
       target: this._bigRecordBtn,
@@ -351,14 +330,33 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     let animateSet = new Animation(animateDefs);
     animateSet.play();
 
+    if (isIOS) {
+      this.hideGiantRecordBtniOS();
+    } else {
+      this.hideGiantRecordBtnAndroid();
+    } 
+    
+    setTimeout(() => {
+      if (isIOS) {
+        this._glowiOSView.removeFromSuperview();
+        this._glowiOSView = undefined;
+      }
+      this._startAnimateSet.cancel();
+    }, 1000);
+  }
 
+  private hideGiantRecordBtnAndroid() {
+    this.logger.debug('TO DO animate record on android');
+  }
+
+  private hideGiantRecordBtniOS() {
     let animation = CABasicAnimation.animationWithKeyPath("opacity");
     // animation.fromValue = 1;
     animation.toValue = 0;
     animation.duration = 0.6;
     animation.fillMode = kCAFillModeForwards;
     animation.removedOnCompletion = false;
-    this._glowView.layer.addAnimationForKey(animation, "out");
+    this._glowiOSView.layer.addAnimationForKey(animation, "out");
     animation = CABasicAnimation.animationWithKeyPath("position.x");
     // animation.fromValue = ((screen.mainScreen.widthDIPs / 2) - 84);
     animation.toValue = screen.mainScreen.widthDIPs-140;
@@ -366,7 +364,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     animation.timingFunction = CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut);
     animation.fillMode = kCAFillModeForwards;
     animation.removedOnCompletion = false;
-    this._glowView.layer.addAnimationForKey(animation, "xOut");
+    this._glowiOSView.layer.addAnimationForKey(animation, "xOut");
     animation = CABasicAnimation.animationWithKeyPath("position.y");
     // animation.fromValue = ((screen.mainScreen.heightDIPs / 2) - 150);
     animation.toValue = -120;
@@ -374,18 +372,12 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     animation.timingFunction = CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut);
     animation.fillMode = kCAFillModeForwards;
     animation.removedOnCompletion = false;
-    this._glowView.layer.addAnimationForKey(animation, "yOut");
-
-    setTimeout(() => {
-      this._glowView.removeFromSuperview();
-      this._glowView = undefined;
-      this._startAnimateSet.cancel();
-    }, 1000);
+    this._glowiOSView.layer.addAnimationForKey(animation, "yOut");
   }
 
-  private _glowView;  
-  private nativeGlow() {
+  private nativeiOSGlow() {
     let uiButton = this._bigRecordBtn.ios;
+
     if (uiButton) {
       let image;
       let color = new Color('#E42338').ios; //UIColor.colorWithRedGreenBlueAlpha(0.89, 0.14, 0.22, 1);
@@ -398,9 +390,9 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       image = UIGraphicsGetImageFromCurrentImageContext();
       UIGraphicsEndImageContext();
 
-      this._glowView = UIImageView.alloc().initWithImage(image);
-      this._glowView.center = uiButton.center;
-      uiButton.superview.insertSubviewAboveSubview(this._glowView, uiButton);
+      this._glowiOSView = UIImageView.alloc().initWithImage(image);
+      this._glowiOSView.center = uiButton.center;
+      uiButton.superview.insertSubviewAboveSubview(this._glowiOSView, uiButton);
       
       // let absolutePosition: CGRect = uiButton.convertRectToView(uiButton.bounds, null);
       // this.logger.debug(`uiButton absolutePosition...`);
@@ -410,13 +402,13 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       // We don't want to show the image, but rather a shadow created by
       // Core Animation. By setting the shadow to white and the shadow radius to 
       // something large, we get a pleasing glow.
-      this._glowView.alpha = 0;
-      this._glowView.frame = CGRectMake(((screen.mainScreen.widthDIPs / 2) - 84), ((screen.mainScreen.heightDIPs / 2) - 150), uiButton.bounds.size.width, uiButton.bounds.size.height);
-      this._glowView.layer.transform = CATransform3DMakeScale(1.2, 1.2, 1);
-      this._glowView.layer.shadowColor = color.CGColor;
-      this._glowView.layer.shadowOffset = CGSizeZero;
-      this._glowView.layer.shadowRadius = 30;
-      this._glowView.layer.shadowOpacity = 1.0;
+      this._glowiOSView.alpha = 0;
+      this._glowiOSView.frame = CGRectMake(((screen.mainScreen.widthDIPs / 2) - 84), ((screen.mainScreen.heightDIPs / 2) - 150), uiButton.bounds.size.width, uiButton.bounds.size.height);
+      this._glowiOSView.layer.transform = CATransform3DMakeScale(1.2, 1.2, 1);
+      this._glowiOSView.layer.shadowColor = color.CGColor;
+      this._glowiOSView.layer.shadowOffset = CGSizeZero;
+      this._glowiOSView.layer.shadowRadius = 30;
+      this._glowiOSView.layer.shadowOpacity = 1.0;
       
       // Create an animation that slowly fades the glow view in and out forever.
       let animation = CABasicAnimation.animationWithKeyPath("opacity");
@@ -427,9 +419,13 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       animation.autoreverses = true;
       animation.timingFunction = CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut);
       
-      this._glowView.layer.addAnimationForKey(animation, "pulse");
+      this._glowiOSView.layer.addAnimationForKey(animation, "pulse");
 
     }
+  }
+
+  private nativeAndroidGlow() {
+    this.logger.debug('TO DO!!');
   }
 
   private _startAnimateSet: Animation;  
@@ -446,6 +442,10 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     // this.logger.debug('btn size:');
     // this.logger.debug(this._bigRecordBtn.width + 'x' + this._bigRecordBtn.height);
 
+    this.setupRecordAnimation();
+  }
+
+  private setupRecordAnimation() {
     // trying to set initial position = this did not work - don't know why
     // this._bigRecordBtn.ios.frame = CGRectMake(((screen.mainScreen.widthDIPs / 2) - 120), ((screen.mainScreen.heightDIPs / 2) - 170), this._bigRecordBtn.ios.bounds.size.width, this._bigRecordBtn.ios.bounds.size.height);
     // this._readyRecordLabel.ios.frame = CGRectMake(screen.mainScreen.widthDIPs, ((screen.mainScreen.heightDIPs/2)-170), this._readyRecordLabel.ios.bounds.size.width, this._readyRecordLabel.ios.bounds.size.height);
@@ -492,7 +492,12 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
         this.logger.debug(`_startAnimateSet error: ${e.message}`);
       });
       setTimeout(() => {
-        this.nativeGlow();
+        if (isIOS) {
+          this.nativeiOSGlow();
+        } else {
+          // TODO
+          this.nativeAndroidGlow();
+        }
       }, 1000);
     }, 600);
   }

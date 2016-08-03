@@ -13,6 +13,13 @@ export class LogService {
       this.logger.log(msg);  // must be `log` as Android does not support console.debug !!
     }
   }
+
+  // keys (and optional value of object)  
+  public keys(data: any, printValue?: boolean) { 
+    if (Config.DEBUG.LEVEL_4) {
+      this.logger.keys(data, printValue); 
+    }
+  }
   
   // error
   public error(err: any) {

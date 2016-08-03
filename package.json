@@ -4,6 +4,9 @@
     "id": "com.wwwalkerrun.ShoutOutPlay",
     "tns-ios": {
       "version": "2.1.1"
+    },
+    "tns-android": {
+      "version": "2.1.1"
     }
   },
   "scripts": {
@@ -32,6 +35,7 @@
     "nativescript-fancyalert": "^1.0.9",
     "nativescript-gif": "^1.0.5",
     "nativescript-loading-indicator": "^2.0.1",
+    "nativescript-master-technology": "^1.0.6",
     "nativescript-ng2-fonticon": "^1.2.2",
     "nativescript-plugin-firebase": "^3.4.4",
     "nativescript-slides": "^1.7.1",
@@ -46,6 +50,10 @@
     "zone.js": "0.6.12"
   },
   "devDependencies": {
+    "babel-traverse": "6.12.0",
+    "babel-types": "6.11.1",
+    "babylon": "6.8.4",
+    "lazy": "1.0.11",
     "nativescript-dev-sass": "^0.1.0",
     "nativescript-dev-typescript": "^0.3.2",
     "nativescript-dev-webpack": "0.0.19",

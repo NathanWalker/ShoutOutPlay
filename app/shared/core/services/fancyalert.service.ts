@@ -3,13 +3,15 @@ import {Injectable, NgZone} from '@angular/core';
 
 // nativescript
 import {Color} from 'color';
+import {isIOS} from 'platform';
+import * as dialogs from 'ui/dialogs';
 import {TNSFancyAlert, TNSFancyAlertButton} from 'nativescript-fancyalert';
 
 // app
 import {ColorService} from './color.service';
 import {LogService} from './log.service';
 
-declare var MBProgressHUDModeCustomView: any, zonedCallback: Function, UIBezierPath, SCLAlertViewStyleKit, CGPointMake;
+declare var zonedCallback: Function, UIBezierPath, SCLAlertViewStyleKit, CGPointMake;
 
 @Injectable()
 export class FancyAlertService {
@@ -17,87 +19,138 @@ export class FancyAlertService {
   private _micImage: any;
 
   constructor(private logger: LogService, private _ngZone: NgZone) {
-    TNSFancyAlert.titleColor = ColorService.Active.WHITE;
-    TNSFancyAlert.bodyTextColor = ColorService.Active.WHITE;
-    TNSFancyAlert.backgroundViewColor = ColorService.Active.COMPLIMENTARY;
-    TNSFancyAlert.shouldDismissOnTapOutside = true;
+
+    if (isIOS) {
+      TNSFancyAlert.titleColor = ColorService.Active.WHITE;
+      TNSFancyAlert.bodyTextColor = ColorService.Active.WHITE;
+      TNSFancyAlert.backgroundViewColor = ColorService.Active.COMPLIMENTARY;
+      TNSFancyAlert.shouldDismissOnTapOutside = true;
+    } else {
+      // android
+    }
   }
 
   public show(message: string) {
-    TNSFancyAlert.customViewColor = ColorService.Active.HIGHLIGHT;
-    TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromCenter;
-    TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutToCenter;
 
-    TNSFancyAlert.showInfo(null, message);
+    if (isIOS) {
+      TNSFancyAlert.customViewColor = ColorService.Active.HIGHLIGHT;
+      TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromCenter;
+      TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutToCenter;
+
+      TNSFancyAlert.showInfo(null, message);
+    } else {
+      dialogs.alert(message);
+    }
   }
 
   public prompt(placeholder: string, initialValue: string, title: string, image: string, action: Function) {
-    TNSFancyAlert.customViewColor = ColorService.Active.PRIMARY;
-    this.defaultAnimation();
 
-    TNSFancyAlert.showTextField(
-      placeholder,
-      initialValue,
-      new TNSFancyAlertButton({
-        label: 'Save',
-        action: (value: any) => {
-          this.logger.debug(`User entered ${value}`);
-          this._ngZone.run(() => {
-            action(value);
-          });
-        }
-      }),
-      this.getAlertImage(image),
-      ColorService.Active.WHITE,
-      title
-    );
+    if (isIOS) {
+      TNSFancyAlert.customViewColor = ColorService.Active.PRIMARY;
+      this.defaultAnimation();
+
+      TNSFancyAlert.showTextField(
+        placeholder,
+        initialValue,
+        new TNSFancyAlertButton({
+          label: 'Save',
+          action: (value: any) => {
+            this.logger.debug(`User entered ${value}`);
+            this._ngZone.run(() => {
+              action(value);
+            });
+          }
+        }),
+        this.getAlertImage(image),
+        ColorService.Active.WHITE,
+        title
+      );
+    } else {
+      dialogs.prompt(title, placeholder || initialValue).then((result: any) => {
+        this.logger.debug(`User entered ${result.text}`);
+        this._ngZone.run(() => {
+          action(result.text);
+        });
+      });
+    }
   } 
 
   public confirm(subTitle: string, image: string, action: Function) {
-    TNSFancyAlert.customViewColor = ColorService.Active.RED;
-    TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromCenter;
-    TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutFromCenter;
 
-    TNSFancyAlert.showCustomButtons([
-      new TNSFancyAlertButton({
-        label: 'Yes',
-        action: () => {
+    if (isIOS) {
+      TNSFancyAlert.customViewColor = ColorService.Active.RED;
+      TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromCenter;
+      TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutFromCenter;
+
+      TNSFancyAlert.showCustomButtons([
+        new TNSFancyAlertButton({
+          label: 'Yes',
+          action: () => {
+            this._ngZone.run(() => {
+              action();
+            });
+          }
+        })],
+        this.getAlertImage(image),
+        ColorService.Active.WHITE,
+        'Confirm',
+        subTitle
+      );
+    } else {
+      dialogs.confirm(subTitle).then((result: boolean) => {
+        if (result) {
           this._ngZone.run(() => {
             action();
           });
         }
-      })],
-      this.getAlertImage(image),
-      ColorService.Active.WHITE,
-      'Confirm',
-      subTitle
-    );
+      })
+    }
   } 
 
   public action(title: string, subTitle: string, image: string, buttons: Array<TNSFancyAlertButton>) {
-    TNSFancyAlert.customViewColor = ColorService.Active.PRIMARY;
-    TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromRight;
-    TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutToRight;
 
-    let btns = [];
-    for (let b of buttons) {
-      btns.push(new TNSFancyAlertButton({
-        label: b.label,
-        action: () => {
-          this.logger.debug(`User chose ${b.label}`);
-          this._ngZone.run(() => {
-            b.action();
-          });
+    if (isIOS) {
+      TNSFancyAlert.customViewColor = ColorService.Active.PRIMARY;
+      TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromRight;
+      TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutToRight;
+
+      let btns = [];
+      for (let b of buttons) {
+        btns.push(new TNSFancyAlertButton({
+          label: b.label,
+          action: () => {
+            this.logger.debug(`User chose ${b.label}`);
+            this._ngZone.run(() => {
+              b.action();
+            });
+          }
+        }));
+      }
+      TNSFancyAlert.showCustomButtons(
+        btns,
+        this.getAlertImage(image),
+        ColorService.Active.WHITE,
+        title,
+        subTitle
+      );
+    } else {
+
+      dialogs.action({
+        message: title,
+        cancelButtonText: "Cancel",
+        actions: buttons.map(b => b.label)
+      }).then((result: any) => {
+        this.logger.debug(`User chose ${result}`);
+        for (let b of buttons) {
+          if (b.label === result) {
+            this._ngZone.run(() => {
+              b.action();
+            });
+            break;
+          }
         }
-      }));
+      })
     }
-    TNSFancyAlert.showCustomButtons(
-      btns,
-      this.getAlertImage(image),
-      ColorService.Active.WHITE,
-      title,
-      subTitle
-    );
   } 
 
   private getAlertImage(image: string) {

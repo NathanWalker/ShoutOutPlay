@@ -20,12 +20,12 @@ import {HelpComponent} from './components/settings/help.component';
 import {AboutComponent} from './components/settings/about.component';
 import {WelcomeComponent} from './components/intro/welcome.component';
 
-@Injectable()
-export class DelayGuard implements CanActivate {
-  canActivate() {
-    return Observable.of(true).delay(2000);
-  }
-}
+// @Injectable()
+// export class DelayGuard implements CanActivate {
+//   canActivate() {
+//     return Observable.of(true).delay(2000);
+//   }
+// }
 
 // canActivate: [DelayGuard] 
 

@@ -7,6 +7,7 @@ export class ConsoleService implements IConsole {
   
   public log(m: any): void { return; }
   public debug(m: any): void { return; }
+  public keys(data: any, printValue?: boolean): void { return; } // util from nativescript-master-technology
   public error(m: any): void { return; }
   public warn(m: any): void { return; }
   public info(m: any): void { return; }

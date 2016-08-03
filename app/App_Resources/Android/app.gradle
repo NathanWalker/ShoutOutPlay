@@ -8,7 +8,8 @@
 android {  
   defaultConfig {  
     generatedDensities = []
-    applicationId = "__PACKAGE__"  
+    applicationId = "com.wwwalkerrun.ShoutOutPlay"  
+    multiDexEnabled true
   }  
   aaptOptions {  
     additionalParameters "--no-version-vectors"  

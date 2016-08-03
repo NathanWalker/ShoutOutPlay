@@ -57,6 +57,9 @@ export class AboutComponent {
       case 11:
         utils.openUrl('https://github.com/NathanaelA/nativescript-themes');
         break;
+      case 12:
+        utils.openUrl('https://github.com/NathanaelA/nativescript-master-technology');
+        break;
     }
   }
 }

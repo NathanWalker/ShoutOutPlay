@@ -3,7 +3,7 @@ import {Injectable, Inject, forwardRef, OnInit, NgZone} from '@angular/core';
 
 // nativescript
 import {EventData} from 'data/observable';
-import * as app from 'application';
+import {isIOS} from 'platform';
 import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
 import {File} from 'file-system';
 
@@ -17,6 +17,7 @@ import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescrip
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {Config, LogService, ProgressService, FancyAlertService, TextService, Utils} from '../../core/index';
 import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
+import {CommandCenterHandler} from '../ios/command-center';
 
 declare var zonedCallback: Function, MPNowPlayingInfoCenter, interop;
 
@@ -83,80 +84,6 @@ export const playerReducer: ActionReducer<PlayerStateI> = (state: PlayerStateI =
  * ngrx end --
  */
 
-/**
- * iOS Control Center integration (lock screen and bottom fly up)
- */
-class CommandCenterHandler extends NSObject {
-	private _owner: WeakRef<any>;
-	private selected = false;
-
-	public static initWithOwner(owner: WeakRef<any>): CommandCenterHandler {
-		let handler = <CommandCenterHandler>CommandCenterHandler.new();
-    handler._owner = owner;
-    UIApplication.sharedApplication().beginReceivingRemoteControlEvents();
-		return handler;
-	}
-
-	public cmdPause(args) {
-    let owner = <any>this._owner.get();
-    console.log(`CommandCenterHandler cmdPause`);
-    owner.cmdTogglePlay(false);
-  }
-  
-  public cmdPlay(args) {
-    let owner = <any>this._owner.get();
-    console.log(`CommandCenterHandler cmdPlay`);
-    owner.cmdTogglePlay(true);
-  }
-  
-  public cmdStop(args) {
-    let owner = <any>this._owner.get();
-    console.log(`CommandCenterHandler cmdStop`);
-    owner.cmdTogglePlay(false);
-	}
-
-  public cmdTogglePlay(args) {
-    let owner = <any>this._owner.get();
-    console.log(`CommandCenterHandler cmdTogglePlay`);
-    owner.cmdTogglePlay();
-  }
-  
-  public cmdNext(args) {
-    let owner = <any>this._owner.get();
-    console.log(`CommandCenterHandler cmdNext`);
-    owner.cmdPrevNext(1);
-  }
-  
-  public cmdPrev(args) {
-    let owner = <any>this._owner.get();
-    console.log(`CommandCenterHandler cmdPrev`);
-    owner.cmdPrevNext(0);
-  }
-  
-  public cmdSeekFwd(args) {
-    let owner = <any>this._owner.get();
-    console.log(`CommandCenterHandler cmdSeekFwd`);
-    owner.cmdSeek(args);
-  }
-  
-  public cmdSeekBack(args) {
-    let owner = <any>this._owner.get();
-    console.log(`CommandCenterHandler cmdSeekBack`);
-    owner.cmdSeek(args);
-	}
-
-	public static ObjCExposedMethods = {
-    'cmdPause': { returns: interop.types.void, params: [interop.types.id] },
-    'cmdPlay': { returns: interop.types.void, params: [interop.types.id] },
-    'cmdStop': { returns: interop.types.void, params: [interop.types.id] },
-    'cmdTogglePlay': { returns: interop.types.void, params: [interop.types.id] },
-    'cmdNext': { returns: interop.types.void, params: [interop.types.id] },
-    'cmdPrev': { returns: interop.types.void, params: [interop.types.id] },
-    'cmdSeekFwd': { returns: interop.types.void, params: [interop.types.id] },
-    'cmdSeekBack': { returns: interop.types.void, params: [interop.types.id] }
-	};
-}
-
 @Injectable()
 export class PlayerService extends Analytics {
   public static SHOUTOUT_START: number;
@@ -208,7 +135,9 @@ export class PlayerService extends Analytics {
       }
     });
 
-    this.initCommandCenter();
+    if (isIOS) {
+      this.initCommandCenter();
+    }    
   }
 
   public togglePlay(trackId: string, isPreview?: boolean, playing?: boolean) {
@@ -386,7 +315,8 @@ export class PlayerService extends Analytics {
 
   private updateAlbumArt(url: string) {
     this.logger.debug(url);
-    if (app.ios) {
+
+    if (isIOS) {
 
       let nsUrl = NSURL.URLWithString(url);
       let data = NSData.dataWithContentsOfURL(nsUrl);
@@ -407,9 +337,8 @@ export class PlayerService extends Analytics {
 
   private updateiOSControlCenter(artwork?: any) {
     let metadata: any = this._spotify.currentTrackMetadata();
-    // for (let key in metadata) {
-    //   this.logger.debug(metadata[key]);
-    // }
+    // this.logger.keys(metadata, true);
+    
     if (metadata) {
       if (!this._nowPlayingInfo) {
         this._nowPlayingInfo = new NSMutableDictionary();
@@ -441,6 +370,15 @@ export class PlayerService extends Analytics {
     //   this.logger.debug(key);
     // }
 
+    let errorRef = new interop.Reference();
+    (<any>AVAudioSession.sharedInstance()).setCategoryError(AVAudioSessionCategoryPlayback, errorRef);
+    if (errorRef) {
+      console.log(`setCategoryError: ${errorRef.value}`);
+    }
+    (<any>AVAudioSession.sharedInstance()).setActiveError(true, errorRef);  
+    if (errorRef) {
+      console.log(`setActiveError: ${errorRef.value}`);
+    }
     this._cmdCenterHandler = CommandCenterHandler.initWithOwner(new WeakRef(<any>this));
     MPRemoteCommandCenter.sharedCommandCenter().pauseCommand.addTargetAction(this._cmdCenterHandler, 'cmdPause');
     MPRemoteCommandCenter.sharedCommandCenter().playCommand.addTargetAction(this._cmdCenterHandler, 'cmdPlay');

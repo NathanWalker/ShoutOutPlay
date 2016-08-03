@@ -21,7 +21,6 @@ import {Config, LogService, DialogsService, FancyAlertService, Utils} from '../.
 // analytics
 const CATEGORY: string = 'Firebase';
 
-declare var MBProgressHUDModeCustomView: any;
 declare var zonedCallback: Function;
 
 /**
@@ -35,7 +34,6 @@ export interface FirebaseStateI {
   playlists?: Array<PlaylistModel>;
   shoutouts?: Array<ShoutoutModel>;
   selectedPlaylistId?: string;
-  selecting?: boolean;
 }
 
 const initialState: FirebaseStateI = {
@@ -53,7 +51,6 @@ interface FIREBASE_ACTIONSI {
   DELETE_TRACK: string;
   PLAYLIST_DELETED: string;
   SHOUTOUT_DELETED: string;
-  SELECT_PLAYLIST: string;
   RESET_PLAYLISTS: string;
   REORDER: string;
   RESET_ACCOUNT: string;
@@ -69,7 +66,6 @@ export const FIREBASE_ACTIONS: FIREBASE_ACTIONSI = {
   DELETE_TRACK: `[${CATEGORY}] DELETE_TRACK`,
   PLAYLIST_DELETED: `[${CATEGORY}] PLAYLIST_DELETED`,
   SHOUTOUT_DELETED: `[${CATEGORY}] SHOUTOUT_DELETED`,
-  SELECT_PLAYLIST: `[${CATEGORY}] SELECT_PLAYLIST`,
   RESET_PLAYLISTS: `[${CATEGORY}] RESET_PLAYLISTS`,
   REORDER: `[${CATEGORY}] REORDER`,
   RESET_ACCOUNT: `[${CATEGORY}] RESET_ACCOUNT`
@@ -79,9 +75,6 @@ export const firebaseReducer: ActionReducer<FirebaseStateI> = (state: FirebaseSt
   let changeState = () => {
     if (!action.payload) {
       action.payload = {};
-    }
-    if (!action.payload.selecting) {
-      action.payload.selecting = false;
     }
     return Object.assign({}, state, action.payload);
   };
@@ -131,7 +124,7 @@ export class FirebaseService {
   public state$: Observable<FirebaseStateI>;
   private _initialized: boolean = false;
   private _firebaseUser: IFirebaseUser; // logged in firebase user
-  private _userProduct: any; // cache spotify product to store with firebase user
+  private _spotifyUserProduct: any; // cache spotify product to store with firebase user
   private _fetchedSpotifyPlaylists: boolean = false;
   private _passSuffix: string = 'A814~'; // make passwords strong
   private _ignoreUpdate: boolean = false;
@@ -516,13 +509,13 @@ export class FirebaseService {
           this.logger.debug(`email: ${user.emailAddress}`);
           this.logger.debug(`uri: ${user.uri}`);
           this.logger.debug(`product: ${user.product}`);
-          this._userProduct = user.product;
+          this._spotifyUserProduct = user.product;
           // for (let key in user) {
           //   this.logger.debug(key);
           //   this.logger.debug(user[key]);
           // }
           var login = () => {
-            this.authenticate(user.emailAddress, user.uri);
+            this.authenticate(user.emailAddress, user.emailAddress); // use emailAddress as part of password (uri not good cuz it can change)
           };
           if (user.emailAddress) {
             if (!this._firebaseUser) {
@@ -735,7 +728,7 @@ export class FirebaseService {
       let newUser = new ShoutOutPlayUser({
         uid: this._firebaseUser.uid,
         email: this._firebaseUser.email,
-        product: this._userProduct
+        product: this._spotifyUserProduct
       });
       firebase.push(
         '/users',
@@ -755,7 +748,7 @@ export class FirebaseService {
   }
 
   private handleSpotifyPlaylists(playlists: Array<PlaylistModel>) {
-    if (this._initialized && !this._fetchedSpotifyPlaylists && (this._userProduct == 1 || this._userProduct == 2)) {
+    if (this._initialized && !this._fetchedSpotifyPlaylists && (this._spotifyUserProduct == 1 || this._spotifyUserProduct == 2)) {
       this._fetchedSpotifyPlaylists = true;
       // only if premium or unlimited user
       this.fetchSpotifyPlaylists(playlists);
@@ -824,7 +817,7 @@ export class FirebaseService {
 
   private resetInitializers() {
     this._firebaseUser = undefined;
-    this._userProduct = undefined;
+    this._spotifyUserProduct = undefined;
     this._fetchedSpotifyPlaylists = false;
     Config.USER_KEY = undefined;
     this._initialized = false;

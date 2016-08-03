@@ -5,7 +5,7 @@ import {Location} from '@angular/common';
 
 // nativescript
 import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
-import {screen} from 'platform';
+import {screen, isIOS} from 'platform';
 import {Animation} from 'ui/animation';
 import {topmost} from 'ui/frame';
 import {AnimationCurve} from 'ui/enums';
@@ -62,7 +62,9 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   }  
 
   public itemLoading(e: any) {
-    e.ios.selectionStyle = UITableViewCellSelectionStyle.UITableViewCellSelectionStyleNone;
+    if (isIOS) {
+      e.ios.selectionStyle = UITableViewCellSelectionStyle.UITableViewCellSelectionStyleNone;
+    }
   }
 
   ngOnInit() {
