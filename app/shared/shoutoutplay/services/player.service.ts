@@ -4,6 +4,7 @@ import {Injectable, Inject, forwardRef, OnInit, NgZone} from '@angular/core';
 // nativescript
 import {EventData} from 'data/observable';
 import {isIOS} from 'platform';
+import {TNSPlayer} from 'nativescript-audio';
 import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
 import {File} from 'file-system';
 
@@ -93,7 +94,8 @@ export class PlayerService extends Analytics {
 
   public state$: Observable<any>;
   private _spotify: TNSSpotifyPlayer;
-  private _shoutOutPlayer: TNSEZAudioPlayer;
+  private _shoutOutPlayer: any;
+  private _shoutOutPlayerOptions: any;
   private _currentTrackId: string;
   private _currentShoutOutPath: string;
   private _shoutoutTimeout: any;
@@ -110,15 +112,38 @@ export class PlayerService extends Analytics {
     PlayerService.SHOUTOUT_START = Config.SHOUTOUT_START_TIME();
 
     // init player
-    this._spotify = new TNSSpotifyPlayer();
-    this._spotify.initPlayer(true);
-    this.setupEvents();
+    // this._spotify = new TNSSpotifyPlayer();
+    // this._spotify.initPlayer(true);
+    // this.setupEvents();
 
-    this._shoutOutPlayer = new TNSEZAudioPlayer(true);
-    this._shoutOutPlayer.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
-      this.logger.debug(`audioEvents.on('reachedEnd')`);
-      this.toggleShoutOutPlay();
-    }));
+    if (isIOS) {
+      this._shoutOutPlayer = new TNSEZAudioPlayer(true);
+      this._shoutOutPlayer.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
+        this.logger.debug(`audioEvents.on('reachedEnd')`);
+        this.toggleShoutOutPlay();
+      }));
+    } else {
+      this._shoutOutPlayer = TNSPlayer();
+      this._shoutOutPlayerOptions = {
+        completeCallback: () => {
+          this.logger.debug(`_shoutOutPlayer completeCallback`);
+          this.toggleShoutOutPlay();
+
+          // this._shoutOutPlayer.dispose().then(() => {
+          //   this.logger.debug('DISPOSED');
+          // }, (err) => {
+          //   this.logger.debug('ERROR disposePlayer: ' + err);
+          // });
+        },
+        errorCallback: (err) => {
+          this.logger.debug(err);
+        },
+        infoCallback: (info) => {
+          this.logger.debug('Info callback: ' + info.msg);
+          this.logger.debug("what: " + info);
+        }
+      };
+    }
 
     this.state$.subscribe((player: PlayerStateI) => {
       if (player.previewTrackId || player.currentTrackId) {
@@ -280,7 +305,17 @@ export class PlayerService extends Analytics {
       if (reload === true) {
         this.logger.debug(`_shoutOutPlayer.togglePlay`);
         this.logger.debug(this._currentShoutOutPath);
-        this._shoutOutPlayer.togglePlay(this._currentShoutOutPath, true);
+
+        if (isIOS) {
+          this._shoutOutPlayer.togglePlay(this._currentShoutOutPath, true);
+        } else {
+          if (this._shoutOutPlayer.isAudioPlaying()) {
+            this._shoutOutPlayer.pause();
+          } else {
+            this._shoutOutPlayerOptions.audioFile = this._currentShoutOutPath;
+            this._shoutOutPlayer.playFromFile(this._shoutOutPlayerOptions);
+          }
+        }
         // volume down spotify
         this.setSpotifyVolume(0.6);
       } else {

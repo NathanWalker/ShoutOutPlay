@@ -9,3 +9,5 @@ lib
 typings
 app/SplashScreen.ts
 !app/tns-java-classes.js
+!platforms/android/google-services.json
+!platforms/android/build.gradle
