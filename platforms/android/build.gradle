@@ -26,7 +26,7 @@ buildscript {
 
 	dependencies {
 		classpath "com.android.tools.build:gradle:1.5.0"
-    classpath "com.google.gms:google-services:3.0.0"
+		classpath 'com.google.gms:google-services:3.0.0'
 	}
 }
 
@@ -696,4 +696,3 @@ task deleteFlavors (type: Delete){
 deleteFlavors.dependsOn(deleteMetadata)
 clean.dependsOn(deleteFlavors)
 
-apply plugin: "com.google.gms.google-services"
