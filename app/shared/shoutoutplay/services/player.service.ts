@@ -112,9 +112,9 @@ export class PlayerService extends Analytics {
     PlayerService.SHOUTOUT_START = Config.SHOUTOUT_START_TIME();
 
     // init player
-    // this._spotify = new TNSSpotifyPlayer();
-    // this._spotify.initPlayer(true);
-    // this.setupEvents();
+    this._spotify = new TNSSpotifyPlayer();
+    this._spotify.initPlayer(true);
+    this.setupEvents();
 
     if (isIOS) {
       this._shoutOutPlayer = new TNSEZAudioPlayer(true);
@@ -123,7 +123,7 @@ export class PlayerService extends Analytics {
         this.toggleShoutOutPlay();
       }));
     } else {
-      this._shoutOutPlayer = TNSPlayer();
+      this._shoutOutPlayer = new TNSPlayer();
       this._shoutOutPlayerOptions = {
         completeCallback: () => {
           this.logger.debug(`_shoutOutPlayer completeCallback`);
@@ -155,8 +155,10 @@ export class PlayerService extends Analytics {
         this._currentShoutOutPath = undefined;
         PlayerService.isPlaying = false;
         // ensure playback is stopped
-        this._spotify.togglePlay(null, false); // force stop playback
-        this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
+        if (this._spotify) {
+          this._spotify.togglePlay(null, false); // force stop playback
+          this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
+        }      
       }
     });
 
