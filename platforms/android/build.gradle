@@ -18,7 +18,9 @@
 *			-PdontRunSbg=[true/false]
 */
 
-import groovy.json.JsonSlurper //used to parse package.json
+//used to parse package.json
+import groovy.json.JsonSlurper
+
 buildscript {
     repositories {
         jcenter()

@@ -12,6 +12,15 @@ if (global.NSObject && global.NSString) {
   var font = require("ui/styling/font");
   font.ios.registerFont('RobotoRegular.ttf');
   font.ios.registerFont('fontawesome-webfont.ttf');
+} else if (global.android) {
+  // var permissions = require('nativescript-permissions');
+  // permissions.requestPermission(global.android.Manifest.permission.READ_CONTACTS, "I need these permissions because I'm cool")
+  //   .then(function() {
+  //     console.log("Woo Hoo, I have the power!");
+  //   })
+  //   .catch(function() {
+  //     console.log("Uh oh, no permissions - plan B time!");
+  //   });
 }
 
 // angular
