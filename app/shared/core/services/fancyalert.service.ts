@@ -5,7 +5,14 @@ import {Injectable, NgZone} from '@angular/core';
 import {Color} from 'color';
 import {isIOS} from 'platform';
 import * as dialogs from 'ui/dialogs';
-import {TNSFancyAlert, TNSFancyAlertButton} from 'nativescript-fancyalert';
+
+declare var TNSFancyAlert, TNSFancyAlertButton;
+
+if (isIOS) {
+  var fAlerts = require('nativescript-fancyalert');
+  TNSFancyAlert = fAlerts.TNSFancyAlert;
+  TNSFancyAlertButton = fAlerts.TNSFancyAlertButton;
+}
 
 // app
 import {ColorService} from './color.service';
@@ -107,7 +114,7 @@ export class FancyAlertService {
     }
   } 
 
-  public action(title: string, subTitle: string, image: string, buttons: Array<TNSFancyAlertButton>) {
+  public action(title: string, subTitle: string, image: string, buttons: Array<any>) {
 
     if (isIOS) {
       TNSFancyAlert.customViewColor = ColorService.Active.PRIMARY;

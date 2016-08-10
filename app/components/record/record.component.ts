@@ -5,7 +5,6 @@ import {Location} from '@angular/common';
 
 // nativescript
 import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
-import {TNSEZRecorder, TNSEZAudioPlayer, AudioPlot} from 'nativescript-ezaudio';
 import * as app from 'application';
 import * as dialogs from 'ui/dialogs';
 import * as fs from 'file-system';
@@ -15,6 +14,13 @@ import {screen} from 'platform';
 import {Animation} from 'ui/animation';
 import {topmost} from 'ui/frame';
 import {AnimationCurve} from 'ui/enums';
+declare var TNSEZRecorder, TNSEZAudioPlayer, AudioPlot;
+if (isIOS) {
+  var ezAudio = require('nativescript-ezaudio');
+  TNSEZRecorder = ezAudio.TNSEZRecorder;
+  TNSEZAudioPlayer = ezAudio.TNSEZAudioPlayer;
+  AudioPlot = ezAudio.AudioPlot;
+}
 
 // libs
 import {Store} from '@ngrx/store';

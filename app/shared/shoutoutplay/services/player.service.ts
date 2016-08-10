@@ -5,8 +5,13 @@ import {Injectable, Inject, forwardRef, OnInit, NgZone} from '@angular/core';
 import {EventData} from 'data/observable';
 import {isIOS} from 'platform';
 import {TNSPlayer} from 'nativescript-audio';
-import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
 import {File} from 'file-system';
+
+var TNSEZAudioPlayer;
+if (isIOS) {
+  let ezAudio = require('nativescript-ezaudio');
+  TNSEZAudioPlayer = ezAudio.TNSEZAudioPlayer;
+}
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
@@ -18,7 +23,7 @@ import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescrip
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {Config, LogService, ProgressService, FancyAlertService, TextService, Utils} from '../../core/index';
 import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
-import {CommandCenterHandler} from '../ios/command-center';
+import {CommandCenterHandler} from './command-center';
 
 declare var zonedCallback: Function, MPNowPlayingInfoCenter, interop;
 
@@ -416,7 +421,7 @@ export class PlayerService extends Analytics {
     if (errorRef) {
       console.log(`setActiveError: ${errorRef.value}`);
     }
-    this._cmdCenterHandler = CommandCenterHandler.initWithOwner(new WeakRef(<any>this));
+    this._cmdCenterHandler = (<any>CommandCenterHandler).initWithOwner(new WeakRef(<any>this));
     MPRemoteCommandCenter.sharedCommandCenter().pauseCommand.addTargetAction(this._cmdCenterHandler, 'cmdPause');
     MPRemoteCommandCenter.sharedCommandCenter().playCommand.addTargetAction(this._cmdCenterHandler, 'cmdPlay');
     MPRemoteCommandCenter.sharedCommandCenter().stopCommand.addTargetAction(this._cmdCenterHandler, 'cmdStop');

@@ -3,8 +3,14 @@ import {Injectable, NgZone, forwardRef, Inject} from '@angular/core';
 import {Router} from '@angular/router';
 
 // nativescript
+import {isIOS} from 'platform';
 import * as dialogs from 'ui/dialogs';
-import {TNSFancyAlertButton} from 'nativescript-fancyalert';
+
+declare var TNSFancyAlertButton;
+if (isIOS) {
+  var fAlerts = require('nativescript-fancyalert');
+  TNSFancyAlertButton = fAlerts.TNSFancyAlertButton;
+}
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';

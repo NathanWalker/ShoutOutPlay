@@ -7,16 +7,18 @@ import {NS_ROUTER_DIRECTIVES, nsProvideRouter} from 'nativescript-angular/router
 import {RadSideDrawerComponent} from 'nativescript-telerik-ui-pro/sidedrawer/angular';
 import {PushTransition, DrawerTransitionBase, SlideInOnTopTransition} from 'nativescript-telerik-ui-pro/sidedrawer';
 import {Page} from "ui/page";
-import {screen} from 'platform';
+import {screen, isIOS} from 'platform';
 import {AbsoluteLayout} from 'ui/layouts/absolute-layout';
 
 /* register elements */
 import {registerElement} from "nativescript-angular/element-registry"
 registerElement("CardView", () => require("nativescript-cardview").CardView);
-registerElement("AudioPlot", () => require("nativescript-ezaudio").AudioPlot);
 registerElement("Slide", () => require("nativescript-slides").Slide);
 registerElement("SlideContainer", () => require("nativescript-slides").SlideContainer);
 registerElement("Gif", () => require("nativescript-gif").Gif);
+if (isIOS) {
+  registerElement("AudioPlot", () => require("nativescript-ezaudio").AudioPlot);
+} 
 
 // libs
 import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';

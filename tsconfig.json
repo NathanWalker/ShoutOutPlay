@@ -19,7 +19,10 @@
         "node_modules/nativescript-fancyalert/fancyalert.d.ts",
         "typings/index.d.ts",
         "app/main.ts",
-        "app/shared/core/delegates/app.delegate.ios.ts"
+        "app/shared/core/delegates/app.delegate.ios.ts",
+        "app/shared/core/delegates/app.delegate.android.ts",
+        "app/shared/shoutoutplay/services/command-center.ios.ts",
+        "app/shared/shoutoutplay/services/command-center.android.ts"
     ],
     "exclude": [
         "node_modules",

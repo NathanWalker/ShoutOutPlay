@@ -63,6 +63,9 @@ export class AboutComponent {
       case 13:
         utils.openUrl('https://github.com/bradmartin/nativescript-audio');
         break;
+      case 14:
+        utils.openUrl('https://github.com/NathanaelA/nativescript-permissions');
+        break;
     }
   }
 }

@@ -5,6 +5,7 @@ import {nativeScriptBootstrap} from 'nativescript-angular/application';
 // nativescript
 import {SIDEDRAWER_PROVIDERS} from "nativescript-telerik-ui-pro/sidedrawer/angular";
 import {LISTVIEW_PROVIDERS} from 'nativescript-telerik-ui-pro/listview/angular';
+import {isIOS} from 'platform';
 import * as app from 'application';
 
 // NJA: Fix for iOS font registration during webpack
@@ -33,7 +34,7 @@ Config.DEBUG.LEVEL_4 = true;
 // libs
 import {provideStore} from '@ngrx/store';
 import {runEffects} from '@ngrx/effects';
-import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
+import {TNSFontIconService} from 'nativescript-ng2-fonticon';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/take';
@@ -60,7 +61,7 @@ import {AppComponent} from './app.component';
 import {APP_ROUTES_PROVIDER} from './app.routes';
 
 // Spotify setup
-if (app.ios) {
+if (isIOS) {
   app.ios.delegate = SpotifyAppDelegate;
 }
 

@@ -1,9 +1,14 @@
 import {OnDestroy, NgZone} from '@angular/core';
 
 // nativescript
+import {isIOS} from 'platform';
 import * as utils from 'utils/utils';
 import {File} from 'file-system';
-import {TNSEZAudioPlayer} from 'nativescript-ezaudio';
+declare var TNSEZAudioPlayer;
+if (isIOS) {
+  let ezAudio = require('nativescript-ezaudio');
+  TNSEZAudioPlayer = ezAudio.TNSEZAudioPlayer;
+}
 
 // libs
 import {Store} from '@ngrx/store';
