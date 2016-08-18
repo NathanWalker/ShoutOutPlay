@@ -1,7 +1,8 @@
 <RadSideDrawer #drawer [transition]="sideDrawerTransition" selectionBehavior="None" top="0" left="0" width="100%" height="100%">
   <GridLayout tkDrawerContent class="side-drawer" rows="auto, *, auto" columns="*">
     <StackLayout class="side-primary" row="0" col="0">
-      <GridLayout columns="auto, *" rows="60" class="side-item" [nsRouterLink]="['/home']" nsRouterLinkActive="active" clearHistory="true" pageTransition="slideLeft">
+      <GridLayout columns="auto, *" rows="60" class="side-item" [nsRouterLink]="['/home']" nsRouterLinkActive="active" [nsRouterLinkActiveOptions]="{exact:
+ * true}" clearHistory="true" pageTransition="slideLeft">
         <Label text="&#xf002;" class="fa" row="0" col="0"></Label>
         <Label text="Search" row="0" col="1"></Label>
       </GridLayout>

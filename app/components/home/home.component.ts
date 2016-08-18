@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, Inject, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, NavigationEnd} from '@angular/router';
 
 // app
 import {BaseComponent, Config, LogService, ActionBarUtil, DrawerService} from '../../shared/core/index';
@@ -92,7 +92,13 @@ export class HomeComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit() {
-      this.logger.debug(`HomeComponent ngOnInit`);
+    this.logger.debug(`HomeComponent ngOnInit`);
+    this.router.events.subscribe((e) => {
+      if (e instanceof NavigationEnd) {
+        this.drawerService.toggle(false);  
+      }
+    });
+
     // if (!Config.SEEN_INTRO()) {
     //   this.router.navigate(['/intro']);
     // } else {
