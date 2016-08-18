@@ -29,44 +29,44 @@ import {WelcomeComponent} from './components/intro/welcome.component';
 
 // canActivate: [DelayGuard] 
 
-// export const routes: RouterConfig = [
-//   {
-//     path: '',
-//     redirectTo: '/home',
-//     pathMatch: 'full'
-//   },
-//   {
-//     path: "home",
-//     component: HomeComponent,
-//     children: [
-//       { path: "", component: SearchComponent },
-//       { path: "playlist", component: PlaylistComponent },
-//       { path: "shoutout", component: ShoutOutListComponent },
-//       { path: "theme", component: ThemeComponent },
-//       { path: "general", component: GeneralComponent },
-//       { path: "help", component: HelpComponent },
-//       { path: "about", component: AboutComponent }
-//     ]
-//   },   
-//   { path: "intro", component: IntroComponent },
-//   { path: "record", component: RecordComponent },
-//   { path: "playlist/:id", component: PlaylistDetailComponent },
-//   { path: "welcome", component: WelcomeComponent }
-// ];
-
 export const routes: RouterConfig = [
-  { path: "", component: SearchComponent },
-  { path: "playlist", component: PlaylistComponent },
-  { path: "shoutout", component: ShoutOutListComponent },
-  { path: "theme", component: ThemeComponent },
-  { path: "general", component: GeneralComponent },
-  { path: "help", component: HelpComponent },
-  { path: "about", component: AboutComponent },  
+  {
+    path: '',
+    redirectTo: '/home',
+    pathMatch: 'full'
+  },
+  {
+    path: "home",
+    component: HomeComponent,
+    children: [
+      { path: "", component: SearchComponent },
+      { path: "playlist", component: PlaylistComponent },
+      { path: "shoutout", component: ShoutOutListComponent },
+      { path: "theme", component: ThemeComponent },
+      { path: "general", component: GeneralComponent },
+      { path: "help", component: HelpComponent },
+      { path: "about", component: AboutComponent }
+    ]
+  },   
   { path: "intro", component: IntroComponent },
-  { path: "record", component: RecordComponent },  
+  { path: "record", component: RecordComponent },
   { path: "playlist/:id", component: PlaylistDetailComponent },
   { path: "welcome", component: WelcomeComponent }
 ];
+
+// export const routes: RouterConfig = [
+//   { path: "", component: SearchComponent },
+//   { path: "playlist", component: PlaylistComponent },
+//   { path: "shoutout", component: ShoutOutListComponent },
+//   { path: "theme", component: ThemeComponent },
+//   { path: "general", component: GeneralComponent },
+//   { path: "help", component: HelpComponent },
+//   { path: "about", component: AboutComponent },  
+//   { path: "intro", component: IntroComponent },
+//   { path: "record", component: RecordComponent },  
+//   { path: "playlist/:id", component: PlaylistDetailComponent },
+//   { path: "welcome", component: WelcomeComponent }
+// ];
 
 export const APP_ROUTES_PROVIDER = [
   nsProvideRouter(routes, {

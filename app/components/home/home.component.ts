@@ -15,13 +15,14 @@ import {screen} from 'platform';
 import {AbsoluteLayout} from 'ui/layouts/absolute-layout';
 
 // libs
-import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
+import {TNSFontIconService} from 'nativescript-ng2-fonticon';
 
 @BaseComponent({
   // moduleId: module.id,
   selector: 'home',
   templateUrl: './components/home/home.component.html',
-  directives: [PlayerControlsComponent]
+  directives: [PlayerControlsComponent],
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class HomeComponent implements AfterViewInit, OnInit {
   // @ViewChild('playerControls') playerControls: PlayerControlsComponent;
@@ -40,47 +41,47 @@ export class HomeComponent implements AfterViewInit, OnInit {
   // }
 
 
-  public activeRoute: any = {
-    search: true,
-    playlist: false,
-    shoutout: false,
-    theme: false,
-    general: false,
-    help: false,
-    about: false
-  };
-  // @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
+  // public activeRoute: any = {
+  //   search: true,
+  //   playlist: false,
+  //   shoutout: false,
+  //   theme: false,
+  //   general: false,
+  //   help: false,
+  //   about: false
+  // };
+  @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
   
   constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
-    // this._page.on("loaded", this.onLoaded, this);
+    this._page.on("loaded", this.onLoaded, this);
   }
 
-  public navItem(type: string) {
-    let isChange = true;
-    for (let key in this.activeRoute) {
-      if (this.activeRoute[key]) {
-        if (key == 'search' && type == '' || key == type) {
-          // clicked on active item
-          isChange = false;
-        }
-      }
-      this.activeRoute[key] = false;
-    }
-    if (type == '') {
-      this.activeRoute.search = true;
-    } else {
-      this.activeRoute[type] = true;
-    }
-    this.activeRoute = Object.assign({}, this.activeRoute);
-    if (isChange && type !== '') {
-      this.router.navigate([`/home/${type}`]);  
-    } else {
-      this.drawerService.toggle(false);
-    }
-  }
+  // public navItem(type: string) {
+  //   let isChange = true;
+  //   for (let key in this.activeRoute) {
+  //     if (this.activeRoute[key]) {
+  //       if (key == 'search' && type == '' || key == type) {
+  //         // clicked on active item
+  //         isChange = false;
+  //       }
+  //     }
+  //     this.activeRoute[key] = false;
+  //   }
+  //   if (type == '') {
+  //     this.activeRoute.search = true;
+  //   } else {
+  //     this.activeRoute[type] = true;
+  //   }
+  //   this.activeRoute = Object.assign({}, this.activeRoute);
+  //   if (isChange && type !== '') {
+  //     this.router.navigate([`/home/${type}`]);  
+  //   } else {
+  //     this.drawerService.toggle(false);
+  //   }
+  // }
 
   public get sideDrawerTransition(): DrawerTransitionBase {
     return this._sideDrawerTransition;
@@ -103,8 +104,8 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     this.logger.debug(`HomeComponent ngAfterViewInit`);
-    // this.drawerService.drawer = this.drawerComponent.sideDrawer;
-    // this._changeDetectionRef.detectChanges();
+    this.drawerService.drawer = this.drawerComponent.sideDrawer;
+    this._changeDetectionRef.detectChanges();
 
 
     // setTimeout(() => {

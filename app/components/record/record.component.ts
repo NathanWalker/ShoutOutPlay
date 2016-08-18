@@ -67,7 +67,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
   private _recorder: any;
   private _player: any;
-  private _audioplot: AudioPlot;
+  private _audioplot: any;
   private _bigRecordBtn: any;
   private _readyRecordLabel: any;
   private _playbackArea: any;

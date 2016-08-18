@@ -77,10 +77,11 @@ SearchBar {
       width:50;
       text-align: center;
     }
-  }
-  .item-active {
-    background-color:rgba($primary, .4);
-    color:#fff;
+
+    &.active {
+      background-color:rgba($primary, .4);
+      color:#fff;
+    }
   }
   .side-bottom {
 

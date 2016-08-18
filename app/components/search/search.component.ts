@@ -75,7 +75,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
     } else {
       // Config.SET_SEEN_INTRO(false);
       // HACK: search view doesn't render when showing to start
-      this.router.navigate(['/welcome']);
+      // this.router.navigate(['/welcome']);
     }
       
     this._sub = this.playlistService.state$.subscribe((state: any) => {

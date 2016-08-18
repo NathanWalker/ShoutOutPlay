@@ -51,61 +51,61 @@ import {AuthService, PlayerService, FirebaseService, PlaylistService} from './sh
   changeDetection: ChangeDetectionStrategy.Default
 }) 
 export class AppComponent implements AfterViewInit {
-  public activeRoute: any = {
-    search: true,
-    playlist: false,
-    shoutout: false,
-    theme: false,
-    general: false,
-    help: false,
-    about: false
-  };
-  @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
+  // public activeRoute: any = {
+  //   search: true,
+  //   playlist: false,
+  //   shoutout: false,
+  //   theme: false,
+  //   general: false,
+  //   help: false,
+  //   about: false
+  // };
+  // @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
   // @ViewChild(PlayerControlsComponent) public playerControlsComponent: PlayerControlsComponent;
-  private _sideDrawerTransition: DrawerTransitionBase;
+  // private _sideDrawerTransition: DrawerTransitionBase;
   // private _playerControls: any;
   
   constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService, private ngZone: NgZone) {
     ActionBarUtil.STATUSBAR_STYLE(1);
-    this._page.on("loaded", this.onLoaded, this);
+    // this._page.on("loaded", this.onLoaded, this);
   }
 
-  public navItem(type: string) {
-    let isChange = true;
-    for (let key in this.activeRoute) {
-      if (this.activeRoute[key]) {
-        if (key == 'search' && type == '' || key == type) {
-          // clicked on active item
-          isChange = false;
-        }
-      }
-      this.activeRoute[key] = false;
-    }
-    if (type == '') {
-      this.activeRoute.search = true;
-    } else {
-      this.activeRoute[type] = true;
-    }
-    this.activeRoute = Object.assign({}, this.activeRoute);
-    if (isChange && type !== '') {
-      this.router.navigate([`/${type}`]);  
-    } else {
-      this.drawerService.toggle(false);
-    }
-  }
+  // public navItem(type: string) {
+  //   let isChange = true;
+  //   for (let key in this.activeRoute) {
+  //     if (this.activeRoute[key]) {
+  //       if (key == 'search' && type == '' || key == type) {
+  //         // clicked on active item
+  //         isChange = false;
+  //       }
+  //     }
+  //     this.activeRoute[key] = false;
+  //   }
+  //   if (type == '') {
+  //     this.activeRoute.search = true;
+  //   } else {
+  //     this.activeRoute[type] = true;
+  //   }
+  //   this.activeRoute = Object.assign({}, this.activeRoute);
+  //   if (isChange && type !== '') {
+  //     this.router.navigate([`/${type}`]);  
+  //   } else {
+  //     this.drawerService.toggle(false);
+  //   }
+  // }
 
-  public get sideDrawerTransition(): DrawerTransitionBase {
-    return this._sideDrawerTransition;
-  }
+  // public get sideDrawerTransition(): DrawerTransitionBase {
+  //   return this._sideDrawerTransition;
+  // }
 
-  public onLoaded(args) {
-    this._sideDrawerTransition = new SlideInOnTopTransition();
-  }
+  // public onLoaded(args) {
+  //   this._sideDrawerTransition = new SlideInOnTopTransition();
+  // }
 
   ngAfterViewInit() {
  
-    this.drawerService.drawer = this.drawerComponent.sideDrawer;
-    this._changeDetectionRef.detectChanges();
+    // this.drawerService.drawer = this.drawerComponent.sideDrawer;
+    // this._changeDetectionRef.detectChanges();
 
     // this.logger.debug(`this.playerControlsComponent:`);
     // this.logger.debug(this.playerControlsComponent);
