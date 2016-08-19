@@ -444,7 +444,7 @@ $lightpurple: #7C3FE8;
 .first-welcome {
   width:100%;
   height:100%;
-  padding:40;
+  padding:30;
 
   .logo-img {
     margin: 30 0 30 0;
@@ -455,7 +455,7 @@ $lightpurple: #7C3FE8;
     font-size:25;
 
     &.bigger {
-      font-size:32;
+      font-size:30;
       &.bright {
         color: $bright;
       }
@@ -533,6 +533,12 @@ $lightpurple: #7C3FE8;
 }
 
 /* Record */
+.record-view {
+  background-color: $base;
+  width:100%;
+  height:100%;
+}
+
 .audioPlot {
   width:100%;
   height:75%;

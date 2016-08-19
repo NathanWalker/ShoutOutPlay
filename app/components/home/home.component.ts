@@ -40,16 +40,6 @@ export class HomeComponent implements AfterViewInit, OnInit {
   //   // }
   // }
 
-
-  // public activeRoute: any = {
-  //   search: true,
-  //   playlist: false,
-  //   shoutout: false,
-  //   theme: false,
-  //   general: false,
-  //   help: false,
-  //   about: false
-  // };
   @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
@@ -58,30 +48,6 @@ export class HomeComponent implements AfterViewInit, OnInit {
     ActionBarUtil.STATUSBAR_STYLE(1);
     this._page.on("loaded", this.onLoaded, this);
   }
-
-  // public navItem(type: string) {
-  //   let isChange = true;
-  //   for (let key in this.activeRoute) {
-  //     if (this.activeRoute[key]) {
-  //       if (key == 'search' && type == '' || key == type) {
-  //         // clicked on active item
-  //         isChange = false;
-  //       }
-  //     }
-  //     this.activeRoute[key] = false;
-  //   }
-  //   if (type == '') {
-  //     this.activeRoute.search = true;
-  //   } else {
-  //     this.activeRoute[type] = true;
-  //   }
-  //   this.activeRoute = Object.assign({}, this.activeRoute);
-  //   if (isChange && type !== '') {
-  //     this.router.navigate([`/home/${type}`]);  
-  //   } else {
-  //     this.drawerService.toggle(false);
-  //   }
-  // }
 
   public get sideDrawerTransition(): DrawerTransitionBase {
     return this._sideDrawerTransition;

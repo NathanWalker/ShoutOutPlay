@@ -9,15 +9,17 @@ export class DrawerService {
   public toggle(force?: boolean) {
     // console.log(`drawerservice toggle force:`);
     // console.log(force);
-    if (typeof force !== 'undefined') {
-      if (force === false) {
-        this.drawer.closeDrawer();
-      } else {
+    if (this.drawer) {
+      if (typeof force !== 'undefined') {
+        if (force === false) {
+          this.drawer.closeDrawer();
+        } else {
 
+        }
+      } else {
+        // console.log(`calling toggleDrawerState`);
+        this.drawer.toggleDrawerState();
       }
-    } else {
-      // console.log(`calling toggleDrawerState`);
-      this.drawer.toggleDrawerState();
     }
   }
 }

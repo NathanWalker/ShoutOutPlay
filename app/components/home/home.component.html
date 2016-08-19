@@ -1,4 +1,4 @@
-<RadSideDrawer #drawer [transition]="sideDrawerTransition" selectionBehavior="None" top="0" left="0" width="100%" height="100%">
+<RadSideDrawer #drawer [transition]="sideDrawerTransition" selectionBehavior="None">
   <GridLayout tkDrawerContent class="side-drawer" rows="auto, *, auto" columns="*">
     <StackLayout class="side-primary" row="0" col="0">
       <GridLayout columns="auto, *" rows="60" class="side-item" [nsRouterLink]="['/home']" nsRouterLinkActive="active" [nsRouterLinkActiveOptions]="{exact:true}" pageTransition="slideLeft">
@@ -34,49 +34,9 @@
     </StackLayout>
   </GridLayout>
   <StackLayout tkMainContent class="page-bg">
-    <router-outlet></router-outlet>
+    <!--<AbsoluteLayout>-->
+      <router-outlet></router-outlet>
+      <!--<player-controls #playerControls class="player-controls" top="250" left="0" width="100%" backgroundColor="purple"></player-controls>
+    </AbsoluteLayout>-->
   </StackLayout>
 </RadSideDrawer>
-
-<!--<player-controls #playerControls class="player-controls" top="50" left="0" backgroundColor="purple"></player-controls>-->
-
-<!--<RadSideDrawer #drawer [transition]="sideDrawerTransition" selectionBehavior="None">
-    <template drawerSide>
-      <GridLayout class="side-drawer" rows="auto, *, auto" columns="*">
-        <StackLayout class="side-primary" row="0" col="0">
-          <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.search}" (tap)="navItem('')">
-            <Label text="&#xf002;" class="fa" row="0" col="0"></Label> 
-            <Label text="Search" row="0" col="1"></Label>  
-          </GridLayout>
-          <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.playlist}" (tap)="navItem('playlist')">
-            <Label [text]="'fa-list' | fonticon" class="fa" row="0" col="0"></Label> 
-            <Label text="Playlists" row="0" col="1"></Label>  
-          </GridLayout>
-          <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.shoutout}" (tap)="navItem('shoutout')">
-            <Label [text]="'fa-microphone' | fonticon" class="fa" row="0" col="0"></Label> 
-            <Label text="ShoutOuts" row="0" col="1"></Label>  
-          </GridLayout>
-        </StackLayout>
-        <StackLayout class="side-bottom" row="2" col="0">
-          <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.general}" (tap)="navItem('general')">
-            <Label [text]="'fa-cog' | fonticon" class="fa" row="0" col="0"></Label> 
-            <Label text="Settings" row="0" col="1"></Label>  
-          </GridLayout>
-          <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.help}" (tap)="navItem('help')">
-            <Label [text]="'fa-question-circle' | fonticon" class="fa" row="0" col="0"></Label> 
-            <Label text="Help" row="0" col="1"></Label>  
-          </GridLayout>
-          <GridLayout columns="auto, *" rows="60" class="side-item" [ngClass]="{'item-active': activeRoute.about}" (tap)="navItem('about')">
-            <Label [text]="'fa-info-circle' | fonticon" class="fa" row="0" col="0"></Label> 
-            <Label text="About ShoutOutPlay" row="0" col="1"></Label>  
-          </GridLayout>
-        </StackLayout>
-      </GridLayout>
-    </template>
-    <template drawerMain>
-      <StackLayout>
-          <router-outlet></router-outlet>  
-      </StackLayout>
-    </template>
-</RadSideDrawer>-->
-
