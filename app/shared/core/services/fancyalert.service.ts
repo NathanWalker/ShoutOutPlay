@@ -30,7 +30,6 @@ export class FancyAlertService {
     if (isIOS) {
       TNSFancyAlert.titleColor = ColorService.Active.WHITE;
       TNSFancyAlert.bodyTextColor = ColorService.Active.WHITE;
-      TNSFancyAlert.backgroundViewColor = ColorService.Active.COMPLIMENTARY;
       TNSFancyAlert.shouldDismissOnTapOutside = true;
     } else {
       // android
@@ -40,7 +39,7 @@ export class FancyAlertService {
   public show(message: string) {
 
     if (isIOS) {
-      TNSFancyAlert.customViewColor = ColorService.Active.HIGHLIGHT;
+      this.setColors(ColorService.ActiveId == 0 ? ColorService.Active.HIGHLIGHT : ColorService.Active.BRIGHT_ALT);
       TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromCenter;
       TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutToCenter;
 
@@ -53,7 +52,7 @@ export class FancyAlertService {
   public prompt(placeholder: string, initialValue: string, title: string, image: string, action: Function) {
 
     if (isIOS) {
-      TNSFancyAlert.customViewColor = ColorService.Active.PRIMARY;
+      this.setColors(ColorService.ActiveId == 0 ? ColorService.Active.PRIMARY : ColorService.Active.BRIGHT_ALT);
       this.defaultAnimation();
 
       TNSFancyAlert.showTextField(
@@ -85,7 +84,7 @@ export class FancyAlertService {
   public confirm(subTitle: string, image: string, action: Function) {
 
     if (isIOS) {
-      TNSFancyAlert.customViewColor = ColorService.Active.RED;
+      this.setColors(ColorService.Active.RED);
       TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromCenter;
       TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutFromCenter;
 
@@ -117,7 +116,7 @@ export class FancyAlertService {
   public action(title: string, subTitle: string, image: string, buttons: Array<any>) {
 
     if (isIOS) {
-      TNSFancyAlert.customViewColor = ColorService.Active.PRIMARY;
+      this.setColors(ColorService.ActiveId == 0 ? ColorService.Active.PRIMARY : ColorService.Active.BRIGHT_ALT);
       TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromRight;
       TNSFancyAlert.hideAnimationType = TNSFancyAlert.HIDE_ANIMATION_TYPES.SlideOutToRight;
 
@@ -159,6 +158,13 @@ export class FancyAlertService {
       })
     }
   } 
+
+  private setColors(highlight: string) {
+    if (isIOS) {
+      TNSFancyAlert.customViewColor = highlight;
+      TNSFancyAlert.backgroundViewColor = ColorService.Active.COMPLIMENTARY;
+    }
+  }
 
   private getAlertImage(image: string) {
     switch (image) {
@@ -225,7 +231,7 @@ export class FancyAlertService {
   }
 
   private drawMic() {
-    let iconColor = new Color(ColorService.Active.BRIGHT).ios;
+    let iconColor = new Color(ColorService.ActiveId == 0 ? ColorService.Active.BRIGHT : ColorService.Active.BRIGHT_ALT).ios;
       
     //// Bezier Drawing
     let bezierPath = UIBezierPath.bezierPath();

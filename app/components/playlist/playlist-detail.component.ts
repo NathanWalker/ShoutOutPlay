@@ -102,7 +102,7 @@ export class PlaylistDetailComponent {
     var swipeLimits = args.data.swipeLimits;  
     swipeLimits.top = 0;
     swipeLimits.bottom = 0;
-    swipeLimits.left = Math.round(density * 100);
+    swipeLimits.left = 0;//Math.round(density * 100);
     swipeLimits.right = Math.round(density * 100);
     swipeLimits.threshold = Math.round(density * 50);
   }

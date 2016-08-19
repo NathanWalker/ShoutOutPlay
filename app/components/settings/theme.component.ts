@@ -5,7 +5,7 @@ import 'rxjs/add/operator/take';
 var themes = require('nativescript-themes');
 
 // app
-import {LogService, BaseComponent} from '../../shared/core/index';
+import {LogService, BaseComponent, ColorService} from '../../shared/core/index';
 import {FIREBASE_ACTIONS} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
@@ -22,11 +22,11 @@ export class ThemeComponent {
   public changeTheme(type?: string) {
     switch (type) {
       case 'gray':
-        // TODO: gray/yellow 
+        ColorService.swapScheme(1);
         themes.applyTheme('yellow-theme.css');
         break;
       default:
-        // TODO: use default
+        ColorService.swapScheme(0);
         themes.applyTheme('app.css');
         break;
     }

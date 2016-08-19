@@ -1,9 +1,9 @@
-<ActionBar title="ShoutOuts">
+<!--<ActionBar title="ShoutOuts">
   <NavigationButton text="Back" android.systemIcon="ic_menu_back" class="action-btn"></NavigationButton>
-  <!--<ActionItem (tap)="add()" ios.position="right" android.position="popup">
+  <ActionItem (tap)="add()" ios.position="right" android.position="popup">
     <Button class="fa action-btn" [text]="'fa-plus' | fonticonPure"></Button>
-  </ActionItem>-->
-</ActionBar>
+  </ActionItem>
+</ActionBar>-->
 <StackLayout>
   <StackLayout class="full-page-message" *ngIf="(shoutouts$ | async).length==0">
     <Label [text]="'fa-frown-o' | fonticonPure" textWrap="true" class="fa full-page-icon-label"></Label>
@@ -16,7 +16,7 @@
   (itemSwipeProgressEnded)="onSwipeCellFinished($event)" 
   itemInsertAnimation="Scale" itemDeleteAnimation="Scale"
   *ngIf="(shoutouts$ | async).length">
-    <template listItemTemplate let-item="item" let-odd="odd" let-even="even">
+    <template tkListItemTemplate let-item="item" let-odd="odd" let-even="even">
       <GridLayout columns="auto, *" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
         <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="togglePlay(item)"></Button>
         <StackLayout row="0" col="1" class="row-center">
@@ -28,7 +28,7 @@
         <!--<StackLayout class="divider divider2" row="1" colSpan="3"></StackLayout>-->
       </GridLayout>
     </template>
-    <GridLayout *listItemSwipeTemplate rows="auto" columns="*,100" class="list-item-swipe">
+    <GridLayout *tkListItemSwipeTemplate rows="auto" columns="*,100" class="list-item-swipe">
       <!--<Button id="editBtn" text="Edit" class="btn edit-btn" row="0" col="0" (tap)="edit($event)"></Button>-->
       <Button id="deleteBtn" text="Delete" class="btn delete-btn" row="0" col="1" (tap)="remove($event)"></Button>
       <!--<StackLayout class="divider" row="1" colSpan="3"></StackLayout>-->

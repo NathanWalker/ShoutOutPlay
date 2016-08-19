@@ -29,7 +29,7 @@ import {Subscription} from "rxjs/Subscription";
 import * as _ from 'lodash';
 
 // app
-import {BaseComponent, LogService, ProgressService, FancyAlertService, Utils, Config} from '../../shared/core/index';
+import {BaseComponent, LogService, ProgressService, FancyAlertService, Utils, Config, ColorService} from '../../shared/core/index';
 import {ShoutoutStateI, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, FIREBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
 import {TrackChooserComponent} from './track-chooser.component';
 
@@ -39,7 +39,7 @@ declare var interop: any, zonedCallback: Function, kCGBlendModeSourceAtop: any, 
   // moduleId: module.id,
   selector: 'record',
   templateUrl: './components/record/record.component.html',
-  styleUrls: ['./components/record/record.component.css'],
+  // styleUrls: ['./components/record/record.component.css'],
   directives: [ModalDialogHost],
   providers: [ModalDialogService]
 })
@@ -51,7 +51,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   @ViewChild('addToTrackArea') addToTrackArea: ElementRef;
   @ViewChild('bigSaveBg') bigSaveBg: ElementRef;
   
-  public audioPlotColor: string = '#4EFF0B';
+  public audioPlotColor: string;
   public recordTime: string;
   public showPlayBtn: boolean = false;
   public showSaveArea: boolean = false;
@@ -83,6 +83,10 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _sub: Subscription;
 
   constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private progress: ProgressService, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService) {
+
+    // set audio plot color based on active theme
+    this.audioPlotColor = ColorService.Active.BRIGHT;
+
     // always stop all tracks playing from search results
     searchService.stopAll();
     // always reset player to clear internal state (like shoutouts in queue, etc.)

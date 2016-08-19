@@ -107,6 +107,7 @@ export class PlayerService extends Analytics {
   private _nowPlayingInfo: any;
   private _playConnectingTimeout: any;
   private _cmdCenterHandler: any;
+  private _currentTrack: any;
 
   constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
@@ -378,17 +379,17 @@ export class PlayerService extends Analytics {
   }
 
   private updateiOSControlCenter(artwork?: any) {
-    let metadata: any = this._spotify.currentTrackMetadata();
+    // let metadata: any = this._spotify.currentTrackMetadata();
     // this.logger.keys(metadata, true);
     
-    if (metadata) {
+    if (this._currentTrack) {
       if (!this._nowPlayingInfo) {
         this._nowPlayingInfo = new NSMutableDictionary();
       }
-      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.trackName), MPMediaItemPropertyTitle);
-      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.albumName), MPMediaItemPropertyAlbumTitle);
-      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(metadata.artistName), MPMediaItemPropertyArtist);
-      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithFloat(parseFloat(metadata.trackDuration)), MPMediaItemPropertyPlaybackDuration);
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(this._currentTrack.trackName), MPMediaItemPropertyTitle);
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(this._currentTrack.albumName), MPMediaItemPropertyAlbumTitle);
+      this._nowPlayingInfo.setValueForKey(NSString.stringWithString(this._currentTrack.artistName), MPMediaItemPropertyArtist);
+      this._nowPlayingInfo.setValueForKey(NSNumber.numberWithFloat(this._currentTrack.trackDuration * .001), MPMediaItemPropertyPlaybackDuration);
       this._nowPlayingInfo.setValueForKey(NSNumber.numberWithDouble(1.0), MPNowPlayingInfoPropertyPlaybackRate); 
 
       if (artwork) {
@@ -515,22 +516,54 @@ export class PlayerService extends Analytics {
     this.fancyalert.show(TextService.STREAM_DISCONNECT);
   }
 
+  private updatePlayerState(state: any) {
+    if (state && state.currentTrack) {
+      if (!this._currentTrack || (this._currentTrack && this._currentTrack.uri !== state.currentTrack.uri)) {
+        this._currentTrack = {
+          trackName: state.currentTrack.name,
+          albumName: state.currentTrack.albumName,
+          artistName: state.currentTrack.artistName,
+          trackDuration: state.currentTrack.durationMs
+        };
+      }
+
+      this.logger.debug(`----------`);
+      let totalDurationSeconds = state.currentTrack.durationMs * .001;
+
+      this.logger.debug(`player state change, totalDurationSeconds: ${totalDurationSeconds}`);
+      this.logger.debug(`player state change, currentPlaybackPosition: ${this._spotify.player.currentPlaybackPosition}`);
+      this.logger.debug(`player state change, track.uri: ${state.currentTrack.uri}`);
+      
+      // consider track ending if this fires and currentPlaybackPosition is within 1.2 seconds of total durationMs
+      // spotify changed their api with beta.20 and no longer have official stopped track delegate method :(
+      let diff = totalDurationSeconds - this._spotify.player.currentPlaybackPosition;
+      if (diff < 1.2) {
+        this.trackEnded(state.currentTrack.uri);
+      }
+    }
+  }
+
   private setupEvents() {
     this._spotify.events.on('albumArtChange', (eventData: any) => {
       this.ngZone.run(() => {
         this.updateAlbumArt(eventData.data.url);
       });
     });
+    this._spotify.events.on('changedPlaybackState', (eventData: any) => {
+      // this.ngZone.run(() => {
+      this.updatePlayerState(eventData.data.state);
+      // });
+    });
     this._spotify.events.on('playerReady', (eventData: any) => {
       this.ngZone.run(() => {
         this.loader.hide();
       });
     });
-    this._spotify.events.on('stoppedPlayingTrack', (eventData: any) => {
-      this.ngZone.run(() => {
-        this.trackEnded(eventData.data.url);
-      });
-    });
+    // this._spotify.events.on('stoppedPlayingTrack', (eventData: any) => {
+    //   this.ngZone.run(() => {
+    //     this.trackEnded(eventData.data.url);
+    //   });
+    // });
     this._spotify.events.on('temporaryConnectionError', (eventData: any) => {
       this.ngZone.run(() => {
         this.tmpConnectionError();

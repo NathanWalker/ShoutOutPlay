@@ -1,8 +1,7 @@
 @import 'variablesyellow.scss';
 
-
 ActionBar {
-  background-color: $primary;
+  background-color: $base;
   color:white;
 }
 
@@ -10,15 +9,43 @@ ActionBar {
 //   padding:5;
 // }
 
+ScrollView {
+  background-color:$base;
+}
+
+.page-bg {
+  background-color: $base;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+}
+
 SearchBar {
   padding:40;
-  background-color: $primary;
-  color:$primary;
+  background-color: $action-bar-match;
+  color:$action-bar-match;
   border-width:0;
 }
 
 .logo-text {
   color:#fff;
+}
+
+.white-label {
+  font-size:12;
+  margin:5;
+  color:#fff;
+  width:100%;
+  text-align: center;
+
+  &.header {
+    margin:10;
+    font-size:14;
+  }
+  &.mention {
+    color:rgba(255,255,255, .6);
+  }
 }
 
 .fa {
@@ -27,7 +54,7 @@ SearchBar {
 }
 
 .side-drawer {
-  background-color: $base;
+  background-color: $dark;
   width:100%;
   height:100%;
   // .side-primary {
@@ -50,10 +77,11 @@ SearchBar {
       width:50;
       text-align: center;
     }
-  }
-  .item-active {
-    background-color:rgba($primary, .4);
-    color:#fff;
+
+    &.active {
+      background-color:rgba($primary, .4);
+      color:#fff;
+    }
   }
   .side-bottom {
 
@@ -74,7 +102,7 @@ SearchBar {
   padding-top:80;
   horizontal-align: center;
   vertical-align: top;
-  background-color: $primary;
+  background-color: $action-bar-match;
 }
 .full-page-icon-label,
 .full-page-message-label {
@@ -84,10 +112,10 @@ SearchBar {
 }
 .full-page-message-label {
   font-style: italic;
-  font-size:30;
+  font-size:40;
 }
 .full-page-icon-label {
-  font-size:150;
+  font-size:160;
   opacity:.2;
 }
 
@@ -96,7 +124,7 @@ SearchBar {
   font-style: italic;
   width: 100%;
   text-align: center;
-  color:$primary;
+  color:rgba(#fff, .4);
   margin:8;
 }
 
@@ -111,6 +139,24 @@ SearchBar {
   color:#fff;
   background-color:#000;
   padding:20;
+}
+
+.large-heading {
+  font-size:30;
+  color:#fff;
+  padding:10 10 10 10;
+}
+
+.medium-heading {
+  font-size:20;
+  color:rgba(#fff, .7);
+  padding:5 10 5 10;
+}
+
+.small-heading {
+  font-size:15;
+  color:rgba(#fff, .5);
+  padding:5 10 5 10;
 }
 
 .inline-notice {
@@ -142,14 +188,14 @@ SearchBar {
 }
 
 .title {
-  color:$highlight;
+  color:#fff;
   font-size:18;
   font-weight: bold;
 }
 
 .title-sub {
   font-size:14;
-  color:$primary;
+  color:$highlight;
 }
 
 .actions {
@@ -164,6 +210,9 @@ SearchBar {
 .divider2 {
   margin-top:19;
 }
+.divider-margin {
+  margin:10;
+}
 
 .row-center {
   height:100%;
@@ -171,7 +220,12 @@ SearchBar {
 }
 
 .shoutout-mic {
-  color:$bright;
+  color:rgba($bright, .2);
+  padding-right:25;
+
+  &.active {
+    color: $bright;
+  }
 }
 
 .btn {
@@ -183,6 +237,18 @@ SearchBar {
   font-size: 30;
   color:#fff;
   margin:0 5 0 5;
+
+  &.track-plain {
+    margin: 0 20 0 12;
+  }
+}
+.play-btn-img {
+  margin:0 5 0 5;
+  width:46;
+  height:46;
+  background-color:$bright-alt;
+  border-radius:23;
+  padding:30;
 }
 
 .delete-btn {
@@ -236,12 +302,44 @@ SearchBar {
   height: 100%;
   background-color:$base;
 }
+.logged-out {
+  height: 100%;
+  background-color:$action-bar-match;
+}
+
+/* Player controls */
+.player-full-screen,
+.player-minimized {
+  background-color:$primary;
+}
+.player-full-screen {
+  width:100%;
+  height:100%;
+}
+.player-minimized {
+  width:100%;
+  height:100;
+}
+.player-controls {
+  width:100%;
+  background-color:$primary;
+}
+.player-full-screen {
+  width:100%;
+  height:100%;
+}
+
 
 .settings-list {
   padding:20;
 }
+.settings-bottom {
+  background-color:$base;
+  height: 100%;
+}
 .settings-btn {
   margin:10 0 10 0;
+  color:$highlight;
 }
 
 ListView {
@@ -259,7 +357,15 @@ ListView {
 
 .odd.playing,
 .even.playing {
-  background-color: #87C2FF;
+  background-color: $dark;
+
+  .title-sub {
+    color: $highlight;
+  }  
+
+  .detail-btn {
+    color: $highlight;
+  }
 }
 
 .search {
@@ -275,10 +381,20 @@ ListView {
   color:$bright;
 }
 
+.modal-title {
+  font-weight: bold;
+  text-align:center;
+}
+
+.modal-blank-label {
+  color:$primary;
+  width:50;
+}
+
 .modal-action-bar {
   width:100%;
   padding: 10 15 10 15;
-  background-color:$primary;
+  background-color:$base;
 
   .cancel-btn {
     color:#fff;
@@ -286,7 +402,6 @@ ListView {
   .modal-label {
     color:#fff;
     width:100%;
-    text-align: right;
   }
 }
 
@@ -296,4 +411,265 @@ ListView {
   }
 }
 
+/* Intro */
+$lightpurple: #7C3FE8;
 
+.slides {
+  width:100%;
+  height: 100%;
+  background-color: $lightpurple;
+}
+
+.msg-area {
+  width: 100%;
+  height: 100%;
+}
+
+.mask-cover {
+  top:0;
+  left:0;
+  width:100%;
+  height: 100%;
+  text-align: center;
+
+  Image {
+    width:100%;
+  }
+}
+
+.first-welcome {
+  width:100%;
+  height:100%;
+  padding:50;
+
+  .logo-img {
+    margin: 30 0 30 0;
+  }
+
+  .text-label {
+    color:#fff;
+    font-size:25;
+
+    &.bigger {
+      font-size:32;
+      &.bright {
+        color: $bright;
+      }
+    }
+
+    &.centered {
+      text-align:center;
+    }
+  }
+}
+
+.gif-area {
+  width:100%;
+  height: 100%;
+  text-align: center;
+  top:100;
+  left:0;
+}
+
+.slide-1 {
+  .gif-area {
+    top:120;
+  }
+}
+
+.slide-2 {
+  .gif-area {
+    top:45;
+  }
+}
+
+.slide-3 {
+  .gif-area {
+    top:110;
+  }
+}
+
+.slide-4 {
+  .gif-area {
+    top:92;
+  }
+}
+
+.text-area {
+  width:100%;
+  text-align: center;
+  height: 200;
+  padding:40;
+  background-color: $lightpurple;
+  .text-label {
+    color:#fff;
+    font-size:26;
+  }
+}
+
+.number-area {
+  width: 100%;
+  top:20;
+  left:0;
+  text-align: center;
+  horizontal-align:center;
+}
+
+.number {
+  font-size:50;
+  font-weight: bold;
+  border-radius: 47;
+  background-color:#000;
+  width:100;
+  height:100;
+  top: 20;
+  color:#fff;
+  text-align: center;
+  horizontal-align:center;
+}
+
+/* Record */
+.audioPlot {
+  width:100%;
+  height:75%;
+  background-color: $base;
+  top:0;
+  left:0;
+}
+
+.big-record-btn,
+.record-btn,
+.ready-record-label {
+  color: #E42338;
+}
+
+.ready-record-label {
+  font-size:60;
+  text-align:left;
+  font-weight: bold;
+  opacity:0;
+}
+
+.big-record-btn {
+  font-size:200;
+  opacity:0;
+}
+
+.recordTime {
+  horizontal-align: center;
+  font-size:18;
+  color:#fff;
+  top:90;
+  left:0;
+  width:100%;
+}
+
+.big-save-bg {
+  color: $bright;
+  font-size:550;
+  opacity:0;
+}
+.play-controls {
+  width:100%;
+  horizontal-align:center;
+  opacity:0;
+
+  .play-btns {
+    horizontal-align:center;
+    width:60%;
+  }
+  .rewind-btn {
+    color:#fff;
+    text-align: right;
+    font-size:50;
+    padding:0 20 0 20;
+    width: 35%;
+  }
+  .play-btn {
+    color:#fff;
+    text-align: right;
+    font-size:130;
+    width:65%;
+  }
+  .play-btn-txt {
+    color:#fff;
+    text-align: left;
+    font-size:40;
+    width:40%;
+    padding:0 0 0 10;
+    vertical-align: center;
+  }
+  // &.smaller {
+  //   .play-btns {
+  //     width:60%;
+  //   }
+  //   .rewind-btn {
+  //     font-size:30;
+  //     width:40%;
+  //   }
+  //   .play-btn {
+  //     font-size:100;
+  //     width:60%;
+  //   }
+  //   .play-btn-text {
+  //     font-size:25;
+  //     width:40%;
+  //   }
+  // }
+}
+.play-controls-smaller {
+  .play-btns {
+    width:60%;
+  }
+  .rewind-btn {
+    font-size:30;
+    width:40%;
+  }
+  .play-btn {
+    font-size:100;
+    width:60%;
+  }
+  .play-btn-text {
+    font-size:20;
+    width:40%;
+  }
+}
+
+.save-area {
+  width:100%;
+  horizontal-align:center;
+  opacity:0;
+
+  .save-btn {
+    color:#000;
+    text-align: right;
+    font-size:30;
+    // width:55%;
+    padding:0 10 0 0;
+  }
+  .save-btn-txt {
+    color:#000;
+    text-align: left;
+    font-size:25;
+    // width:45%;
+    padding:0 20 0 5;
+  }
+  // &.smaller {
+  //   .save-btn {
+  //       width:50%;
+  //     }
+  //     .save-btn-txt {
+  //       width:50%;
+  //       font-size:20;
+  //     }
+  // }
+}
+.save-area-smaller {
+  .save-btn {
+      width:50%;
+    }
+    .save-btn-txt {
+      width:50%;
+      font-size:20;
+    }
+}

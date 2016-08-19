@@ -1,9 +1,17 @@
-<ActionBar title="Record"> 
+<!--<ActionBar title="Record"> 
   <NavigationButton text="Back" android.systemIcon="ic_menu_back" class="action-btn"></NavigationButton>
   <ActionItem (tap)="toggleRecord()" ios.position="right" android.position="popup" *ngIf="showRecord">
     <Button class="fa record-btn" [text]="(recordBtn$ | async) | fonticonPure"></Button>
   </ActionItem>
-</ActionBar>
+</ActionBar>-->
+
+<ActionBarExtension>
+  <NavigationButton text="Back" android.systemIcon="ic_menu_back" class="action-btn"></NavigationButton>
+  <ActionItem (tap)="toggleRecord()" ios.position="right" android.position="popup" *ngIf="showRecord">
+    <Button class="fa record-btn" [text]="(recordBtn$ | async) | fonticonPure"></Button>
+  </ActionItem>
+</ActionBarExtension>
+
 <AbsoluteLayout modal-dialog-host backgroundColor="#000" width="100%" height="100%">
   <AudioPlot #audioplot class="audioPlot" [plotColor]="audioPlotColor" plotType="buffer"></AudioPlot>
 
