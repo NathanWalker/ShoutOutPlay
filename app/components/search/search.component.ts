@@ -18,7 +18,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
-import {SearchService, AuthService, AuthStateI, PlaylistService, PLAYLIST_ACTIONS, TrackModel, EmptyComponent} from '../../shared/shoutoutplay/index';
+import {SearchService, AuthService, IAuthState, PlaylistService, PLAYLIST_ACTIONS, TrackModel, EmptyComponent, CoachmarksService} from '../../shared/shoutoutplay/index';
 import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
 
 @BaseComponent({
@@ -29,13 +29,14 @@ import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
   providers: [ModalDialogService]
 })
 export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
+  @ViewChild('searchbar') searchBarEl: ElementRef;
   // TODO: potentially animate empty view
   // @ViewChild('emptyArrow') emptyArrowEl: ElementRef;
   // @ViewChild('emptyLabel') emptyLabelEl: ElementRef;
   private _loadingMore: boolean = false;
   private _sub: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private router: Router, private loc: Location) {
+  constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private router: Router, private loc: Location, private coachmarks: CoachmarksService) {
     logger.debug(`SearchComponent constructor`);
   }
 
@@ -99,6 +100,13 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngAfterViewInit() {
     this.logger.debug(`SearchComponent ngAfterViewInit`);
+
+    // coach marks
+    if (this.searchBarEl) {
+      this.logger.debug(this.searchBarEl);
+      this.logger.debug(this.searchBarEl.nativeElement);
+      this.coachmarks.teachSearch(this.searchBarEl.nativeElement);
+    }
     
     // let emptyArrow = this.emptyArrowEl.nativeElement;
     // let emptyLabel = this.emptyLabelEl.nativeElement;

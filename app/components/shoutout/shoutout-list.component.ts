@@ -18,7 +18,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {LogService, BaseComponent, FancyAlertService, TextService, Utils} from '../../shared/core/index';
-import {ShoutoutModel, FIREBASE_ACTIONS, FirebaseStateI, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
+import {ShoutoutModel, FIREBASE_ACTIONS, IFirebaseState, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 

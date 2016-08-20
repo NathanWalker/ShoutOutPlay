@@ -36,12 +36,12 @@ const CATEGORY: string = 'Playlist';
 /**
  * ngrx setup start --
  */
-export interface PlaylistStateI {
+export interface IPlaylistState {
   playing?: boolean;
   showPicker?: boolean;
 }
 
-interface PLAYLIST_ACTIONSI {
+interface IPLAYLIST_ACTIONS {
   SHOW_PICKER: string;
   CLOSE_PICKER: string;
   LOOP_NEXT: string;
@@ -51,7 +51,7 @@ interface PLAYLIST_ACTIONSI {
   SKIP_BACK: string;
 }
 
-export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
+export const PLAYLIST_ACTIONS: IPLAYLIST_ACTIONS = {
   SHOW_PICKER: `[${CATEGORY}] SHOW_PICKER`,
   CLOSE_PICKER: `[${CATEGORY}] CLOSE_PICKER`,
   LOOP_NEXT: `[${CATEGORY}] LOOP_NEXT`,
@@ -61,7 +61,7 @@ export const PLAYLIST_ACTIONS: PLAYLIST_ACTIONSI = {
   SKIP_BACK: `[${CATEGORY}] SKIP_BACK`
 };
 
-export const playlistReducer: ActionReducer<PlaylistStateI> = (state: PlaylistStateI = {}, action: Action) => {
+export const playlistReducer: ActionReducer<IPlaylistState> = (state: IPlaylistState = {}, action: Action) => {
   let changeState = () => {
     if (action.payload && action.payload.showRecord !== true) {
       // always reset back

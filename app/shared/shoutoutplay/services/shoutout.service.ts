@@ -22,31 +22,31 @@ const CATEGORY: string = 'Shoutout';
 /**
  * ngrx setup start --
  */
-export interface ShoutoutStateI {
+export interface IShoutoutState {
   list: Array<ShoutoutModel>;
   showTrackPicker?: boolean;
   showRecord?: boolean;
 }
 
-const initialState: ShoutoutStateI = {
+const initialState: IShoutoutState = {
   list: []
 };
 
-interface SHOUTOUT_ACTIONSI {
+interface ISHOUTOUT_ACTIONS {
   SHOW_PICKER: string;
   CLOSE_PICKER: string;
   DOWNLOAD_SHOUTOUTS: string;
   REMOVE_REMOTE: string;
 }
 
-export const SHOUTOUT_ACTIONS: SHOUTOUT_ACTIONSI = {
+export const SHOUTOUT_ACTIONS: ISHOUTOUT_ACTIONS = {
   SHOW_PICKER: `[${CATEGORY}] SHOW_PICKER`,
   CLOSE_PICKER: `[${CATEGORY}] CLOSE_PICKER`,
   DOWNLOAD_SHOUTOUTS: `[${CATEGORY}] DOWNLOAD_SHOUTOUTS`,
   REMOVE_REMOTE: `[${CATEGORY}] REMOVE_REMOTE`
 };
 
-export const shoutoutReducer: ActionReducer<ShoutoutStateI> = (state: ShoutoutStateI = initialState, action: Action) => {
+export const shoutoutReducer: ActionReducer<IShoutoutState> = (state: IShoutoutState = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };

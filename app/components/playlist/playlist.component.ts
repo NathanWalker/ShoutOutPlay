@@ -17,7 +17,7 @@ import {isString, includes} from 'lodash';
 
 // app
 import {AnimateService, LogService, BaseComponent, ProgressService, FancyAlertService, DrawerService} from '../../shared/core/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYLIST_ACTIONS, PlayerStateI, FirebaseService, FIREBASE_ACTIONS, FirebaseStateI, AuthStateI, ShoutoutService, SearchService, EmptyComponent} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, PLAYLIST_ACTIONS, IPlayerState, FirebaseService, FIREBASE_ACTIONS, IFirebaseState, IAuthState, ShoutoutService, SearchService, EmptyComponent} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 
@@ -101,7 +101,7 @@ export class PlaylistComponent {
   }
 
   ngOnInit() {
-    this._sub = this.store.select('auth').subscribe((state: AuthStateI) => {
+    this._sub = this.store.select('auth').subscribe((state: IAuthState) => {
       if (!state.loggedIn) {
         this.router.navigate(['/']);
       }

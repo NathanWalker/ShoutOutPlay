@@ -1,6 +1,6 @@
 import * as appSettings from 'application-settings';
 
-interface APP_SETTING_KEYSI {
+interface IAPP_SETTING_KEYS {
   INTRO: string;
   SHOUTOUT_START: string;
 }
@@ -12,7 +12,7 @@ export class Config {
   // fallback when playlistId is not defined on tracks (from bulk spotify playlist creation)
   public static SELECTED_PLAYLIST_ID: string;
   
-  public static APP_SETTING_KEYS: APP_SETTING_KEYSI = {
+  public static APP_SETTING_KEYS: IAPP_SETTING_KEYS = {
     INTRO: `viewed-intro`,
     SHOUTOUT_START: 'shoutout-start'
   };

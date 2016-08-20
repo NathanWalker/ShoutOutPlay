@@ -6,7 +6,7 @@
       "version": "2.2.1"
     },
     "tns-android": {
-      "version": "2.2.1"
+      "version": "2.2.0"
     }
   },
   "scripts": {
@@ -32,6 +32,7 @@
     "nativescript-angular": "next",
     "nativescript-audio": "^2.0.4",
     "nativescript-cardview": "^1.1.10",
+    "nativescript-coachmarks": "^1.0.1",
     "nativescript-ezaudio": "^1.1.6",
     "nativescript-fancyalert": "^1.0.9",
     "nativescript-gif": "^1.0.61",

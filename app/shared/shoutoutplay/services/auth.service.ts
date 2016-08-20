@@ -15,12 +15,12 @@ const CATEGORY: string = 'Auth';
 /**
  * ngrx setup start --
  */
-export interface AuthStateI {
+export interface IAuthState {
   loggedIn: boolean;
   currentUser?: any;
 }
 
-const initialState: AuthStateI = {
+const initialState: IAuthState = {
   loggedIn: false
 };
 
@@ -29,7 +29,7 @@ export const AUTH_ACTIONS: any = {
   SET_CURRENT_USER: `[${CATEGORY}] SET_CURRENT_USER`
 };
 
-export const authReducer: ActionReducer<AuthStateI> = (state: AuthStateI = initialState, action: Action) => {
+export const authReducer: ActionReducer<IAuthState> = (state: IAuthState = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };

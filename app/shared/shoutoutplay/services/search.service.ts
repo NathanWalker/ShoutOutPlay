@@ -10,7 +10,7 @@ import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {ProgressService, LogService} from '../../core/index';
-import {PlayerStateI, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
+import {IPlayerState, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
 // analytics
 const CATEGORY: string = 'Search';
@@ -18,24 +18,24 @@ const CATEGORY: string = 'Search';
 /**
  * ngrx setup start --
  */
-export interface SearchStateI {
+export interface ISearchState {
   term?: string;
   results?: Array<TrackModel>;
 }
 
-const initialState: SearchStateI = {
+const initialState: ISearchState = {
   results: []
 };
 
-interface SEARCH_ACTIONSI {
+interface ISEARCH_ACTIONS {
   RESULTS_CHANGE: string;
 }
 
-export const SEARCH_ACTIONS: SEARCH_ACTIONSI = {
+export const SEARCH_ACTIONS: ISEARCH_ACTIONS = {
   RESULTS_CHANGE: `[${CATEGORY}] RESULTS_CHANGE`
 };
 
-export const searchReducer: ActionReducer<SearchStateI> = (state: SearchStateI = initialState, action: Action) => {
+export const searchReducer: ActionReducer<ISearchState> = (state: ISearchState = initialState, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };
@@ -64,7 +64,7 @@ export class SearchService extends Analytics {
     this.state$ = store.select('search');
 
     // listen to player state changes to update `playing` state of tracks in results
-    store.select('player').subscribe((player: PlayerStateI) => {
+    store.select('player').subscribe((player: IPlayerState) => {
       if (player.previewTrackId && !player.stopped) {
         this.logger.debug(`SearchService player state changed, updating result list state...`);
         this.logger.debug(`playerState.playing: ${player.playing}`);
@@ -159,7 +159,7 @@ export class SearchService extends Analytics {
     this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results, term } });
   }
 
-  private updateTracks(player: PlayerStateI) {
+  private updateTracks(player: IPlayerState) {
     let id = player.previewTrackId;
     this.store.take(1).subscribe((s: any) => {
       let results = [...s.search.results];

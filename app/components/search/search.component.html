@@ -8,7 +8,7 @@
   
   <!-- auth -->
   <StackLayout class="full-page" [visibility]="(authService.state$ | async)?.loggedIn ? 'visible': 'collapsed'"><!--*ngIf="(authService.state$ | async)?.loggedIn==true"-->
-    <SearchBar (submit)="search($event)" (clear)="clear()"></SearchBar>
+    <SearchBar #searchbar (submit)="search($event)" (clear)="clear()"></SearchBar>
     <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333" (itemLoading)="itemLoading($event)" (loadMoreItems)="loadMore($event)" *ngIf="(searchService.state$ | async)?.results.length">
       <template let-item="item" let-odd="odd" let-even="even">
         <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item result-item">

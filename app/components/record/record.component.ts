@@ -30,7 +30,7 @@ import * as _ from 'lodash';
 
 // app
 import {BaseComponent, LogService, ProgressService, FancyAlertService, Utils, Config, ColorService} from '../../shared/core/index';
-import {ShoutoutStateI, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, FIREBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
+import {IShoutoutState, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, FIREBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
 import {TrackChooserComponent} from './track-chooser.component';
 
 declare var interop: any, zonedCallback: Function, kCGBlendModeSourceAtop: any, HUGE_VAL: any, kCAFillModeForwards: any, kCAMediaTimingFunctionEaseInEaseOut: any;
@@ -128,7 +128,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       this.togglePlay();
     }));
 
-    this._sub = store.select('shoutout').subscribe((state: ShoutoutStateI) => {
+    this._sub = store.select('shoutout').subscribe((state: IShoutoutState) => {
       if (state.showTrackPicker) {
         let options: ModalDialogOptions = {
           fullscreen: false

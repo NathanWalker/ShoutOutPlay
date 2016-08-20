@@ -4,7 +4,7 @@ import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
 
 // app
 import {LogService, BaseComponent} from '../../shared/core/index';
-import {PlaylistService, PlaylistStateI, PlaylistModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, FirebaseService} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, FirebaseService} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   // moduleId: module.id,

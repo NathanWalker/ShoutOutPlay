@@ -15,7 +15,7 @@ import {Observable} from 'rxjs/Observable';
 import {isString, isObject, keys, orderBy, includes, find} from 'lodash';
 
 // app
-import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, AuthStateI, SHOUTOUT_ACTIONS} from '../index';
+import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, IAuthState, SHOUTOUT_ACTIONS} from '../index';
 import {Config, LogService, DialogsService, FancyAlertService, Utils} from '../../core/index';
 
 // analytics
@@ -26,22 +26,22 @@ declare var zonedCallback: Function;
 /**
  * ngrx setup start --
  */
-export interface FirebaseChangesI {
+export interface IFirebaseChanges {
   playlists?: Array<PlaylistModel>;
   shoutouts?: Array<ShoutoutModel>;
 }
-export interface FirebaseStateI {
+export interface IFirebaseState {
   playlists?: Array<PlaylistModel>;
   shoutouts?: Array<ShoutoutModel>;
   selectedPlaylistId?: string;
 }
 
-const initialState: FirebaseStateI = {
+const initialState: IFirebaseState = {
   playlists: [],
   shoutouts: []
 };
 
-interface FIREBASE_ACTIONSI {
+interface IFIREBASE_ACTIONS {
   CREATE: string;
   CREATE_SHOUTOUT: string;
   UPDATE: string;
@@ -56,7 +56,7 @@ interface FIREBASE_ACTIONSI {
   RESET_ACCOUNT: string;
 }
 
-export const FIREBASE_ACTIONS: FIREBASE_ACTIONSI = {
+export const FIREBASE_ACTIONS: IFIREBASE_ACTIONS = {
   CREATE: `[${CATEGORY}] CREATE`,
   CREATE_SHOUTOUT: `[${CATEGORY}] CREATE_SHOUTOUT`,
   UPDATE: `[${CATEGORY}] UPDATE`,
@@ -71,7 +71,7 @@ export const FIREBASE_ACTIONS: FIREBASE_ACTIONSI = {
   RESET_ACCOUNT: `[${CATEGORY}] RESET_ACCOUNT`
 };
 
-export const firebaseReducer: ActionReducer<FirebaseStateI> = (state: FirebaseStateI = initialState, action: Action) => {
+export const firebaseReducer: ActionReducer<IFirebaseState> = (state: IFirebaseState = initialState, action: Action) => {
   let changeState = () => {
     if (!action.payload) {
       action.payload = {};
@@ -121,7 +121,7 @@ interface IFirebaseUser {
 
 @Injectable()
 export class FirebaseService {
-  public state$: Observable<FirebaseStateI>;
+  public state$: Observable<IFirebaseState>;
   private _initialized: boolean = false;
   private _firebaseUser: IFirebaseUser; // logged in firebase user
   private _spotifyUserProduct: any; // cache spotify product to store with firebase user
@@ -501,7 +501,7 @@ export class FirebaseService {
 
   private init() {
     this.state$ = this.store.select('firebase');
-    this.store.select('auth').subscribe((s: AuthStateI) => {
+    this.store.select('auth').subscribe((s: IAuthState) => {
       if (s.loggedIn) {
         // try to log user in or create an account based on their spotify account
         TNSSpotifyAuth.CURRENT_USER().then((user: any) => {

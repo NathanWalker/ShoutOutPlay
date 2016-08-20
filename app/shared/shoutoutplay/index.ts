@@ -1,4 +1,5 @@
 import {AuthService} from './services/auth.service';
+import {CoachmarksService} from './services/coachmarks.service';
 import {FirebaseService} from './services/firebase.service';
 import {PlayerService} from './services/player.service';
 import {PlaylistService} from './services/playlist.service';
@@ -7,6 +8,7 @@ import {ShoutoutService} from './services/shoutout.service';
 
 export const SHOUTOUTPLAY_PROVIDERS: any[] = [
   AuthService,
+  CoachmarksService,
   FirebaseService,
   PlayerService,
   PlaylistService,
@@ -22,6 +24,7 @@ export * from './models/user.model';
 
 // services
 export * from './services/auth.service';
+export * from './services/coachmarks.service';
 export * from './services/firebase.service';
 export * from './services/player.service';
 export * from './services/playlist.service';

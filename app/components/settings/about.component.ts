@@ -66,6 +66,9 @@ export class AboutComponent {
       case 14:
         utils.openUrl('https://github.com/NathanaelA/nativescript-permissions');
         break;
+      case 15:
+        utils.openUrl('https://github.com/NathanWalker/nativescript-coachmarks');
+        break;
     }
   }
 }

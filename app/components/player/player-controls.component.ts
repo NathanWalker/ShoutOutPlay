@@ -9,7 +9,7 @@ import 'rxjs/add/operator/take';
 import {device, screen} from 'platform';
 
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
-import {PlayerStateI, TrackModel} from '../../shared/shoutoutplay/index';
+import {IPlayerState, TrackModel} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   // moduleId: module.id,
@@ -41,7 +41,7 @@ export class PlayerControlsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.logger.debug(`PlayerControlsComponent ngOnInit`);
-    this._sub = this.store.select('player').subscribe((state: PlayerStateI) => {
+    this._sub = this.store.select('player').subscribe((state: IPlayerState) => {
       this.playingIcon$.next(state.playing ? 'fa-pause-circle' : 'fa-play-circle');
     });
   }

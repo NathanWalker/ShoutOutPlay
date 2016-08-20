@@ -22,7 +22,7 @@ import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescrip
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {Config, LogService, ProgressService, FancyAlertService, TextService, Utils} from '../../core/index';
-import {AUTH_ACTIONS, SearchStateI, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
+import {AUTH_ACTIONS, ISearchState, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 import {CommandCenterHandler} from './command-center';
 
 declare var zonedCallback: Function, MPNowPlayingInfoCenter, interop;
@@ -33,28 +33,28 @@ const CATEGORY: string = 'Player';
 /**
  * ngrx setup start --
  */
-export interface PlayerStateI {
+export interface IPlayerState {
   currentTrackId?: string;
   previewTrackId?: string;
   playing?: boolean;
   stopped?: boolean;
 }
 
-const initialState: PlayerStateI = {
+const initialState: IPlayerState = {
   playing: false
 };
 
-interface PLAYER_ACTIONSI {
+interface IPLAYER_ACTIONS {
   TOGGLE_PLAY: string;
   STOP: string;
 }
 
-export const PLAYER_ACTIONS: PLAYER_ACTIONSI = {
+export const PLAYER_ACTIONS: IPLAYER_ACTIONS = {
   TOGGLE_PLAY: `[${CATEGORY}] TOGGLE_PLAY`,
   STOP: `[${CATEGORY}] STOP`
 };
 
-export const playerReducer: ActionReducer<PlayerStateI> = (state: PlayerStateI = initialState, action: Action) => {
+export const playerReducer: ActionReducer<IPlayerState> = (state: IPlayerState = initialState, action: Action) => {
   let changeState = () => {
     if (!action.payload) {
       action.payload = {}
@@ -151,7 +151,7 @@ export class PlayerService extends Analytics {
       };
     }
 
-    this.state$.subscribe((player: PlayerStateI) => {
+    this.state$.subscribe((player: IPlayerState) => {
       if (player.previewTrackId || player.currentTrackId) {
         // only if tracks are defined
         this.togglePlay(player.previewTrackId || player.currentTrackId, player.previewTrackId !== undefined, player.playing);

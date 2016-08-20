@@ -8,7 +8,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {LogService, BaseComponent} from '../../shared/core/index';
-import {TrackModel, PlaylistModel, FirebaseStateI} from '../../shared/shoutoutplay/index';
+import {TrackModel, PlaylistModel, IFirebaseState} from '../../shared/shoutoutplay/index';
 
 @BaseComponent({
   // moduleId: module.id,
