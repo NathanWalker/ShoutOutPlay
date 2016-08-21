@@ -77,6 +77,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _reloadPlayer: boolean = false;
   private _sessionRecordings: Array<any> = [];
   private _chosenTrack: TrackModel;
+  private _savedName: string;
   private _showingGiantRecordUI: boolean = true;
   private _firstPlayShow: boolean = false; 
   private _glowiOSView;  
@@ -194,14 +195,21 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     if (track) {
       this.logger.debug(`Chose Track!`);
       this._chosenTrack = track;
-    }
+    } 
     this.progress.show();
     setTimeout(() => {
       this.progress.hide();
-      // prompt user for their name
-      this.fancyalert.prompt('Name', '', 'Add your name...', 'edit', (value: any) => {
-        this.saveShoutout(value);
-      });
+
+      if (!this._savedName) {
+        // prompt user for their name
+        this.fancyalert.prompt('Name', '', 'Add your name...', 'edit', (value: any) => {
+          this._savedName = value;
+          this.saveShoutout(value);
+        });
+      } else {
+        // use previous saved name during session
+        this.saveShoutout(this._savedName);
+      }
     }, 1200);
   }
 

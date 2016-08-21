@@ -1,6 +1,7 @@
 import {OnDestroy, NgZone} from '@angular/core';
 
 // nativescript
+import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import {isIOS} from 'platform';
 import * as utils from 'utils/utils';
 import {File} from 'file-system';
@@ -19,13 +20,16 @@ import 'rxjs/add/operator/take';
 // app
 import {LogService, BaseComponent, FancyAlertService, TextService, Utils} from '../../shared/core/index';
 import {ShoutoutModel, FIREBASE_ACTIONS, IFirebaseState, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
+import {TrackChooserComponent} from '../record/track-chooser.component';
 
 declare var zonedCallback: Function;
 
 @BaseComponent({
   // moduleId: module.id,
   selector: 'shoutout-list',
-  templateUrl: './components/shoutout/shoutout-list.component.html'
+  templateUrl: './components/shoutout/shoutout-list.component.html',
+  directives: [ModalDialogHost],
+  providers: [ModalDialogService]
 })
 export class ShoutOutListComponent implements OnDestroy {
   public shoutouts$: BehaviorSubject<Array<any>> = new BehaviorSubject([]);
@@ -34,7 +38,7 @@ export class ShoutOutListComponent implements OnDestroy {
   private _currentShoutOut: any;
   private _sub: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone, private modal: ModalDialogService) {
     this._shoutOutPlayer = new TNSEZAudioPlayer(true);
     this._shoutOutPlayer.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
       this.logger.debug(`ShoutOutListComponent: audioEvents.on('reachedEnd')`);
@@ -94,6 +98,22 @@ export class ShoutOutListComponent implements OnDestroy {
         this.fancyalert.show(TextService.SHOUTOUT_NOT_FOUND);
       }
     }
+  }
+
+  public addToTrack(shoutout: any) {
+    // TODO: need new action to add an existing shoutout to a track
+    // should update playlist and shoutout in firebase
+    
+    // let options: ModalDialogOptions = {
+    //   fullscreen: false
+    // };
+    // this.modal.showModal(TrackChooserComponent, options).then(zonedCallback((track?: any) => {
+    //   if (track) {
+    //     shoutout.trackId = track.id;
+    //     shoutout.playlistId = track.playlistId;
+    //     // this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE_SHOUTOUT, payload: newShoutout });
+    //   }
+    // }));
   }
 
   public remove(e: any) {

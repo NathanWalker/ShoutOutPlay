@@ -1,4 +1,10 @@
 <StackLayout class="full-page settings-list">
-  <Button text="Purple People Eater" class="settings-btn bigger" (tap)="changeTheme()"></Button>
-  <Button text="Classic Gray" class="settings-btn bigger" (tap)="changeTheme('gray')"></Button>
+  <GridLayout rows="175,auto" columns="*">
+      <Image src="~/components/settings/img/purple.png" col="0" row="0" (tap)="changeTheme()" class="theme-img"></Image>
+      <Button text="Purple People Eater" class="settings-btn bigger theme-img-label" (tap)="changeTheme()" col="0" row="1"></Button>
+  </GridLayout>
+  <GridLayout rows="175,auto" columns="*">
+      <Image src="~/components/settings/img/gray.png" col="0" row="0" (tap)="changeTheme('gray')" class="theme-img"></Image>
+      <Button text="Gray Fox" class="settings-btn bigger theme-img-label" (tap)="changeTheme('gray')" col="0" row="1"></Button>
+  </GridLayout>
 </StackLayout>

@@ -1,7 +1,7 @@
 import {ElementRef, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {Location} from '@angular/common';
 
-import {device, screen} from 'platform';
+import {device, screen, isIOS} from 'platform';
 
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
 import {FirebaseService} from '../../shared/shoutoutplay/index';
@@ -18,6 +18,7 @@ export class IntroComponent implements OnInit, AfterViewInit {
   public textTop: number = 400;
   public textSize: number = 30;
   public textPadding: number = 40;
+  @ViewChild("swipelabel") swipelabel: ElementRef;
   @ViewChild("slides") slides: ElementRef;
   @ViewChild("step1") step1: ElementRef;
   @ViewChild("step2") step2: ElementRef;
@@ -65,6 +66,9 @@ export class IntroComponent implements OnInit, AfterViewInit {
   }
 
   public close() {
+    if (isIOS) {
+      this.swipelabel.nativeElement.ios
+    }
     Config.SET_SEEN_INTRO(true);
     this.location.back();
   }
@@ -135,6 +139,31 @@ export class IntroComponent implements OnInit, AfterViewInit {
       this._step3.stop();
       this._step4.stop();
     }, 500);
+
+    if (isIOS) {
+      // setup swipe label mask
+      let maskLayer = CALayer.layer();
+      // Mask image ends with 0.15 opacity on both sides. Set the background color of the layer
+      // to the same value so the layer can extend the mask image.
+      maskLayer.backgroundColor = UIColor.colorWithRedGreenBlueAlpha(0,0,0,.15).CGColor;
+      maskLayer.contents = UIImage.imageNamed('SwipeMask.png').CGImage;
+
+      // Center the mask image on twice the width of the text layer, so it starts to the left
+      // of the text layer and moves to its right when we translate it by width.
+      let myLabel = this.swipelabel.nativeElement.ios;
+      maskLayer.contentsGravity = kCAGravityCenter;
+      maskLayer.frame = CGRectMake(300, -50, 900, 150);
+
+      let maskAnim = CABasicAnimation.animationWithKeyPath('position.x');
+      maskAnim.fromValue = 300;
+      maskAnim.toValue = -100;
+      maskAnim.repeatCount = 10000000;
+      maskAnim.duration = 4.5;
+      maskAnim.timingFunction = CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut);
+
+      maskLayer.addAnimationForKey(maskAnim, 'slideAnim');
+      myLabel.layer.mask = maskLayer;
+    }    
 
   }
 }

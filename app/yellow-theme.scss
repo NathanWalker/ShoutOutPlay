@@ -126,6 +126,10 @@ SearchBar {
   text-align: center;
   color:rgba(#fff, .4);
   margin:8;
+
+  &.padding {
+    padding:20;
+  }
 }
 
 .blank-page {
@@ -329,7 +333,6 @@ SearchBar {
   height:100%;
 }
 
-
 .settings-list {
   padding:20;
 }
@@ -340,6 +343,20 @@ SearchBar {
 .settings-btn {
   margin:10 0 10 0;
   color:$highlight;
+
+  &.bigger {
+    font-size:28;
+  }
+}
+.theme-img {
+  margin:10;
+}
+.theme-img-label {
+  margin:5;
+}
+.slider {
+  background-color:$bright;
+  color:$primary;
 }
 
 ListView {

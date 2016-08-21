@@ -16,7 +16,7 @@ if (isIOS) {
 }
 
 // app
-import {LogService, ColorService} from '../../core/index';
+import {LogService, ColorService, DrawerService} from '../../core/index';
 import {AuthService, IAuthState} from './auth.service';
 
 @Injectable()
@@ -25,31 +25,35 @@ export class CoachmarksService {
   private _coachMarks: any;
   private _sub: Subscription;
 
-  constructor(private authService: AuthService, private logger: LogService) {
+  constructor(private authService: AuthService, private logger: LogService, private drawerService: DrawerService) {
 
   }
 
-  public teachSearch(searchBar: any) {
+  public teachSearch(searchBar: any, force?: boolean) {
     if (isIOS) {
       if (!TNSCoachMarks.HAS_SHOWN()) {
         this._searchBar = searchBar;
-        this.logger.debug(this._searchBar);
 
         this._sub = this.authService.state$.subscribe((s:IAuthState) => {
           if (s.loggedIn) {
             this._sub.unsubscribe();
-            this.logger.debug('Search coachmarks...');
 
             setTimeout(() => {
               // configure instance to wire up events
               this._coachMarks = new TNSCoachMarks();
               // required: ensure your desire to setup events
               this._coachMarks.initEvents();
+              this._coachMarks.events.on('willNavigate', (eventData) => {
+                console.log(`will navigate to index:`);
+                console.log(eventData.data.index);
+                // you can customize buttons and bar at each step
+                this.willNavTo(eventData.data);
+              });
               this._coachMarks.events.on('navigate', (eventData) => {
                 console.log(`navigated to index:`);
                 console.log(eventData.data.index);
                 // you can customize buttons and bar at each step
-                this.customizeStyle(eventData.data);
+                this.navTo(eventData.data);
               });
               this._coachMarks.events.on('cleanup', (eventData) => {
                 this._coachMarks = undefined;
@@ -101,6 +105,19 @@ export class CoachmarksService {
                   labelPosition: TNSCoachMark.LABEL_POSITIONS.BOTTOM,
                   labelAlignment: TNSCoachMark.LABEL_ALIGNMENTS.RIGHT,
                   showArrow: true
+                }),
+                new TNSCoachMark({
+                  position: CGRectMake(
+                    0, 
+                    150, 
+                    1, 
+                    1
+                  ),
+                  caption: `Oh! btw, don't like the purple color theme? Feel free to change it in the sidebar.`,
+                  shape: TNSCoachMark.SHAPES.DEFAULT,
+                  labelPosition: TNSCoachMark.LABEL_POSITIONS.BOTTOM,
+                  labelAlignment: TNSCoachMark.LABEL_ALIGNMENTS.CENTER,
+                  showArrow: false
                 })
               ];
 
@@ -113,28 +130,40 @@ export class CoachmarksService {
                   skipButtonText: 'Ok, Got It.',
                   lblSpacing: 15,
                   maxLblWidth: 210,
-                  maskColor: UIColor.colorWithRedGreenBlueAlpha(0.49, 0.25, 0.91, .8),
+                  maskColor: ColorService.ActiveId == 0 ? UIColor.colorWithRedGreenBlueAlpha(0.49, 0.25, 0.91, .8) : UIColor.colorWithRedGreenBlueAlpha(0, 0, 0, .7),
                   persist: true
                 },
                 this._coachMarks
               );
-            }, 800);
+            }, 600);
           }
         });
       }
     }
   }
 
-  private customizeStyle(data: any) {
-    if (data.index == 1) {
+  private willNavTo(data: any) {
+    if (data.index == 0) {
+      let menu = topmost().ios.controller.visibleViewController.navigationItem.leftBarButtonItems[0].valueForKey('view').frame;
+      data.instance.arrowImage.frame = CGRectMake(menu.origin.x + 5, data.instance.arrowImage.frame.origin.y, data.instance.arrowImage.frame.size.width, data.instance.arrowImage.frame.size.height);
+    } else if (data.index == 1) {
       // flip image
+      // animate image change
+      // let transition = CATransition.animation();
+      // transition.duration = .3;
+      // transition.timingFunction = CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut);
+      // transition.type = kCATransitionFade;
+      // data.instance.arrowImage.layer.addAnimationForKey(transition, null);
       data.instance.arrowImage.image = UIImage.imageNamed('arrow-top-flip.png');
-      this.logger.debug(data.instance.arrowImage.frame.origin);
-      let record = topmost().ios.controller.visibleViewController.navigationItem.rightBarButtonItems[0].valueForKey('view').frame; 
-      data.instance.arrowImage.frame = CGRectMake(record.origin.x - 10, data.instance.arrowImage.frame.origin.y, data.instance.arrowImage.frame.size.width, data.instance.arrowImage.frame.size.height);
-      this.logger.debug(data.instance.arrowImage.frame.origin);
-    }
 
+      let record = topmost().ios.controller.visibleViewController.navigationItem.rightBarButtonItems[0].valueForKey('view').frame; 
+      data.instance.arrowImage.frame = CGRectMake(record.origin.x - 12, data.instance.arrowImage.frame.origin.y, data.instance.arrowImage.frame.size.width, data.instance.arrowImage.frame.size.height);
+    } else if (data.index == 3) {
+      data.instance.arrowImage.image = UIImage.imageNamed('arrow-left.png');
+    }
+  }
+
+  private navTo(data: any) {
     if (data.instance.lblContinue) {
       // only available when 'ready' is called
       // it disappears after the first tap and advance to next step

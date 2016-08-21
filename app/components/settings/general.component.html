@@ -11,7 +11,7 @@
     <Label text="ShoutOut start time:" textWrap="true" class="medium-heading"></Label>
     <Label text="The time each ShoutOut will play over the top of each track." textWrap="true" class="small-heading"></Label>
     <StackLayout padding="5 10 5 10">
-      <Slider #slider minValue="0" maxValue="60" [(ngModel)]="shoutoutTime" ></Slider>  
+      <Slider #slider minValue="0" maxValue="60" [(ngModel)]="shoutoutTime" class="slider"></Slider>  
       <Label [text]="shoutoutTime$ | async" textWrap="true" class="small-heading"></Label>
     </StackLayout>
     

@@ -126,6 +126,10 @@ SearchBar {
   text-align: center;
   color:rgba(#fff, .4);
   margin:8;
+
+  &.padding {
+    padding:20;
+  }
 }
 
 .blank-page {
@@ -345,6 +349,16 @@ SearchBar {
     font-size:28;
   }
 }
+.theme-img {
+  margin:10;
+}
+.theme-img-label {
+  margin:5;
+}
+.slider {
+  background-color:$primary;
+  color:$bright;
+}
 
 ListView {
   height: 100%;
@@ -455,7 +469,7 @@ $lightpurple: #7C3FE8;
     font-size:25;
 
     &.bigger {
-      font-size:30;
+      font-size:28;
       &.bright {
         color: $bright;
       }

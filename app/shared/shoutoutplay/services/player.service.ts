@@ -501,6 +501,14 @@ export class PlayerService extends Analytics {
   private streamError(error: any) {
     this.logger.debug('Stream error:');
     this.logger.debug(error);
+    if (error) {
+      if (error.toString().indexOf('requires a Spotify Premium') > -1) {
+        // log user out, warn not Premium
+        this.fancyalert.show(TextService.SPOTIFY_PREMIUM_MSG);
+        TNSSpotifyAuth.CLEAR_COOKIES = true;
+        TNSSpotifyAuth.LOGOUT();
+      }
+    }
     this.playerUIStateReset();
   }
 
@@ -529,14 +537,15 @@ export class PlayerService extends Analytics {
 
       this.logger.debug(`----------`);
       let totalDurationSeconds = state.currentTrack.durationMs * .001;
+      let currentPlayback = this._spotify.player.currentPlaybackPosition;
 
       this.logger.debug(`player state change, totalDurationSeconds: ${totalDurationSeconds}`);
-      this.logger.debug(`player state change, currentPlaybackPosition: ${this._spotify.player.currentPlaybackPosition}`);
+      this.logger.debug(`player state change, currentPlaybackPosition: ${currentPlayback}`);
       this.logger.debug(`player state change, track.uri: ${state.currentTrack.uri}`);
       
       // consider track ending if this fires and currentPlaybackPosition is within 1.2 seconds of total durationMs
       // spotify changed their api with beta.20 and no longer have official stopped track delegate method :(
-      let diff = totalDurationSeconds - this._spotify.player.currentPlaybackPosition;
+      let diff = totalDurationSeconds - currentPlayback;
       if (diff < 1.2) {
         this.trackEnded(state.currentTrack.uri);
       }
