@@ -312,25 +312,93 @@ SearchBar {
 }
 
 /* Player controls */
-.player-full-screen,
-.player-minimized {
-  background-color:$primary;
-}
-.player-full-screen {
-  width:100%;
-  height:100%;
-}
-.player-minimized {
-  width:100%;
-  height:100;
-}
 .player-controls {
   width:100%;
-  background-color:$primary;
+  height: 50;
+  background-color:$action-bar-match;
+  vertical-align:bottom;
+
+  .title {
+    color:#fff;
+    font-size:16;
+    font-weight: normal;
+    text-align: center;
+    width:100%;
+  }
+
+  .title-sub {
+    font-size:13;
+    color:$highlight;
+    text-align: center;
+    width:100%;
+  }
+
+  .options-btn {
+    color: #fff;
+  }
 }
-.player-full-screen {
+.player-full {
   width:100%;
   height:100%;
+  background-color:$base;
+
+  .track-name {
+    font-size: 25;
+    color:#fff;
+    text-align: center;
+    width:100%;
+  }
+  .artist-name {
+    font-size: 20;
+    color: $highlight;
+    text-align: center;
+
+    &.right {
+      text-align: right;
+    }
+    &.left {
+      text-align: left;
+    }
+  }
+
+  .options-btn {
+    color:#fff;
+    font-size:20;
+  }
+
+  .full-close {
+    font-size:20;
+    color:#fff;
+  }
+  .album-area {
+    width:100%;
+    height:100%;
+    min-height:400;
+    background-color:#000;
+  }
+  
+  .album-img {
+    width:100%;
+    height:100%;
+    min-height:400;
+    text-align:center;
+
+  }
+  .play-area {
+    vertical-align: center;
+    height:100;
+    
+    .shuttle-btn {
+      font-size:25;
+      color:#efefef;
+    }
+
+    .play-btn {
+      font-size:60;
+      color:#fff;
+      margin:0 10 0 10;
+    }
+  }
 }
 
 .settings-list {
@@ -348,12 +416,21 @@ SearchBar {
     font-size:28;
   }
 }
-.theme-img {
-  margin:10;
+.theme-page {
+  background-color:$complimentary;
+  padding-bottom: 50;
 }
-.theme-img-label {
-  margin:5;
+.theme-area {
+  padding:1;
+  
+  &.active {
+    background-color:#000;
+  }
+  .theme-img-label {
+    margin:0 0 10 0;
+  }
 }
+
 .slider {
   background-color:$bright;
   color:$primary;
@@ -484,25 +561,12 @@ $lightpurple: #7C3FE8;
   width:100%;
   height: 100%;
   text-align: center;
-  top:100;
   left:0;
-}
-
-.slide-1 {
-  .gif-area {
-    top:120;
-  }
 }
 
 .slide-2 {
   .gif-area {
     top:45;
-  }
-}
-
-.slide-3 {
-  .gif-area {
-    top:110;
   }
 }
 
@@ -695,4 +759,7 @@ $lightpurple: #7C3FE8;
       width:50%;
       font-size:20;
     }
+}
+.pad-bottom {
+  padding-bottom: 50;
 }

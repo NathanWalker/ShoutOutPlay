@@ -35,6 +35,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   // @ViewChild('emptyLabel') emptyLabelEl: ElementRef;
   private _loadingMore: boolean = false;
   private _sub: Subscription;
+  private _sub2: Subscription;
 
   constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private router: Router, private loc: Location, private coachmarks: CoachmarksService) {
     logger.debug(`SearchComponent constructor`);
@@ -91,11 +92,14 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
             this.store.dispatch({ type: PLAYLIST_ACTIONS.CLOSE_PICKER });
           });
         });
-      
-      } else if (state.showRecord) {
-        this.router.navigate(['/record']);
       }
     });
+
+    this._sub2 = this.playlistService.showRecord$.subscribe((recordNow: boolean) => {
+      if (recordNow) {
+        this.router.navigate(['/record']);
+      }   
+    })
   }
 
   ngAfterViewInit() {
@@ -103,8 +107,6 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
 
     // coach marks
     if (this.searchBarEl) {
-      this.logger.debug(this.searchBarEl);
-      this.logger.debug(this.searchBarEl.nativeElement);
       this.coachmarks.teachSearch(this.searchBarEl.nativeElement);
     }
     
@@ -157,6 +159,9 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
     this.logger.debug(`SearchComponent ngOnDestroy...`);
     if (this._sub) {
       this._sub.unsubscribe();
+    }
+    if (this._sub2) {
+      this._sub2.unsubscribe();
     }
   }
 }

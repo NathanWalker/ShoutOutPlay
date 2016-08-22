@@ -69,6 +69,12 @@ export class AboutComponent {
       case 15:
         utils.openUrl('https://github.com/NathanWalker/nativescript-coachmarks');
         break;
+      case 16:
+        utils.openUrl('https://github.com/toddanglin/nativescript-dev-sass');
+        break;
+      case 17:
+        utils.openUrl('https://github.com/tjvantoll/nativescript-social-share');
+        break;
     }
   }
 }

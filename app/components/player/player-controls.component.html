@@ -1,19 +1,8 @@
-<StackLayout class="player-controls" top="50" left="0" backgroundColor="purple">
-  <GridLayout rows="auto, *, auto" columns="*" *ngIf="!(minimized$ | async)" class="player-full-screen">
-    <Button [text]="'fa-chevron' | fonticonPure" (tap)="minimize()" row="0" col="0" class="fa"></Button>
-    <Image src="res://logo-160.png" row="1" col="0"></Image>
-    <GridLayout rows="auto" columns="*,*,*" row="2" col="0">
-      <Button text="rwd" (tap)="togglePlay()" row=  "0" col="0"></Button>
-      <Button [text]="(playingIcon$ | async) | fonticonPure" (tap)="togglePlay()" class="play-btn fa" row="0" col="1"></Button>
-      <Button text="fwd" (tap)="togglePlay()" row="0" col="2"></Button>
-    </GridLayout>
-  </GridLayout>
-
-  <GridLayout rows="auto" columns="auto,*" *ngIf="(minimized$ | async)">
-    <Button row="0" col="0" [text]="(playingIcon$ | async) | fonticonPure" class="play-btn fa" (tap)="togglePlay()"></Button>
-    <StackLayout row="0" col="1" class="row-center">
-      <Label [text]="currentTrack.name" textWrap="true" class="title"></Label> 
-      <Label [text]="currentTrack.artist.name" textWrap="true" class="title-sub"></Label> 
-    </StackLayout>
-  </GridLayout>   
-</StackLayout>
+<GridLayout rows="50" columns="auto,*,auto" class="player-controls" (tap)="maximize()">
+  <Button row="0" col="0" [text]="(trackControl.playingIcon$ | async) | fonticonPure" class="play-btn fa" (tap)="trackControl.togglePlay()"></Button>
+  <StackLayout row="0" col="1" class="row-center">
+    <Label [text]="(trackControl.player.currentTrack$ | async)?.trackName" class="title"></Label> 
+    <Label [text]="(trackControl.player.currentTrack$ | async)?.artistName" class="title-sub"></Label> 
+  </StackLayout>
+  <Button row="0" col="2" [text]="'fa-ellipsis-h' | fonticonPure" class="options-btn fa" (tap)="trackControl.openShareOptions()"></Button>
+</GridLayout>

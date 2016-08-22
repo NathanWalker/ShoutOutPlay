@@ -25,7 +25,6 @@ const CATEGORY: string = 'Shoutout';
 export interface IShoutoutState {
   list: Array<ShoutoutModel>;
   showTrackPicker?: boolean;
-  showRecord?: boolean;
 }
 
 const initialState: IShoutoutState = {

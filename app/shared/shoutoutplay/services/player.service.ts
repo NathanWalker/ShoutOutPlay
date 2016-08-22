@@ -16,6 +16,7 @@ if (isIOS) {
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescript-spotify';
 
@@ -98,6 +99,8 @@ export class PlayerService extends Analytics {
   public static isPlaying: boolean;
 
   public state$: Observable<any>;
+  public currentTrack$: BehaviorSubject<any> = new BehaviorSubject(null);
+  public albumArtUrl$: BehaviorSubject<string> = new BehaviorSubject(null);
   private _spotify: TNSSpotifyPlayer;
   private _shoutOutPlayer: any;
   private _shoutOutPlayerOptions: any;
@@ -236,9 +239,21 @@ export class PlayerService extends Analytics {
   public cmdPrevNext(direction: number) {
     this.ngZone.run(() => {
       if (direction) {
-        this.store.dispatch({ type: PLAYLIST_ACTIONS.SKIP_NEXT });
+        if (PlayerService.isPreview) {
+          // ignore
+          // TODO: could advance to next search result track
+        } else {
+          this.store.dispatch({ type: PLAYLIST_ACTIONS.SKIP_NEXT });
+        }
       } else {
-        this.store.dispatch({ type: PLAYLIST_ACTIONS.SKIP_BACK });
+        if (PlayerService.isPreview) {
+          // seek to beginning of track
+          this._spotify.player.seekToOffsetCallback(0, (error: any) => {
+            this.logger.debug('seeked to 0.');
+          });
+        } else {
+          this.store.dispatch({ type: PLAYLIST_ACTIONS.SKIP_BACK });
+        }
       }
     });
   }
@@ -358,6 +373,7 @@ export class PlayerService extends Analytics {
 
   private updateAlbumArt(url: string) {
     this.logger.debug(url);
+    this.albumArtUrl$.next(url);
 
     if (isIOS) {
 
@@ -528,11 +544,13 @@ export class PlayerService extends Analytics {
     if (state && state.currentTrack) {
       if (!this._currentTrack || (this._currentTrack && this._currentTrack.uri !== state.currentTrack.uri)) {
         this._currentTrack = {
-          trackName: state.currentTrack.name,
-          albumName: state.currentTrack.albumName,
-          artistName: state.currentTrack.artistName,
+          uri: state.currentTrack.uri.trim(),
+          trackName: state.currentTrack.name.trim(),
+          albumName: state.currentTrack.albumName.trim(),
+          artistName: state.currentTrack.artistName.trim(),
           trackDuration: state.currentTrack.durationMs
         };
+        this.currentTrack$.next(this._currentTrack);
       }
 
       this.logger.debug(`----------`);

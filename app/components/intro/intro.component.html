@@ -23,7 +23,7 @@
 
         <Slide class="slides slide-1">
             <AbsoluteLayout class="msg-area">
-                <StackLayout class="gif-area">
+                <StackLayout class="gif-area" [top]="gif1Top">
                     <Gif [src]="gifs[0]" height="471" #step1></Gif>
                 </StackLayout>
                 <StackLayout class="mask-cover">
@@ -39,7 +39,7 @@
         </Slide>
         <Slide class="slides slide-2" #slide2>
             <AbsoluteLayout class="msg-area">
-                <StackLayout class="gif-area">
+                <StackLayout class="gif-area" top="100">
                     <Gif [src]="gifs[1]" height="471" #step2></Gif>
                 </StackLayout>
                 <StackLayout class="mask-cover">
@@ -55,7 +55,7 @@
         </Slide>
         <Slide class="slides slide-3">
             <AbsoluteLayout class="msg-area">              
-                <StackLayout class="gif-area">
+                <StackLayout class="gif-area" [top]="gif3Top">
                     <Gif [src]="gifs[2]" height="471" #step3></Gif>
                 </StackLayout>
                 <StackLayout class="mask-cover">
@@ -71,7 +71,7 @@
         </Slide>
         <Slide class="slides slide-4">
             <AbsoluteLayout class="msg-area">              
-                <StackLayout class="gif-area">
+                <StackLayout class="gif-area" top="100">
                     <Gif [src]="gifs[3]" height="350" #step4></Gif>
                 </StackLayout>
                 <StackLayout class="mask-cover">

@@ -10,7 +10,7 @@
     <Label text="There are no shoutouts yet." textWrap="true" class="full-page-message-label"></Label>
   </StackLayout>
 
-  <RadListView id="listview" [items]="shoutouts$ | async" row="1" colSpan="2" class="full-page"
+  <RadListView id="listview" [items]="shoutouts$ | async" row="1" colSpan="2" class="full-page pad-bottom"
   itemSwipe="true" itemReorder="false"
   (itemSwipeProgressStarted)="onSwipeCellStarted($event)"
   (itemSwipeProgressEnded)="onSwipeCellFinished($event)" 

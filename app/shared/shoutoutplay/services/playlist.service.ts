@@ -16,6 +16,7 @@ if (isIOS) {
 import {Store, ActionReducer, Action} from '@ngrx/store';
 import {Effect, toPayload, StateUpdates} from '@ngrx/effects';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
@@ -46,7 +47,6 @@ interface IPLAYLIST_ACTIONS {
   CLOSE_PICKER: string;
   LOOP_NEXT: string;
   NOOP: string;
-  SHOW_RECORD: string;
   SKIP_NEXT: string;
   SKIP_BACK: string;
 }
@@ -56,18 +56,12 @@ export const PLAYLIST_ACTIONS: IPLAYLIST_ACTIONS = {
   CLOSE_PICKER: `[${CATEGORY}] CLOSE_PICKER`,
   LOOP_NEXT: `[${CATEGORY}] LOOP_NEXT`,
   NOOP: `[${CATEGORY}] NOOP`,
-  SHOW_RECORD: `[${CATEGORY}] SHOW_RECORD`,
   SKIP_NEXT: `[${CATEGORY}] SKIP_NEXT`,
   SKIP_BACK: `[${CATEGORY}] SKIP_BACK`
 };
 
 export const playlistReducer: ActionReducer<IPlaylistState> = (state: IPlaylistState = {}, action: Action) => {
   let changeState = () => {
-    if (action.payload && action.payload.showRecord !== true) {
-      // always reset back
-      // tmp hack ... cuz Router cannot be injected into PlaylistService directly
-      action.payload.showRecord = false;
-    } 
     return Object.assign({}, state, action.payload);
   };
   switch (action.type) {
@@ -76,9 +70,6 @@ export const playlistReducer: ActionReducer<IPlaylistState> = (state: IPlaylistS
       return changeState();
     case PLAYLIST_ACTIONS.CLOSE_PICKER:
       action.payload = { showPicker: false };
-      return changeState();
-    case PLAYLIST_ACTIONS.SHOW_RECORD:
-      action.payload = { showRecord: true };
       return changeState();
     default:
       return state;
@@ -91,16 +82,17 @@ export const playlistReducer: ActionReducer<IPlaylistState> = (state: IPlaylistS
 @Injectable()
 export class PlaylistService extends Analytics {
   public state$: Observable<any>;
+  public showRecord$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private selectedTrack: TrackModel;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private ngZone: NgZone, private fancyalert: FancyAlertService, @Inject(forwardRef(() => ShoutoutService)) private shoutoutService) {//private router: Router
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private ngZone: NgZone, private fancyalert: FancyAlertService, @Inject(forwardRef(() => ShoutoutService)) private shoutoutService) {
     super(analytics);
     this.category = CATEGORY;
 
     this.state$ = store.select('playlist');
   }
 
-  public togglePlay(playlistId: string, track?: TrackModel) {
+  public togglePlay(playlistId: string, track?: any) {
     this.store.take(1).subscribe((s: any) => {
       this.logger.debug('PlaylistService.togglePlay: this.store.take(1).subscribe, should update playlist state');
       let playlists = [...s.firebase.playlists];
@@ -335,7 +327,14 @@ export class PlaylistService extends Analytics {
           label: 'Yes!',
           action: () => {
             this.shoutoutService.quickRecordTrack = track;
-            this.store.dispatch({ type: PLAYLIST_ACTIONS.SHOW_RECORD });
+
+            // This funkiness is because `Router` cannot be injected directly!
+            // due to some cyclic dependency issue with ngrx/effects :(
+            this.showRecord$.next(true);
+            setTimeout(() => {
+              // reset value back
+              this.showRecord$.next(false);
+            });
           }
         })
       ]);

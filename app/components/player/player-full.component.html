@@ -1,0 +1,26 @@
+<GridLayout rows="auto, *, auto, 100" columns="*" class="player-full">
+  <GridLayout rows="auto" columns="25,*,25" class="modal-action-bar" row="0" col="0">
+      <Button [text]="'fa-chevron-circle-down' | fonticonPure" (tap)="close()" class="full-close fa" row="0" col="0"></Button>  
+      <Image src="res://logo-160.png" class="action-image" row="0" col="1" height="40"></Image>
+      <!--<Label text="Choose a Playlist" textWrap="true" row="0" col="1" class="modal-label modal-title"></Label>-->
+  </GridLayout>
+  <StackLayout row="1" col="0" class="album-area">
+    <Image [src]="trackControl.player.albumArtUrl$ | async" class="album-img"></Image>
+  </StackLayout>
+  <StackLayout row="2" col="0" padding="30">
+    <Label [text]="(trackControl.player.currentTrack$ | async)?.trackName" class="track-name"></Label>
+    <StackLayout orientation="horizontal" width="100%" horizontalAlignment="center" textAlign="center">
+      <Label [text]="(trackControl.player.currentTrack$ | async)?.artistName" class="artist-name right"></Label>  
+      <Label text=" - " class="artist-name"></Label>
+      <Label [text]="(trackControl.player.currentTrack$ | async)?.albumName" class="artist-name left"></Label>
+    </StackLayout> 
+  </StackLayout>
+  <GridLayout rows="auto" columns="50,*,*,*,50" row="3" col="0" class="play-area">
+    <Button [text]="'fa-backward' | fonticonPure" (tap)="trackControl.player.cmdPrevNext(0)" class="shuttle-btn fa" row="0" col="1"></Button>
+    <Button [text]="(trackControl.playingIcon$ | async) | fonticonPure" (tap)="trackControl.togglePlay()" class="play-btn fa" row="0" col="2"></Button>
+    <Button [text]="'fa-forward' | fonticonPure" (tap)="trackControl.player.cmdPrevNext(1)" class="shuttle-btn fa" row="0" col="3" [visibility]="(trackControl.isPreview$ | async) ? 'collapsed' : 'visible'"></Button>
+  </GridLayout>
+  <!--<StackLayout row="4" col="0" textAlign="right">
+      <Button [text]="'fa-ellipsis-h' | fonticonPure" class="options-btn fa" (tap)="trackControl.openShareOptions()" textAlign="right"></Button>
+  </StackLayout>-->
+</GridLayout>

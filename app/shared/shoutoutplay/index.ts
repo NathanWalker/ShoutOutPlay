@@ -5,6 +5,7 @@ import {PlayerService} from './services/player.service';
 import {PlaylistService} from './services/playlist.service';
 import {SearchService} from './services/search.service';
 import {ShoutoutService} from './services/shoutout.service';
+import {TrackControlService} from './services/track-controls.service';
 
 export const SHOUTOUTPLAY_PROVIDERS: any[] = [
   AuthService,
@@ -13,7 +14,8 @@ export const SHOUTOUTPLAY_PROVIDERS: any[] = [
   PlayerService,
   PlaylistService,
   SearchService,
-  ShoutoutService
+  ShoutoutService,
+  TrackControlService
 ];
 
 // models
@@ -30,6 +32,7 @@ export * from './services/player.service';
 export * from './services/playlist.service';
 export * from './services/search.service';
 export * from './services/shoutout.service';
+export * from './services/track-controls.service';
 
 // components
 export * from './components/empty.component';

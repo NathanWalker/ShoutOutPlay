@@ -15,6 +15,8 @@ import {FirebaseService} from '../../shared/shoutoutplay/index';
 export class IntroComponent implements OnInit, AfterViewInit {
   public gifs: Array<string> = [];
   public maskCover: string;
+  public gif1Top: number = 120;
+  public gif3Top: number = 110;
   public textTop: number = 400;
   public textSize: number = 30;
   public textPadding: number = 40;
@@ -46,6 +48,8 @@ export class IntroComponent implements OnInit, AfterViewInit {
     } else if (this._deviceHeight < 2001 && this._deviceHeight > 1136) {
       mask = 'iphone6';
     } else if (this._deviceHeight <= 1136) {
+      this.gif1Top = 90;
+      this.gif3Top = -50;
       this.textTop = 330;
       this.textSize = 26;
       this.textPadding = 32;
@@ -79,10 +83,10 @@ export class IntroComponent implements OnInit, AfterViewInit {
       case 'iphone5':
         this.maskCover = `https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone5%2Fiphone5.png?alt=media&token=19f4d403-9b21-47b6-9fdb-4fe646d03e26`;
         this.gifs = [
-          '',
-          '',
-          '',
-          ''
+          'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone5%2F1-5.gif?alt=media&token=f6bbc2a5-4614-4e68-bf5e-6328b069d65f',
+          'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone5%2F2-5.gif?alt=media&token=71586bff-c139-4b0c-be9d-c3f1f23673e9',
+          'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone5%2F3-5.gif?alt=media&token=2c2a7947-5af8-4b69-a123-81f0cfbc345d',
+          'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone5%2F4-5.gif?alt=media&token=5638abee-c2ba-471c-b152-1b5fd65e38be'
         ];
         break;
       case 'iphone6':
@@ -91,7 +95,7 @@ export class IntroComponent implements OnInit, AfterViewInit {
           'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone6%2F1.gif?alt=media&token=d7d28a62-e5b4-41d0-baf4-9dd9c4c15dd5',
           'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone6%2F2.gif?alt=media&token=0e9ad170-f403-4202-939d-3f6da98dfb8f',
           'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone6%2F3.gif?alt=media&token=c1071ff9-13a8-4301-9d6d-839f74e149d7',
-          'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone6%2F4.gif?alt=media&token=e8492e9d-16c9-4685-b559-60c97defc87a'
+          'https://firebasestorage.googleapis.com/v0/b/shoutoutplay-d3392.appspot.com/o/intro%2Fiphone6%2F4.gif?alt=media&token=ebf09493-9fdc-426a-b2f2-03321d5e5121'
         ];
         break;
       case 'iphone6plus':

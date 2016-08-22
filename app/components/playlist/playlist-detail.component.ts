@@ -51,7 +51,7 @@ export class PlaylistDetailComponent {
       if (track.shoutoutId) {
         let options: ModalDialogOptions = {
           context: { id: track.shoutoutId },
-          fullscreen: false
+          fullscreen: true
         };
         this.modal.showModal(ShoutOutDetailComponent, options).then(zonedCallback(() => {
           

@@ -33,10 +33,8 @@
       </GridLayout>
     </StackLayout>
   </GridLayout>
-  <StackLayout tkMainContent class="page-bg">
-    <!--<AbsoluteLayout>-->
-      <router-outlet></router-outlet>
-      <!--<player-controls #playerControls class="player-controls" top="250" left="0" width="100%" backgroundColor="purple"></player-controls>
-    </AbsoluteLayout>-->
-  </StackLayout>
+  <GridLayout rows="*,auto" columns="*" tkMainContent class="page-bg" modal-dialog-host>
+    <router-outlet row="0" col="0"></router-outlet>
+    <player-controls row="1" col="0" #playerControls class="player-controls" (expand)="openFullPlayer()" *ngIf="showControls$ | async"></player-controls> <!--verticalAligment="bottom" [visibility]="(showControls$ | async) ? 'visible' : 'collapsed'"-->
+  </GridLayout>
 </RadSideDrawer>
