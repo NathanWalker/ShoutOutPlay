@@ -1,8 +1,10 @@
-<GridLayout rows="50" columns="auto,*,auto" class="player-controls" (tap)="maximize()">
-  <Button row="0" col="0" [text]="(trackControl.playingIcon$ | async) | fonticonPure" class="play-btn fa" (tap)="trackControl.togglePlay()"></Button>
-  <StackLayout row="0" col="1" class="row-center">
+<GridLayout rows="1, 50" columns="auto,*,auto" class="player-controls" (tap)="maximize()">
+  <StackLayout height="1" width="100%" colSpan="3" backgroundColor="#000" row="0">   
+  </StackLayout>
+  <Button row="1" col="0" [text]="(trackControl.playingIcon$ | async) | fonticonPure" class="play-btn fa" (tap)="trackControl.togglePlay()"></Button>
+  <StackLayout row="1" col="1" class="row-center">
     <Label [text]="(trackControl.player.currentTrack$ | async)?.trackName" class="title"></Label> 
     <Label [text]="(trackControl.player.currentTrack$ | async)?.artistName" class="title-sub"></Label> 
   </StackLayout>
-  <Button row="0" col="2" [text]="'fa-ellipsis-h' | fonticonPure" class="options-btn fa" (tap)="trackControl.openShareOptions()"></Button>
+  <Button row="1" col="2" [text]="'fa-ellipsis-h' | fonticonPure" class="options-btn fa" (tap)="trackControl.openShareOptions()"></Button>
 </GridLayout>

@@ -314,7 +314,7 @@ SearchBar {
 /* Player controls */
 .player-controls {
   width:100%;
-  height: 50;
+  height: 51;
   background-color:$action-bar-match;
   vertical-align:bottom;
 
@@ -432,6 +432,10 @@ SearchBar {
 }
 
 .slider {
+  background-color:$bright;
+  color:$primary;
+}
+.switch {
   background-color:$bright;
   color:$primary;
 }

@@ -41,13 +41,15 @@ export class ColorService {
   public static ActiveId: number = 0;  
   public static Active: ICOLORS = DEFAULT_SCHEME;
 
-  public static swapScheme(index: number) {
-    ColorService.ActiveId = index;
-    switch (index) {
-      case 0:
+  public static swapScheme(cssFilename: string) {
+    
+    switch (cssFilename) {
+      case 'app.css':
+        ColorService.ActiveId = 0;
         ColorService.Active = DEFAULT_SCHEME;
         break;
-      case 1:
+      case 'yellow-theme.css':
+        ColorService.ActiveId = 1;
         ColorService.Active = GRAY_SCHEME;
         break;
       // TODO: support more

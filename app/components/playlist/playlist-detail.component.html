@@ -4,7 +4,7 @@
     <Button class="fa action-btn" [text]="'fa-pencil' | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
-<StackLayout modal-dialog-host class="pad-bottom">  
+<StackLayout modal-dialog-host>  
   <StackLayout class="full-page-message" *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0">
     <Label [text]="'fa-frown-o' | fonticonPure" class="fa full-page-icon-label"></Label>
     <Label text="There are no tracks here." textWrap="true" class="full-page-message-label"></Label>

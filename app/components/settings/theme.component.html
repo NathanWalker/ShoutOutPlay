@@ -1,12 +1,12 @@
 <ScrollView orientation="vertical">
   <StackLayout class="full-page settings-list theme-page pad-bottom">
-    <GridLayout rows="175,auto" columns="*" class="theme-area" [ngClass]="{active:activeTheme==0}">
-        <Image src="~/components/settings/img/purple.png" col="0" row="0" (tap)="changeTheme()" class="theme-img"></Image>
-        <Button text="Purple People Eater" class="settings-btn bigger theme-img-label" (tap)="changeTheme()" col="0" row="1"></Button>
+    <GridLayout rows="175,auto" columns="*" class="theme-area" [ngClass]="{active:activeTheme=='app.css'}">
+        <Image src="~/components/settings/img/purple.png" col="0" row="0" (tap)="changeTheme('app.css')" class="theme-img"></Image>
+        <Button text="Purple People Eater" class="settings-btn bigger theme-img-label" (tap)="changeTheme('app.css')" col="0" row="1"></Button>
     </GridLayout>
-    <GridLayout rows="175,auto" columns="*" class="theme-area" [ngClass]="{active:activeTheme==1}">
-        <Image src="~/components/settings/img/gray.png" col="0" row="0" (tap)="changeTheme('gray')" class="theme-img"></Image>
-        <Button text="Gray Fox" class="settings-btn bigger theme-img-label" (tap)="changeTheme('gray')" col="0" row="1"></Button>
+    <GridLayout rows="175,auto" columns="*" class="theme-area" [ngClass]="{active:activeTheme=='yellow-theme.css'}">
+        <Image src="~/components/settings/img/gray.png" col="0" row="0" (tap)="changeTheme('yellow-theme.css')" class="theme-img"></Image>
+        <Button text="Gray Fox" class="settings-btn bigger theme-img-label" (tap)="changeTheme('yellow-theme.css')" col="0" row="1"></Button>
     </GridLayout>
   </StackLayout>  
 </ScrollView>

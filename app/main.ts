@@ -43,7 +43,7 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
 
 // app
-import {CORE_PROVIDERS, ConsoleService, SpotifyAppDelegate} from './shared/core/index';
+import {CORE_PROVIDERS, ConsoleService, SpotifyAppDelegate, ColorService} from './shared/core/index';
 import {ANALYTICS_PROVIDERS} from './shared/analytics/index';
 import {
   SHOUTOUTPLAY_PROVIDERS,
@@ -64,6 +64,13 @@ import {APP_ROUTES_PROVIDER} from './app.routes';
 if (isIOS) {
   app.ios.delegate = SpotifyAppDelegate;
 }
+
+// Theme (reapply any user chosen theme)
+var themes = require('nativescript-themes');
+var activeTheme = themes.getAppliedTheme('app.css');
+themes.applyTheme(activeTheme);
+// need to change colorservice (used for programmatic colors like in fancyalert)
+ColorService.swapScheme(activeTheme);
 
 enableProdMode();
 

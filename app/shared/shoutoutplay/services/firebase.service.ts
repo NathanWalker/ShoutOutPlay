@@ -1,5 +1,6 @@
 // angular
 import {Injectable, NgZone} from '@angular/core';
+import {Location} from '@angular/common';
 
 // nativescript
 import * as app from 'application';
@@ -16,7 +17,7 @@ import {isString, isObject, keys, orderBy, includes, find} from 'lodash';
 
 // app
 import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, IAuthState, SHOUTOUT_ACTIONS} from '../index';
-import {Config, LogService, DialogsService, FancyAlertService, Utils} from '../../core/index';
+import {Config, LogService, DialogsService, FancyAlertService, Utils, TextService} from '../../core/index';
 
 // analytics
 const CATEGORY: string = 'Firebase';
@@ -129,7 +130,7 @@ export class FirebaseService {
   private _passSuffix: string = 'A814~'; // make passwords strong
   private _ignoreUpdate: boolean = false;
 
-  constructor(private store: Store<any>, private logger: LogService, private dialogs: DialogsService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private store: Store<any>, private logger: LogService, private dialogs: DialogsService, private fancyalert: FancyAlertService, private ngZone: NgZone, private location: Location) {
     this.init();   
   }
 
@@ -352,6 +353,7 @@ export class FirebaseService {
           let playlists = [...s.firebase.playlists];
           // update the track inside the correct playlist
           let updatedPlaylist: PlaylistModel;
+          let trackName: string;
 
           for (let playlist of playlists) {
             this.logger.debug('looking for playlist...');
@@ -364,6 +366,7 @@ export class FirebaseService {
                   if (shoutout.trackId === track.id) {
                     this.logger.debug('found track');
                     track.shoutoutId = result.key;
+                    trackName = track.name;
                     break;
                   }
                 }
@@ -375,6 +378,7 @@ export class FirebaseService {
                 if (shoutout.trackId === track.id) {
                   this.logger.debug('found track');
                   track.shoutoutId = result.key;
+                  trackName = track.name;
                   updatedPlaylist = playlist;
                   break;
                 }
@@ -383,6 +387,16 @@ export class FirebaseService {
           }   
        
           this.updatePlaylist(updatedPlaylist);
+          if (!Config.SHOUTOUT_READY_SHOWN()) {
+            setTimeout(() => {
+              // this.logger.debug(`Path is now: ${this.location.path()}`);
+              if (this.location.path() === '/home') {
+                // on search page, let user know how to get to where their newly recorded shoutout is
+                this.fancyalert.show(TextService.SPOTIFY_SHOUTOUT_READY(trackName, updatedPlaylist.name));
+                Config.SET_SHOUTOUT_READY_SHOWN(true);
+              }        
+            }, 2000);
+          }
         });
       })
     }
@@ -700,7 +714,8 @@ export class FirebaseService {
           } else if (playlists.length > startingCnt.playlists || shoutouts.length > startingCnt.shoutouts) {
             msg = 'Saved';
           }
-          if (msg) {
+          if (msg && this._spotifyUserProduct) {
+            // only ever display msg if valid spotify user is logged in
             this.dialogs.success(msg);
           }
         } else {

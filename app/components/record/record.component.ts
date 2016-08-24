@@ -77,7 +77,6 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _reloadPlayer: boolean = false;
   private _sessionRecordings: Array<any> = [];
   private _chosenTrack: TrackModel;
-  private _savedName: string;
   private _showingGiantRecordUI: boolean = true;
   private _firstPlayShow: boolean = false; 
   private _glowiOSView;  
@@ -200,15 +199,16 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.progress.hide();
 
-      if (!this._savedName) {
+      if (!this.shoutoutService.savedName || Config.SHOUTOUT_ASK_NAME()) {
         // prompt user for their name
+        // always ask the first time, subsequently base it on settings
         this.fancyalert.prompt('Name', '', 'Add your name...', 'edit', (value: any) => {
-          this._savedName = value;
+          this.shoutoutService.savedName = value;
           this.saveShoutout(value);
         });
       } else {
         // use previous saved name during session
-        this.saveShoutout(this._savedName);
+        this.saveShoutout(this.shoutoutService.savedName);
       }
     }, 1200);
   }
@@ -530,7 +530,18 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this._player.delegate().audioEvents.off('reachedEnd');
     this._recorder = undefined;
     this._player = undefined;
-    // set av category session back to playback
+    
+    if (isIOS) {
+      // set av category session back to playback
+      // if we don't do this, will cause issue with bluetooth speaker settings
+      // https://github.com/NathanWalker/ShoutOutPlay/issues/46
+      let errorRef = new interop.Reference();
+      (<any>AVAudioSession.sharedInstance()).setCategoryError(AVAudioSessionCategoryPlayback, errorRef);
+      if (errorRef) {
+        console.log(`setCategoryError: ${errorRef.value}`);
+      }
+      (<any>AVAudioSession.sharedInstance()).setActiveError(true, errorRef); 
+    }
     
     // reset fallback (issue stems from spotify playlist bulk creation - when tracks have no playlistId)
     Config.SELECTED_PLAYLIST_ID = undefined;

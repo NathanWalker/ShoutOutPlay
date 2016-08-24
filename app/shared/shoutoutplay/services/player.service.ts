@@ -207,6 +207,9 @@ export class PlayerService extends Analytics {
       }
       this._currentTrackId = trackId;
     }
+
+    // ensure spotify volume is up to normal
+    this.setSpotifyVolume(1);
     
     this.logger.debug(`player.service togglePlay...`);
     this.logger.debug(trackId);
@@ -418,17 +421,6 @@ export class PlayerService extends Analytics {
   }
 
   private initCommandCenter() {
-    // let errorRef = new interop.Reference();
-    // AVAudioSession.sharedInstance().setCategoryError(AVAudioSessionCategoryPlayback);
-    // // if (errorRef) {
-    // //   console.log(`setCategoryError: ${errorRef.value}`);
-    // // }
-    // AVAudioSession.sharedInstance().setActiveError(true);
-    // this.logger.debug(`MPRemoteCommandCenter.sharedCommandCenter():`);
-    // for (let key in MPRemoteCommandCenter.sharedCommandCenter()) {
-    //   this.logger.debug(key);
-    // }
-
     let errorRef = new interop.Reference();
     (<any>AVAudioSession.sharedInstance()).setCategoryError(AVAudioSessionCategoryPlayback, errorRef);
     if (errorRef) {
@@ -564,7 +556,7 @@ export class PlayerService extends Analytics {
       // consider track ending if this fires and currentPlaybackPosition is within 1.2 seconds of total durationMs
       // spotify changed their api with beta.20 and no longer have official stopped track delegate method :(
       let diff = totalDurationSeconds - currentPlayback;
-      if (diff < 1.2) {
+      if (diff < 2.5) {
         this.trackEnded(state.currentTrack.uri);
       }
     }
@@ -577,9 +569,9 @@ export class PlayerService extends Analytics {
       });
     });
     this._spotify.events.on('changedPlaybackState', (eventData: any) => {
-      // this.ngZone.run(() => {
-      this.updatePlayerState(eventData.data.state);
-      // });
+      this.ngZone.run(() => {
+        this.updatePlayerState(eventData.data.state);
+      });
     });
     this._spotify.events.on('playerReady', (eventData: any) => {
       this.ngZone.run(() => {
@@ -618,11 +610,13 @@ export class PlayerService extends Analytics {
         this.updateLogin(eventData.data.status);
       });
     });
-    this._spotify.auth.events.on('authLoginCheck', (eventData: any) => {
-      this.ngZone.run(() => {
-        this.loader.show();
-      });
-    });
+    // DANGER: This was causing infinite spins sometimes when trying to login with redirect back into app
+    // may want to implement later doing something else, but showing loader here is bad idea
+    // this._spotify.auth.events.on('authLoginCheck', (eventData: any) => {
+    //   this.ngZone.run(() => {
+    //     this.loader.show();
+    //   });
+    // });
     this._spotify.auth.events.on('authLoginSuccess', (eventData: any) => {
       this.ngZone.run(() => {
         this.loginSuccess();

@@ -67,6 +67,7 @@ export const shoutoutReducer: ActionReducer<IShoutoutState> = (state: IShoutoutS
 @Injectable()
 export class ShoutoutService extends Analytics {
   public quickRecordTrack: TrackModel;
+  public savedName: string;
   private _downloadQueue: Array<string>;
 
   constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private firebaseService: FirebaseService, private ngZone: NgZone) {

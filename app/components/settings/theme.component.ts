@@ -16,24 +16,15 @@ import {FIREBASE_ACTIONS} from '../../shared/shoutoutplay/index';
   changeDetection: ChangeDetectionStrategy.Default
 })
 export class ThemeComponent {
-  public activeTheme: number = 0;
+  public activeTheme: string;
 
   constructor(private store: Store<any>) {
-
+    this.changeTheme(themes.getAppliedTheme('app.css'));
   }  
 
-  public changeTheme(type?: string) {
-    switch (type) {
-      case 'gray':
-        this.activeTheme = 1;
-        ColorService.swapScheme(1);
-        themes.applyTheme('yellow-theme.css');
-        break;
-      default:
-        this.activeTheme = 0;
-        ColorService.swapScheme(0);
-        themes.applyTheme('app.css');
-        break;
-    }
+  public changeTheme(cssFilename: string) {
+    this.activeTheme = cssFilename;
+    themes.applyTheme(cssFilename);
+    ColorService.swapScheme(cssFilename);
   }
 }

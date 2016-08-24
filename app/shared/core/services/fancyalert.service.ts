@@ -231,7 +231,7 @@ export class FancyAlertService {
   }
 
   private drawMic() {
-    let iconColor = new Color(ColorService.ActiveId == 0 ? ColorService.Active.BRIGHT : ColorService.Active.BRIGHT_ALT).ios;
+    let iconColor = new Color(ColorService.ActiveId == 0 ? ColorService.Active.BRIGHT : ColorService.Active.WHITE).ios;
       
     //// Bezier Drawing
     let bezierPath = UIBezierPath.bezierPath();

@@ -7,4 +7,10 @@ export class TextService {
   public static STREAM_DISCONNECT: string = `We're sorry but it appears we have lost a network connection.`;
 
   public static SPOTIFY_PREMIUM_MSG: string = 'We are so sorry! Music streaming on mobile requires a Spotify Premium account. You can check out more at http://spotify.com. Last time we checked it was $9.99/month with the first 30 days free.';
+
+  public static SPOTIFY_SEARCH_DELAY_NOTICE: string = `We're sorry, this search is taking longer than expected. You may be experiencing network interruptions. However you may also need to re-login. If you continue to receive this message, please open the sidebar, choose Settings and Logout. Then simply re-login.`
+
+  public static SPOTIFY_SHOUTOUT_READY(trackName: string, playlistName: string): string {
+    return `Awesome! Your ShoutOut is now attached to '${trackName}'. You will find it in your playlist '${playlistName}', which can be accessed via your 'Playlists' in the sidebar.`;
+  } 
 }

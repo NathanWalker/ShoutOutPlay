@@ -8,16 +8,26 @@
     <Label [text]="emailAddress$ | async" textWrap="true" class="small-heading"></Label>
 
     <StackLayout class="divider divider-margin"></StackLayout>
-    <Label text="ShoutOut start time:" textWrap="true" class="medium-heading"></Label>
-    <Label text="The time each ShoutOut will play over the top of each track." textWrap="true" class="small-heading"></Label>
+    <Label text="Settings" textWrap="true" class="medium-heading"></Label>
+
+    <StackLayout class="divider divider-margin"></StackLayout>
+    <Label text="ShoutOut - playback:" textWrap="true" class="medium-heading"></Label>
+    <Label text="The time from the beginning of the track it should play over the top." textWrap="true" class="small-heading"></Label>
     <StackLayout padding="5 10 5 10">
       <Slider #slider minValue="0" maxValue="60" [(ngModel)]="shoutoutTime" class="slider"></Slider>  
       <Label [text]="shoutoutTime$ | async" textWrap="true" class="small-heading"></Label>
     </StackLayout>
+
+    <StackLayout class="divider divider-margin"></StackLayout>
+    <Label text="ShoutOut - record:" textWrap="true" class="medium-heading"></Label>
+    <GridLayout rows="auto" columns="auto,*" padding="5 10 5 10">
+      <Switch #switch1 [(ngModel)]="shoutoutAskName" row="0" col="0" class="switch"></Switch>
+      <Label text="Ask for a name everytime." textWrap="true" class="small-heading" row="0" col="1"></Label>
+    </GridLayout>
     
     <StackLayout class="divider divider-margin"></StackLayout>
     <StackLayout padding="10">
-      <Label text="This will reset your account clearing all playlists. You can then Logout and back in to restore playlists from Spotify. Since ShoutOutPlay does not sync your playlists with Spotify, sometimes you may want to reset to get updates from your Spotify playlists." textWrap="true" class="small-heading"></Label>
+      <Label text="ShoutOutPlay does not sync your playlists with Spotify, sometimes you may want to reset to get updates from your Spotify playlists. This will reset your account clearing all playlists. You can then Logout and back in to restore playlists from Spotify." textWrap="true" class="small-heading"></Label>
       <Button text="Reset Playlists" (tap)="removeConfirm()" class="delete-btn-wide" marginTop="10"></Button>
     </StackLayout>
     

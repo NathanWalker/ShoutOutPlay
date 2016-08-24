@@ -9,7 +9,7 @@ import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {ProgressService, LogService} from '../../core/index';
+import {ProgressService, LogService, FancyAlertService, TextService} from '../../core/index';
 import {IPlayerState, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
 // analytics
@@ -56,8 +56,9 @@ export class SearchService extends Analytics {
   private _currentQuery: string;
   private _currentOffset: number = 0;
   private _hasMore: boolean = true;
+  private _searchSpinnerTimeout: any;
 
-  constructor(public analytics: AnalyticsService, private logger: LogService, private store: Store<any>, private loader: ProgressService, private ngZone: NgZone) {
+  constructor(public analytics: AnalyticsService, private logger: LogService, private store: Store<any>, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -106,6 +107,12 @@ export class SearchService extends Analytics {
     
     this.loader.show({ message: this._currentOffset > 0 ? 'Loading more results...' : 'Searching...' });
     this.logger.debug(`loading offset: ${this._currentOffset}`);
+
+    this._searchSpinnerTimeout = setTimeout(() => {
+      // prevent infinite load on search
+      this.fancyalert.show(TextService.SPOTIFY_SEARCH_DELAY_NOTICE);
+      this.loader.hide();
+    }, 6000);
     
     TNSSpotifySearch.QUERY(query, queryType, offset).then((result) => {
       if (result && result.tracks) {
@@ -143,8 +150,16 @@ export class SearchService extends Analytics {
     }
   }
 
+  private resetTimeout() {
+     if (this._searchSpinnerTimeout) {
+      clearTimeout(this._searchSpinnerTimeout);
+      this._searchSpinnerTimeout = undefined;
+    }
+  }
+
   private searchError() {
     this.loader.hide();
+    this.resetTimeout();
     Utils.alert('No tracks found. Try using only 2 words of the track name.');
   }
 
