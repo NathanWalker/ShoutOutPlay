@@ -5,7 +5,7 @@ import {nativeScriptBootstrap} from 'nativescript-angular/application';
 // nativescript
 import {SIDEDRAWER_PROVIDERS} from "nativescript-telerik-ui-pro/sidedrawer/angular";
 import {LISTVIEW_PROVIDERS} from 'nativescript-telerik-ui-pro/listview/angular';
-import {isIOS} from 'platform';
+import {isIOS, device} from 'platform';
 import * as app from 'application';
 
 // NJA: Fix for iOS font registration during webpack
@@ -42,6 +42,14 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
 
+// Spotify setup
+import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
+TNSSpotifyConstants.CLIENT_ID = '1acac12e7fc448e188d8d70aa14249df';
+TNSSpotifyAuth.REDIRECT_URL = 'shoutoutplay://spotifylogin';
+if (isIOS) {
+  app.ios.delegate = SpotifyAppDelegate;
+}
+
 // app
 import {CORE_PROVIDERS, ConsoleService, SpotifyAppDelegate, ColorService} from './shared/core/index';
 import {ANALYTICS_PROVIDERS} from './shared/analytics/index';
@@ -60,17 +68,18 @@ import {
 import {AppComponent} from './app.component';
 import {APP_ROUTES_PROVIDER} from './app.routes';
 
-// Spotify setup
-if (isIOS) {
-  app.ios.delegate = SpotifyAppDelegate;
-}
-
 // Theme (reapply any user chosen theme)
 var themes = require('nativescript-themes');
-var activeTheme = themes.getAppliedTheme('app.css');
+var activeTheme = themes.getAppliedTheme('style/app.css');
+// migrate from old css setup
+if (activeTheme == 'app.css') {
+  activeTheme = 'style/app.css';
+} else if (activeTheme == 'yellow-theme.css') {
+  activeTheme = 'style/gray.css';
+}
 themes.applyTheme(activeTheme);
 // need to change colorservice (used for programmatic colors like in fancyalert)
-ColorService.swapScheme(activeTheme);
+ColorService.swapScheme(activeTheme.split('/').slice(-1)[0]);
 
 enableProdMode();
 

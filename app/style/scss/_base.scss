@@ -1,7 +1,5 @@
-@import 'variablesyellow.scss';
-
 ActionBar {
-  background-color: $base;
+  background-color: $primary;
   color:white;
 }
 
@@ -54,7 +52,7 @@ SearchBar {
 }
 
 .side-drawer {
-  background-color: $dark;
+  background-color: $base;
   width:100%;
   height:100%;
   // .side-primary {
@@ -250,7 +248,7 @@ SearchBar {
   margin:0 5 0 5;
   width:46;
   height:46;
-  background-color:$bright-alt;
+  background-color:$primary;
   border-radius:23;
   padding:30;
 }
@@ -305,6 +303,7 @@ SearchBar {
 .full-page {
   height: 100%;
   background-color:$base;
+  // padding-bottom:50;
 }
 .logged-out {
   height: 100%;
@@ -328,7 +327,7 @@ SearchBar {
 
   .title-sub {
     font-size:13;
-    color:$highlight;
+    color:$base;
     text-align: center;
     width:100%;
   }
@@ -340,7 +339,7 @@ SearchBar {
 .player-full {
   width:100%;
   height:100%;
-  background-color:$base;
+  background-color:$primary;
 
   .track-name {
     font-size: 25;
@@ -350,7 +349,7 @@ SearchBar {
   }
   .artist-name {
     font-size: 20;
-    color: $highlight;
+    color: $base;
     text-align: center;
 
     &.right {
@@ -367,7 +366,7 @@ SearchBar {
   }
 
   .full-close {
-    font-size:20;
+    font-size:25;
     color:#fff;
   }
   .album-area {
@@ -401,11 +400,12 @@ SearchBar {
   }
 }
 
+
 .settings-list {
   padding:20;
 }
 .settings-bottom {
-  background-color:$base;
+  background-color:$primary;
   height: 100%;
 }
 .settings-btn {
@@ -417,14 +417,14 @@ SearchBar {
   }
 }
 .theme-page {
-  background-color:$complimentary;
+  background-color:$base;
   padding-bottom: 50;
 }
 .theme-area {
   padding:1;
   
   &.active {
-    background-color:#000;
+    background-color:$bright;
   }
   .theme-img-label {
     margin:0 0 10 0;
@@ -432,12 +432,12 @@ SearchBar {
 }
 
 .slider {
-  background-color:$bright;
-  color:$primary;
+  background-color:$primary;
+  color:$bright;
 }
 .switch {
-  background-color:$bright;
-  color:$primary;
+  background-color:$primary;
+  color:$bright;
 }
 
 ListView {
@@ -455,14 +455,14 @@ ListView {
 
 .odd.playing,
 .even.playing {
-  background-color: $dark;
+  background-color: $primary;
 
   .title-sub {
-    color: $highlight;
+    color: $base;
   }  
 
   .detail-btn {
-    color: $highlight;
+    color: $base;
   }
 }
 
@@ -492,7 +492,7 @@ ListView {
 .modal-action-bar {
   width:100%;
   padding: 10 15 10 15;
-  background-color:$base;
+  background-color:$primary;
 
   .cancel-btn {
     color:#fff;
@@ -538,7 +538,7 @@ $lightpurple: #7C3FE8;
 .first-welcome {
   width:100%;
   height:100%;
-  padding:50;
+  padding:30;
 
   .logo-img {
     margin: 30 0 30 0;
@@ -549,7 +549,7 @@ $lightpurple: #7C3FE8;
     font-size:25;
 
     &.bigger {
-      font-size:32;
+      font-size:28;
       &.bright {
         color: $bright;
       }
@@ -765,5 +765,5 @@ $lightpurple: #7C3FE8;
     }
 }
 .pad-bottom {
-  padding-bottom: 50;
+  padding-bottom: 51;
 }

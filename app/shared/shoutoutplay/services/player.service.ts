@@ -365,12 +365,17 @@ export class PlayerService extends Analytics {
 
   private setSpotifyVolume(volume: number) {
     if (this._spotify.player) {
-      this._spotify.player.setVolumeCallback(volume, (error) => {
-        if (error !== null) {
-          console.log(`Spotify Player volume adjust error:`);
-          console.log(error);
-        }
-      });
+      if (isIOS) {
+        this._spotify.player.setVolumeCallback(volume, (error) => {
+          if (error !== null) {
+            console.log(`Spotify Player volume adjust error:`);
+            console.log(error);
+          }
+        });
+      } else {
+        // TODO: android volume 
+        // https://github.com/spotify/android-sdk/issues/208
+      }
     }
   }
 
@@ -547,17 +552,29 @@ export class PlayerService extends Analytics {
 
       this.logger.debug(`----------`);
       let totalDurationSeconds = state.currentTrack.durationMs * .001;
-      let currentPlayback = this._spotify.player.currentPlaybackPosition;
+      let currentPlayback = 0;
+      if (isIOS) {
 
-      this.logger.debug(`player state change, totalDurationSeconds: ${totalDurationSeconds}`);
-      this.logger.debug(`player state change, currentPlaybackPosition: ${currentPlayback}`);
-      this.logger.debug(`player state change, track.uri: ${state.currentTrack.uri}`);
-      
-      // consider track ending if this fires and currentPlaybackPosition is within 1.2 seconds of total durationMs
-      // spotify changed their api with beta.20 and no longer have official stopped track delegate method :(
-      let diff = totalDurationSeconds - currentPlayback;
-      if (diff < 2.5) {
-        this.trackEnded(state.currentTrack.uri);
+        // iOS sdk beta.20 no longer has explicity track end (wtf)
+        currentPlayback = this._spotify.player.currentPlaybackPosition;
+
+        this.logger.debug(`player state change, totalDurationSeconds: ${totalDurationSeconds}`);
+        this.logger.debug(`player state change, currentPlaybackPosition: ${currentPlayback}`);
+        this.logger.debug(`player state change, track.uri: ${state.currentTrack.uri}`);
+        
+        // consider track ending if this fires and currentPlaybackPosition is within 1.2 seconds of total durationMs
+        // spotify changed their api with beta.20 and no longer have official stopped track delegate method :(
+        let diff = totalDurationSeconds - currentPlayback;
+        if (diff < 2.5) {
+          this.trackEnded(state.currentTrack.uri);
+        }
+      } else {
+        currentPlayback = state.currentTrack.positionInMs * .001;
+
+        // android has explicity track end        
+        if (state.currentTrack.eventType === 'TRACK_END') {
+          this.trackEnded(state.currentTrack.uri.trim());
+        }
       }
     }
   }

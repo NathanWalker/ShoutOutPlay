@@ -1,4 +1,4 @@
-<GridLayout rows="1, 50" columns="auto,*,auto" class="player-controls" (tap)="maximize()">
+<GridLayout rows="1, 50" columns="auto,*,auto" class="player-controls" (tap)="maximize()" (swipe)="onSwipe($event)">
   <StackLayout height="1" width="100%" colSpan="3" backgroundColor="#000" row="0">   
   </StackLayout>
   <Button row="1" col="0" [text]="(trackControl.playingIcon$ | async) | fonticonPure" class="play-btn fa" (tap)="trackControl.togglePlay()"></Button>

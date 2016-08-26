@@ -22,4 +22,11 @@ export class PlayerFullComponent {
     this.logger.debug('close');
     this.params.closeCallback();
   }
+
+  public onSwipe(e: any) {
+    this.logger.debug(`Swipe Direction: ${e.direction}`);
+    if (e.direction==8) {
+      this.close();
+    }
+  }
 }

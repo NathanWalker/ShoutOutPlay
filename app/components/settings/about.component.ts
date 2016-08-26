@@ -75,6 +75,10 @@ export class AboutComponent {
       case 17:
         utils.openUrl('https://github.com/tjvantoll/nativescript-social-share');
         break;
+      case 18:
+        utils.openUrl('https://github.com/TheOriginalJosh/nativescript-swiss-army-knife');
+        break;
+  
     }
   }
 }

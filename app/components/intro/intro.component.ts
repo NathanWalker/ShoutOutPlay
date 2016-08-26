@@ -119,7 +119,8 @@ export class IntroComponent implements OnInit, AfterViewInit {
         if (i === step) {
           this[`_step${step + 1}`].start();
         } else {
-          this[`_step${i + 1}`].stop();
+          let stepCmp = this[`_step${i + 1}`];
+          if (stepCmp) stepCmp.stop();
         }
       }
     }, 100);
@@ -138,10 +139,10 @@ export class IntroComponent implements OnInit, AfterViewInit {
     this._step4 = this.step4.nativeElement;
 
     setTimeout(() => {
-      this._step1.stop();
-      this._step2.stop();
-      this._step3.stop();
-      this._step4.stop();
+      if (this._step1 && this._step1.stop) this._step1.stop();
+      if (this._step2 && this._step1.stop) this._step2.stop();
+      if (this._step3 && this._step1.stop) this._step3.stop();
+      if (this._step4 && this._step1.stop) this._step4.stop();
     }, 500);
 
     if (isIOS) {

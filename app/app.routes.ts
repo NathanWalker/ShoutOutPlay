@@ -20,15 +20,6 @@ import {HelpComponent} from './components/settings/help.component';
 import {AboutComponent} from './components/settings/about.component';
 import {WelcomeComponent} from './components/intro/welcome.component';
 
-// @Injectable()
-// export class DelayGuard implements CanActivate {
-//   canActivate() {
-//     return Observable.of(true).delay(2000);
-//   }
-// }
-
-// canActivate: [DelayGuard] 
-
 export const routes: RouterConfig = [
   {
     path: '',
@@ -53,20 +44,6 @@ export const routes: RouterConfig = [
   { path: "playlist/:id", component: PlaylistDetailComponent },
   { path: "welcome", component: WelcomeComponent }
 ];
-
-// export const routes: RouterConfig = [
-//   { path: "", component: SearchComponent },
-//   { path: "playlist", component: PlaylistComponent },
-//   { path: "shoutout", component: ShoutOutListComponent },
-//   { path: "theme", component: ThemeComponent },
-//   { path: "general", component: GeneralComponent },
-//   { path: "help", component: HelpComponent },
-//   { path: "about", component: AboutComponent },  
-//   { path: "intro", component: IntroComponent },
-//   { path: "record", component: RecordComponent },  
-//   { path: "playlist/:id", component: PlaylistDetailComponent },
-//   { path: "welcome", component: WelcomeComponent }
-// ];
 
 export const APP_ROUTES_PROVIDER = [
   nsProvideRouter(routes, {

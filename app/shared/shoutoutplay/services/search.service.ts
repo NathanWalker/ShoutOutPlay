@@ -1,6 +1,9 @@
 // angular
 import {Injectable, Inject, forwardRef, NgZone} from '@angular/core';
 
+// nativescript
+import {isIOS} from 'platform';
+
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
 import {Observable} from 'rxjs/Observable';
@@ -97,6 +100,10 @@ export class SearchService extends Analytics {
 
   public search(query: string, queryType?: string, offset?: number) {
     queryType = queryType || 'track';
+    // if (!isIOS) {
+    //   // android supports comma delimited query types
+    //   queryType = queryType || 'track,artist';
+    // }
     if (typeof offset === 'undefined') offset = 0;
 
     if (this._currentQuery !== query) {
@@ -115,21 +122,26 @@ export class SearchService extends Analytics {
     }, 6000);
     
     TNSSpotifySearch.QUERY(query, queryType, offset).then((result) => {
-      if (result && result.tracks) {
-        this._hasMore = result.hasNextPage;
-        // for (let key in result) {
-        //     console.log('---');
-        //     console.log(key);
-        //     console.log(result[key]);
-        //   }
-        if (this._currentOffset > 0) {
-          this.store.take(1).subscribe((s: any) => {
-            if (s.search) {
-              this.resultChange([...s.search.results, ...result.tracks], query);
-            }
-          });
+      if (result) {
+        if (result.tracks) {
+          this._hasMore = result.hasNextPage;
+          // for (let key in result) {
+          //     console.log('---');
+          //     console.log(key);
+          //     console.log(result[key]);
+          //   }
+          if (this._currentOffset > 0) {
+            this.store.take(1).subscribe((s: any) => {
+              if (s.search) {
+                this.resultChange([...s.search.results, ...result.tracks], query);
+              }
+            });
+          } else {
+            this.resultChange(result.tracks, query);
+          }
         } else {
-          this.resultChange(result.tracks, query);
+          // no more results
+          this.loader.hide();
         }
       } else {
         this.searchError();

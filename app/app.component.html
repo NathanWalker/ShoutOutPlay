@@ -1,14 +1,31 @@
 <ActionBar title="ShoutOutPlay">
-  <StackLayout orientation="horizontal" horizontalAlignment="center" verticalAlignment="center" padding="5">
-    <Image src="res://logo-160.png" class="action-image"></Image>
-    <!--<Label text="ShoutOutPlay"  class="logo-text"></Label>-->
-  </StackLayout>
-  <ActionItem (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
-  </ActionItem>
-  <!--<ActionItem nsRouterLink="/playlist" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button text="Playlists" class="action-btn"></Button>
-  </ActionItem>-->
+  <!--<android>
+    <NavigationButton class="fa" [text]="'fa-bars' | fonticonPure" (tap)="drawerService.toggle()"></NavigationButton>
+    <NavigationButton text="ios text" android.systemIcon="ic_menu_back" (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn"></NavigationButton>
+  </android>-->
+  <!--<StackLayout orientation="horizontal" horizontalAlignment="center" verticalAlignment="center" padding="5">
+    <android>
+      <Image src="res://logo" class="action-image"></Image>
+    </android>
+    <ios>
+      <Image src="res://logo-160.png" class="action-image"></Image>
+    </ios>
+  </StackLayout>-->
+  <GridLayout cols="auto,*,auto" rows="*" horizontalAlignment="center" verticalAlignment="center" padding="5">
+    <android>
+      <Button class="fa" [text]="'fa-bars' | fonticonPure" row="0" col="0" (tap)="drawerService.toggle()"></Button>
+      <Image src="res://logo" class="action-image" row="0" col="1"></Image>
+    </android>
+    <ios>
+      <Image src="res://logo-160.png" class="action-image" row="0" col="1"></Image>
+    </ios>
+  </GridLayout>
+
+  <ios>
+    <ActionItem (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn">
+      <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
+    </ActionItem>
+  </ios>
   <ActionItem nsRouterLink="/record" ios.position="right" android.position="popup" *ngIf="(authService.state$ | async)?.loggedIn">
     <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure"></Button>
   </ActionItem>

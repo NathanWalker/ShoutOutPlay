@@ -1,3 +1,8 @@
+import {isIOS, device} from 'platform';
+import {Color} from 'color';
+import * as app from 'application';
+var knife = require('nativescript-swiss-army-knife');
+
 interface ICOLORS {
   BASE: string;
   COMPLIMENTARY: string;
@@ -40,19 +45,57 @@ export class ColorService {
 
   public static ActiveId: number = 0;  
   public static Active: ICOLORS = DEFAULT_SCHEME;
+  public static initialized: boolean = false;
 
   public static swapScheme(cssFilename: string) {
-    
+    let statusColor = '';
+      
     switch (cssFilename) {
       case 'app.css':
         ColorService.ActiveId = 0;
         ColorService.Active = DEFAULT_SCHEME;
+        statusColor = ColorService.Active.PRIMARY;
         break;
-      case 'yellow-theme.css':
+      case 'gray.css':
         ColorService.ActiveId = 1;
         ColorService.Active = GRAY_SCHEME;
+        statusColor = ColorService.Active.BASE;
         break;
       // TODO: support more
+    }
+
+    // android statusbar
+    if (!isIOS) {
+      let adjustStatusBar = () => {
+        if (app.android && device.sdkVersion >= '21') {
+          let LayoutParams = <any>android.view.WindowManager.LayoutParams;
+          let window: any;
+          if (app.android.foregroundActivity != null) {
+            window = app.android.foregroundActivity.getWindow();
+          } else {
+            window = app.android.startActivity.getWindow();
+          }
+
+          window.addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+          window.setStatusBarColor(new Color(statusColor).android);
+        }
+      };
+//       console.log(knife);
+//       if (knife.SwissArmyKnife) {
+//       for (let key in knife.SwissArmyKnife) {
+//   console.log(key);
+// }
+
+      if (!ColorService.initialized) {
+        ColorService.initialized = true;
+        setTimeout(() => {
+          // since called in main.ts
+          adjustStatusBar();
+        // knife.SwissArmyKnife.setAndroidStatusBarColor(statusColor);
+        }, 1000);      
+      } else {
+        adjustStatusBar();
+      }     
     }
   }
 }

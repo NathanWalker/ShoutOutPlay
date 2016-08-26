@@ -19,12 +19,14 @@ export class ThemeComponent {
   public activeTheme: string;
 
   constructor(private store: Store<any>) {
-    this.changeTheme(themes.getAppliedTheme('app.css'));
+    let currentTheme = themes.getAppliedTheme('style/app.css');
+    console.log(`currentTheme: ${currentTheme}`);
+    this.changeTheme(currentTheme.split('/').slice(-1)[0]); // just the filename
   }  
 
   public changeTheme(cssFilename: string) {
     this.activeTheme = cssFilename;
-    themes.applyTheme(cssFilename);
+    themes.applyTheme(`style/${cssFilename}`);
     ColorService.swapScheme(cssFilename);
   }
 }

@@ -1,10 +1,15 @@
-<GridLayout rows="auto, *, auto, 100" columns="*" class="player-full">
+<GridLayout rows="auto, *, auto, 100" columns="*" class="player-full" (swipe)="onSwipe($event)">
   <GridLayout rows="auto" columns="25,*,25" class="modal-action-bar" row="0" col="0">
-      <Button [text]="'fa-chevron-circle-down' | fonticonPure" (tap)="close()" class="full-close fa" row="0" col="0"></Button>  
-      <Image src="res://logo-160.png" class="action-image" row="0" col="1" height="40"></Image>
+      <Button [text]="'fa-chevron-circle-down' | fonticonPure" (tap)="close()" class="full-close fa" row="0" col="0"></Button> 
+      <android>
+        <Image src="res://logo" class="action-image" row="0" col="1" height="40"></Image>
+      </android> 
+      <ios>
+        <Image src="res://logo-160.png" class="action-image" row="0" col="1" height="40"></Image>
+      </ios>
       <!--<Label text="Choose a Playlist" textWrap="true" row="0" col="1" class="modal-label modal-title"></Label>-->
   </GridLayout>
-  <StackLayout row="1" col="0" class="album-area">
+  <StackLayout row="1" col="0" class="album-area" (swipe)="onSwipe($event)">
     <Image [src]="trackControl.player.albumArtUrl$ | async" class="album-img"></Image>
   </StackLayout>
   <StackLayout row="2" col="0" padding="30">

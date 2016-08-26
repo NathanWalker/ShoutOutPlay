@@ -19,4 +19,11 @@ export class PlayerControlsComponent {
     this.logger.debug('maximize');
     this.expand.emit(true);
   }
+
+  public onSwipe(e: any) {
+    this.logger.debug(`Swipe Direction: ${e.direction}`);
+    if (e.direction==4) {
+      this.maximize();
+    }
+  }
 }

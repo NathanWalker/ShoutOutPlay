@@ -1,0 +1,17 @@
+SearchBar {
+  padding:0;
+  background-color: $action-bar-match;
+  color:#fff;
+}
+
+.player-full {
+  .full-close {
+    width:50;
+  }
+}
+
+.number {
+  border-radius: 48;
+  height:100;
+  padding-top:10;
+}
