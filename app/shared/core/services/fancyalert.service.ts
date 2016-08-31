@@ -12,11 +12,23 @@ if (isIOS) {
   var fAlerts = require('nativescript-fancyalert');
   TNSFancyAlert = fAlerts.TNSFancyAlert;
   TNSFancyAlertButton = fAlerts.TNSFancyAlertButton;
+} else {
+  // android
+  TNSFancyAlertButton = (function () {
+    function TNSFancyAlertButton(model) {
+        if (model) {
+            this.label = model.label;
+            this.action = model.action;
+        }
+    }
+    return TNSFancyAlertButton;
+  }());
 }
 
 // app
 import {ColorService} from './color.service';
 import {LogService} from './log.service';
+import {ProgressService} from './progress.service';
 
 declare var zonedCallback: Function, UIBezierPath, SCLAlertViewStyleKit, CGPointMake;
 
@@ -24,8 +36,9 @@ declare var zonedCallback: Function, UIBezierPath, SCLAlertViewStyleKit, CGPoint
 export class FancyAlertService {
   private _plusImage: any;
   private _micImage: any;
+  private _androidTimeout: number = 400;
 
-  constructor(private logger: LogService, private _ngZone: NgZone) {
+  constructor(private logger: LogService, private progress: ProgressService, private _ngZone: NgZone) {
 
     if (isIOS) {
       TNSFancyAlert.titleColor = ColorService.Active.WHITE;
@@ -45,11 +58,17 @@ export class FancyAlertService {
 
       TNSFancyAlert.showInfo(null, message);
     } else {
-      dialogs.alert(message);
+
+      // ensure a progress dialog (loading-indicator) is always closed *before* opening a dialog
+      this.closeProgress();
+      setTimeout(() => {
+        dialogs.alert(message);
+      }, this._androidTimeout);
     }
   }
 
   public prompt(placeholder: string, initialValue: string, title: string, image: string, action: Function) {
+    this.logger.debug('fancyalert.prompt...'); 
 
     if (isIOS) {
       this.setColors(ColorService.ActiveId == 0 ? ColorService.Active.PRIMARY : ColorService.Active.BRIGHT_ALT);
@@ -72,12 +91,24 @@ export class FancyAlertService {
         title
       );
     } else {
-      dialogs.prompt(title, placeholder || initialValue).then((result: any) => {
-        this.logger.debug(`User entered ${result.text}`);
+
+      this.closeProgress();
+      setTimeout(() => {
+        let options = {
+          title: title,
+          defaultText: placeholder || initialValue,
+          inputType: dialogs.inputType.text
+        };
         this._ngZone.run(() => {
-          action(result.text);
+          dialogs.prompt(options).then((result: any) => {
+            this.logger.debug(`User entered ${result.text}`);
+            this._ngZone.run(() => {
+              action(result.text);
+            });
+          });
         });
-      });
+      }, this._androidTimeout);
+
     }
   } 
 
@@ -103,18 +134,23 @@ export class FancyAlertService {
         subTitle
       );
     } else {
-      dialogs.confirm(subTitle).then((result: boolean) => {
-        if (result) {
-          this._ngZone.run(() => {
-            action();
+
+      setTimeout(() => {
+        this._ngZone.run(() => {
+          dialogs.confirm(subTitle).then((result: boolean) => {
+            if (result) {
+              this._ngZone.run(() => {
+                action();
+              });
+            }
           });
-        }
-      })
+        })
+      }, this._androidTimeout);
     }
   } 
 
   public action(title: string, subTitle: string, image: string, buttons: Array<any>) {
-
+    this.logger.debug('fancyalert.action...'); 
     if (isIOS) {
       this.setColors(ColorService.ActiveId == 0 ? ColorService.Active.PRIMARY : ColorService.Active.BRIGHT_ALT);
       TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromRight;
@@ -140,24 +176,34 @@ export class FancyAlertService {
         subTitle
       );
     } else {
+      this.logger.debug(dialogs); 
 
-      dialogs.action({
-        message: title,
-        cancelButtonText: "Cancel",
-        actions: buttons.map(b => b.label)
-      }).then((result: any) => {
-        this.logger.debug(`User chose ${result}`);
-        for (let b of buttons) {
-          if (b.label === result) {
-            this._ngZone.run(() => {
-              b.action();
-            });
-            break;
-          }
-        }
-      })
+      this.closeProgress();
+      setTimeout(() => {
+        this._ngZone.run(() => {
+          dialogs.action({
+            message: title,
+            cancelButtonText: "Cancel",
+            actions: buttons.map(b => b.label)
+          }).then((result: any) => {
+            this.logger.debug(`User chose ${result}`);
+            for (let b of buttons) {
+              if (b.label === result) {
+                this._ngZone.run(() => {
+                  b.action();
+                });
+                break;
+              }
+            }
+          });
+        });
+      }, this._androidTimeout);
     }
   } 
+
+  private closeProgress() {
+    this.progress.hide();
+  }
 
   private setColors(highlight: string) {
     if (isIOS) {

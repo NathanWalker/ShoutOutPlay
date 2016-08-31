@@ -4,14 +4,14 @@ import {Location} from '@angular/common';
 
 // nativescript
 import * as app from 'application';
-import * as platform from 'platform';
+import {isIOS} from 'platform';
 import {knownFolders} from 'file-system';
 import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlaylist} from 'nativescript-spotify';
 import firebase = require("nativescript-plugin-firebase");
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
-import {Effect, toPayload, StateUpdates} from '@ngrx/effects';
+import {Effect, Actions} from '@ngrx/effects';
 import {Observable} from 'rxjs/Observable';
 import {isString, isObject, keys, orderBy, includes, find} from 'lodash';
 
@@ -520,6 +520,7 @@ export class FirebaseService {
         // try to log user in or create an account based on their spotify account
         TNSSpotifyAuth.CURRENT_USER().then((user: any) => {
           this.logger.debug(`Spotify user:`);
+          let emailAddress = isIOS ? user.emailAddress : user.email;
           this.logger.debug(`email: ${user.emailAddress}`);
           this.logger.debug(`uri: ${user.uri}`);
           this.logger.debug(`product: ${user.product}`);
@@ -529,13 +530,13 @@ export class FirebaseService {
           //   this.logger.debug(user[key]);
           // }
           var login = () => {
-            this.authenticate(user.emailAddress, user.emailAddress); // use emailAddress as part of password (uri not good cuz it can change)
+            this.authenticate(emailAddress, emailAddress); // use emailAddress as part of password (uri not good cuz it can change)
           };
-          if (user.emailAddress) {
+          if (emailAddress) {
             if (!this._firebaseUser) {
               // not previously logged in, go ahead and login
               login();
-            } else if (this._firebaseUser.email !== user.emailAddress) {
+            } else if (this._firebaseUser.email !== emailAddress) {
               // log previously logged in user out, and login new user
               firebase.logout().then(() => {
                 this.resetInitializers();
@@ -792,8 +793,8 @@ export class FirebaseService {
       };
       let addPlaylist = () => {
         let spotifyPlaylist = result.playlists[cnt];
-        if (spotifyPlaylist.name === 'Discover Weekly') {
-          // ignore discover weekly (spotify creates that for users)
+        if (spotifyPlaylist.name === 'Discover Weekly' || spotifyPlaylist.name === 'Starred') {
+          // ignore discover weekly and Starred (spotify creates that for users)
           advance();
         } else {
           if (includes(existingSpotifyPlaylists, spotifyPlaylist.uri)) {
@@ -860,69 +861,69 @@ export class FirebaseService {
 
 @Injectable()
 export class FirebaseEffects {
-  constructor(private store: Store<any>, private logger: LogService, private updates$: StateUpdates<any>, private firebaseService: FirebaseService) { }
+  constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private firebaseService: FirebaseService) { }
       
-  @Effect() processUpdates$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.PROCESS_UPDATES)
-    .do((update) => {
+  @Effect() processUpdates$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.PROCESS_UPDATES)
+    .do((action) => {
       this.logger.debug(`FirebaseEffects.PROCESS_UPDATES`);
-      this.firebaseService.processUpdates(update.action.payload);
+      this.firebaseService.processUpdates(action.payload);
     })
     .filter(() => false);
 
-  @Effect() create$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.CREATE)
-    .do((update) => {
+  @Effect() create$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.CREATE)
+    .do((action) => {
       this.logger.debug(`FirebaseEffects.CREATE`);
-      this.firebaseService.addDocument(update.action.payload);
+      this.firebaseService.addDocument(action.payload);
     })
     .filter(() => false);
   
-  @Effect() createShoutout$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.CREATE_SHOUTOUT)
-    .do((update) => {
+  @Effect() createShoutout$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.CREATE_SHOUTOUT)
+    .do((action) => {
       this.logger.debug(`FirebaseEffects.CREATE_SHOUTOUT`);
-      this.firebaseService.addDocument(update.action.payload);
+      this.firebaseService.addDocument(action.payload);
     })
     .filter(() => false);
   
-  @Effect() delete$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.DELETE)
-    .do((update) => {
+  @Effect() delete$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.DELETE)
+    .do((action) => {
       this.logger.debug(`FirebaseEffects.DELETE`);
-      this.firebaseService.deleteDocument(update.action.payload);
+      this.firebaseService.deleteDocument(action.payload);
     })
     .filter(() => false);
   
-  @Effect() shoutoutDeleted$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.SHOUTOUT_DELETED)
-    .do((update) => {
+  @Effect() shoutoutDeleted$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.SHOUTOUT_DELETED)
+    .do((action) => {
       this.logger.debug(`FirebaseEffects.SHOUTOUT_DELETED`);
-      this.firebaseService.removeShoutoutFromTrack(update.action.payload);
+      this.firebaseService.removeShoutoutFromTrack(action.payload);
     })
     .filter(() => false);
   
-  @Effect() reorder$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.REORDER)
-    .do((update) => {
+  @Effect() reorder$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.REORDER)
+    .do((action) => {
       this.logger.debug(`FirebaseEffects.REORDER`);
-      this.firebaseService.reorder(update.action.payload);
+      this.firebaseService.reorder(action.payload);
     })
     .filter(() => false);
   
-  @Effect() deleteTrack$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.DELETE_TRACK)
-    .map((update) => {
+  @Effect() deleteTrack$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.DELETE_TRACK)
+    .map((action) => {
       this.logger.debug(`FirebaseEffects.DELETE_TRACK`);
       let updatedPlaylist;
       this.store.take(1).subscribe((s: any) => {
         let playlists = [...s.firebase.playlists];
         for (let playlist of playlists) {
-          if (playlist.id === update.action.payload.playlistId) {
+          if (playlist.id === action.payload.playlistId) {
             updatedPlaylist = playlist;
             this.logger.debug(`Removing track...`);
             this.logger.debug(playlist.tracks.length);
-            playlist.removeTrack(update.action.payload.track);
+            playlist.removeTrack(action.payload.track);
             this.logger.debug(playlist.tracks.length);
             break;
           }
@@ -934,9 +935,9 @@ export class FirebaseEffects {
       });
     });
   
-  @Effect() resetAccount$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.RESET_ACCOUNT)
-    .do((update) => {
+  @Effect() resetAccount$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.RESET_ACCOUNT)
+    .do((action) => {
       this.logger.debug(`FirebaseEffects.RESET_ACCOUNT`);
       this.firebaseService.resetAccount();
     })

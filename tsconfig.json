@@ -24,5 +24,9 @@
         "app/shared/core/delegates/app.delegate.android.ts",
         "app/shared/shoutoutplay/services/command-center.ios.ts",
         "app/shared/shoutoutplay/services/command-center.android.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "platforms"
     ]
 }

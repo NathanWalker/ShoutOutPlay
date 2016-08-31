@@ -5,10 +5,13 @@ import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescr
 import {isIOS} from 'platform';
 import * as utils from 'utils/utils';
 import {File} from 'file-system';
-declare var TNSEZAudioPlayer;
+declare var TNSAudioPlayer;
 if (isIOS) {
   let ezAudio = require('nativescript-ezaudio');
-  TNSEZAudioPlayer = ezAudio.TNSEZAudioPlayer;
+  TNSAudioPlayer = ezAudio.TNSEZAudioPlayer;
+} else {
+  let audio = require('nativescript-audio');
+  TNSAudioPlayer = audio.TNSPlayer;
 }
 
 // libs
@@ -39,11 +42,16 @@ export class ShoutOutListComponent implements OnDestroy {
   private _sub: Subscription;
 
   constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone, private modal: ModalDialogService) {
-    this._shoutOutPlayer = new TNSEZAudioPlayer(true);
-    this._shoutOutPlayer.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
-      this.logger.debug(`ShoutOutListComponent: audioEvents.on('reachedEnd')`);
-      this.toggleShoutOutPlay(false, false);
-    }));
+
+    if (isIOS) {
+      this._shoutOutPlayer = new TNSAudioPlayer(true);
+      this._shoutOutPlayer.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
+        this.logger.debug(`ShoutOutListComponent: audioEvents.on('reachedEnd')`);
+        this.toggleShoutOutPlay(false, false);
+      }));
+    } else {
+      this._shoutOutPlayer = new TNSAudioPlayer();
+    }
 
     this._sub = this.store.select('firebase').subscribe((s: any) => {
       let playlists = [...s.playlists];
@@ -78,7 +86,40 @@ export class ShoutOutListComponent implements OnDestroy {
       let fullPath = Utils.documentsPath(this._currentShoutOut.filename);
       this.logger.debug(fullPath);
       if (File.exists(fullPath)) {
-        this._shoutOutPlayer.togglePlay(fullPath, reload); 
+
+        if (isIOS) {
+          this._shoutOutPlayer.togglePlay(fullPath, reload); 
+        } else {
+          if (reload) {
+            let playerOptions = {
+              audioFile: fullPath,
+              completeCallback: () => {
+                this.logger.debug('completeCallback..');
+                this.toggleShoutOutPlay(false, false);
+              },
+              errorCallback: () => {
+                // todo
+              },
+              infoCallback: () => {
+                // todo
+              }
+            };
+
+            this._shoutOutPlayer.playFromFile(playerOptions).then(() => {
+              
+            }, (err) => {
+              console.log(err);        
+            });
+            
+          } else {
+            
+            if (this._currentShoutOut.playing) {
+              this._shoutOutPlayer.pause();
+            } else {
+              this._shoutOutPlayer.start();
+            }
+          }
+        }
         // adjust state
         this._currentShoutOut.playing = !this._currentShoutOut.playing;
         let shoutouts = [...this.shoutouts$.getValue()];
@@ -140,8 +181,17 @@ export class ShoutOutListComponent implements OnDestroy {
 
   ngOnDestroy() {
     if (this._shoutOutPlayer) {
-      this._shoutOutPlayer.delegate().audioEvents.off('reachedEnd');
-      this._shoutOutPlayer = undefined;
+      if (isIOS) {
+        this._shoutOutPlayer.delegate().audioEvents.off('reachedEnd');
+        this._shoutOutPlayer = undefined;
+      } else {
+        this._shoutOutPlayer.dispose().then(() => {
+          this.logger.debug('player disposed.');
+          this._shoutOutPlayer = undefined;
+        }, (err) => {
+          this.logger.debug(err);
+        });
+      }
     }
     if (this._sub) {
       this._sub.unsubscribe();

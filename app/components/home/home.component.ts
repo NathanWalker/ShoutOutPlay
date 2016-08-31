@@ -89,8 +89,10 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     this.logger.debug(`HomeComponent ngAfterViewInit`);
-    this.drawerService.drawer = this.drawerComponent.sideDrawer;
+    this.logger.debug(this.drawerComponent);
     this._changeDetectionRef.detectChanges();
+    this.logger.debug(this.drawerComponent);
+    // this.drawerService.drawer = this.drawerComponent.sideDrawer;
   }
 
   ngOnDestroy() {

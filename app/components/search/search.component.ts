@@ -45,6 +45,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
     if (e && e.object) {
       this.logger.debug(e.object.text);
       this.searchService.search(e.object.text);
+      this.dismissKeyboard();
     }
   }
 
@@ -66,6 +67,15 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   public itemLoading(e: any) {
     if (isIOS) {
       e.ios.selectionStyle = UITableViewCellSelectionStyle.UITableViewCellSelectionStyleNone;
+    }
+  }
+
+  private dismissKeyboard() {
+    if (!isIOS) {
+      setTimeout(() => {
+        // this.searchBarEl.nativeElement.android.clearFocus();
+        this.searchBarEl.nativeElement.dismissSoftInput();
+      }, 100);
     }
   }
 
@@ -108,6 +118,8 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
     // coach marks
     if (this.searchBarEl) {
       this.coachmarks.teachSearch(this.searchBarEl.nativeElement);
+
+      this.dismissKeyboard();
     }
     
     // let emptyArrow = this.emptyArrowEl.nativeElement;

@@ -7,6 +7,7 @@ interface ICOLORS {
   BASE: string;
   COMPLIMENTARY: string;
   PRIMARY: string;
+  ANDROID_STATUS_BAR: string;
   SECONDARY: string;
   HIGHLIGHT: string;
   BRIGHT: string;
@@ -20,6 +21,7 @@ const DEFAULT_SCHEME: ICOLORS = {
   BASE: '#010006',
   COMPLIMENTARY: '#010027',
   PRIMARY: '#6a2ecd',
+  ANDROID_STATUS_BAR: '#5d27b6',
   SECONDARY: '#000077',
   HIGHLIGHT: '#9f64d8',
   BRIGHT: '#4EFF0B',
@@ -32,6 +34,7 @@ const GRAY_SCHEME: ICOLORS = {
   BASE: '#333333',
   COMPLIMENTARY: '#444444',
   PRIMARY: '#efefef',
+  ANDROID_STATUS_BAR: '#282828',
   SECONDARY: '#555555',
   HIGHLIGHT: '#999999',
   BRIGHT: '#FFD110',
@@ -48,18 +51,15 @@ export class ColorService {
   public static initialized: boolean = false;
 
   public static swapScheme(cssFilename: string) {
-    let statusColor = '';
       
     switch (cssFilename) {
       case 'app.css':
         ColorService.ActiveId = 0;
         ColorService.Active = DEFAULT_SCHEME;
-        statusColor = ColorService.Active.PRIMARY;
         break;
       case 'gray.css':
         ColorService.ActiveId = 1;
         ColorService.Active = GRAY_SCHEME;
-        statusColor = ColorService.Active.BASE;
         break;
       // TODO: support more
     }
@@ -77,7 +77,7 @@ export class ColorService {
           }
 
           window.addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-          window.setStatusBarColor(new Color(statusColor).android);
+          window.setStatusBarColor(new Color(ColorService.Active.ANDROID_STATUS_BAR).android);
         }
       };
 //       console.log(knife);

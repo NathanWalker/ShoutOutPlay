@@ -1,8 +1,10 @@
-<ScrollView orientation="vertical">
+<ScrollView orientation="vertical" modal-dialog-host>
   <StackLayout class="full-page settings-list pad-bottom">
-      <Label text="How to use?" textWrap="true" class="large-heading"></Label>
-      <Label text="First, search for a music track that you want to listen to or give a ShoutOut to someone about. Then use the '+' button to add the track to a new or existing playlist. You will then be prompted to record a ShoutOut. You can choose 'Yes' to record right then or dismiss by tapping outside the prompt and record one later. You can use the Microphone icon in the top right of the Search page to record a ShoutOut at anytime. Recording a ShoutOut is as simple as tapping the large red Record button and speaking into your phone, then choose red Stop icon at the top right when finished. You can play it back to review it and once you are happy with it, you can choose to Add or Save to a track. Once the ShoutOut has been added, you can go to the Playlists page to play your track with the ShoutOut on it." textWrap="true" class="medium-heading"></Label>
-      <Button text="View Intro Again" (tap)="viewIntro()" class="settings-btn"></Button>
+    <Label text="How to use?" textWrap="true" class="large-heading"></Label>
+    <Label text="First, search for a music track that you want to listen to or give a ShoutOut to someone about. Then use the '+' button to add the track to a new or existing playlist. You will then be prompted to record a ShoutOut. You can choose 'Yes' to record right then or dismiss by tapping outside the prompt and record one later." textWrap="true" class="medium-heading"></Label>
+    <Button text="View overview video" (tap)="viewOverview()" class="large-heading video-button"></Button>
+    <Label text="You can use the Microphone icon in the top right of the Search page to record a ShoutOut at anytime. Recording a ShoutOut is as simple as tapping the large red Record button and speaking into your phone, then choose red Stop icon at the top right when finished. You can play it back to review it and once you are happy with it, you can choose to Add or Save to a track. Once the ShoutOut has been added, you can go to the Playlists page to play your track with the ShoutOut on it." textWrap="true" class="medium-heading"></Label>
+    <Button text="View Intro Again" (tap)="viewIntro()" class="settings-btn"></Button>
       
   </StackLayout>
 </ScrollView>

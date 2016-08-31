@@ -6,7 +6,7 @@ import * as fs from 'file-system';
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
-import {Effect, toPayload, StateUpdates} from '@ngrx/effects';
+import {Effect, Actions} from '@ngrx/effects';
 import {Observable} from 'rxjs/Observable';
 import {includes} from 'lodash';
 
@@ -186,24 +186,24 @@ export class ShoutoutService extends Analytics {
 
 @Injectable()
 export class ShoutoutEffects {
-  constructor(private store: Store<any>, private logger: LogService, private updates$: StateUpdates<any>, private shoutoutService: ShoutoutService) { }
+  constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private shoutoutService: ShoutoutService) { }
   
-  @Effect() downloadShoutouts$ = this.updates$
-    .whenAction(SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS)
-    .do((update) => {
+  @Effect() downloadShoutouts$ = this.actions$
+    .ofType(SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS)
+    .do((action) => {
       this.logger.debug(`ShoutoutEffects.DOWNLOAD_SHOUTOUTS`);
-      this.shoutoutService.downloadShoutouts(update.action.payload);
+      this.shoutoutService.downloadShoutouts(action.payload);
     })
     .filter(() => false);
   
-  @Effect() removeRemote$ = this.updates$
-    .whenAction(SHOUTOUT_ACTIONS.REMOVE_REMOTE)
-    .do((update) => {
+  @Effect() removeRemote$ = this.actions$
+    .ofType(SHOUTOUT_ACTIONS.REMOVE_REMOTE)
+    .do((action) => {
       this.logger.debug(`ShoutoutEffects.REMOVE_REMOTE`);
       let handler = () => {
         this.shoutoutService.removeRemoteComplete();
       };
-      this.shoutoutService.removeRemote(update.action.payload).then(handler, handler);
+      this.shoutoutService.removeRemote(action.payload).then(handler, handler);
     })
     .filter(() => false);
 }

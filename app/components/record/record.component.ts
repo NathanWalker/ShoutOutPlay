@@ -14,12 +14,19 @@ import {screen} from 'platform';
 import {Animation} from 'ui/animation';
 import {topmost} from 'ui/frame';
 import {AnimationCurve} from 'ui/enums';
-declare var TNSEZRecorder, TNSEZAudioPlayer, AudioPlot;
+
+// audio plugins
+declare var TNSEZRecorder, TNSEZAudioPlayer, AudioPlot, TNSPlayer, TNSRecorder, permissions;
 if (isIOS) {
   var ezAudio = require('nativescript-ezaudio');
   TNSEZRecorder = ezAudio.TNSEZRecorder;
   TNSEZAudioPlayer = ezAudio.TNSEZAudioPlayer;
   AudioPlot = ezAudio.AudioPlot;
+} else {
+  permissions = require('nativescript-permissions');
+  var audio = require('nativescript-audio');
+  TNSRecorder = audio.TNSRecorder;
+  TNSPlayer = audio.TNSPlayer;
 }
 
 // libs
@@ -104,29 +111,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       this.saveBtnTxtWidth = '45%';
     }
 
-    this._recorder = new TNSEZRecorder();
-    this._recorder.delegate().audioEvents.on('audioBuffer', (eventData) => {
-      this._audioplot.bufferData = {
-        buffer: eventData.data.buffer,
-        bufferSize: eventData.data.bufferSize
-      };
-    });
-    this._recorder.delegate().audioEvents.on('recordTime', (eventData) => {
-      this.recordTime = eventData.data.time;
-    });
-
-    // player
-    this._player = new TNSEZAudioPlayer(true);
-    this._player.delegate().audioEvents.on('audioBuffer', (eventData) => {
-      this._audioplot.bufferData = {
-        buffer: eventData.data.buffer,
-        bufferSize: eventData.data.bufferSize
-      };
-    });
-    this._player.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
-      this.logger.debug(`RecordComponent: audioEvents.on('reachedEnd'), calling this.togglePlay()`);
-      this.togglePlay();
-    }));
+    this.initRecorder();  
 
     this._sub = store.select('shoutout').subscribe((state: IShoutoutState) => {
       if (state.showTrackPicker) {
@@ -144,22 +129,88 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   }
 
   public toggleRecord() {
-    if (this._recorder.isRecording()) {
-      this._recorder.stop();
-      this.toggleRecordState(false);
-      this._reloadPlayer = true;
+    if (isIOS) {
+      if (this._recorder.isRecording()) {
+        this._recorder.stop();
+        this.toggleRecordState(false);
+        this._reloadPlayer = true;
+      } else {
+        this._recorder.record(this.setupRecording());
+        this.toggleRecordState(true);
+      }
     } else {
-      this._recordingPath = Utils.documentsPath(`recording-${Date.now()}.m4a`);
-      this.logger.debug(this._recordingPath);
-      this._sessionRecordings.push({ path: this._recordingPath, saved: false });
-      this._recorder.record(this._recordingPath);
-      this.toggleRecordState(true);
+
+      if (this.isRecording) {
+        this._recorder.stop().then(() => {
+          this.toggleRecordState(false);
+        }, (ex) => {
+          this.logger.debug(ex);
+          this.toggleRecordState(false);
+        });
+        this._reloadPlayer = true;
+      } else {
+        if (TNSRecorder.CAN_RECORD()) {
+
+          let recorderOptions = {
+            filename: this.setupRecording(),
+            infoCallback: () => {
+              this.logger.debug('info');
+            },
+            errorCallback: () => {
+              this.logger.debug('err');
+            }
+          };
+
+          this._recorder.start(recorderOptions).then((result) => {
+            this.toggleRecordState(true);      
+          }, (err) => {          
+            this.logger.debug(err);
+          });
+        } else {
+          this.fancyalert.show(`This device cannot record audio.`);
+        }
+      }     
     }
   }
 
   public togglePlay() {
-    this._player.togglePlay(this._recordingPath, this._reloadPlayer);  
-    this.togglePlayState(!this.isPlaying);
+    if (isIOS) {
+      this._player.togglePlay(this._recordingPath, this._reloadPlayer);  
+      this.togglePlayState(!this.isPlaying);
+    } else {
+
+      if (!this._reloadPlayer) {
+        if (this.isPlaying) {
+          this._player.pause();
+          this.togglePlayState(false);
+        } else {
+          this._player.play();
+          this.togglePlayState(true);
+        }
+      } else {
+        let playerOptions = {
+          audioFile: this._recordingPath,
+          completeCallback: () => {
+            this.logger.debug('completeCallback..');
+            this.togglePlayState(false);
+            this.togglePlay();
+          },
+          errorCallback: () => {
+            this.togglePlayState(false);
+          },
+          infoCallback: () => {
+            // todo
+          }
+        };
+
+        this._player.playFromFile(playerOptions).then(() => {
+          this.togglePlayState(true);
+        }, (err) => {
+          console.log(err);
+          this.togglePlayState(false);
+        });
+      }
+    }
   }
 
   public toggleRecordState(state: boolean) {
@@ -188,6 +239,68 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     } else {
       this.store.dispatch({ type: SHOUTOUT_ACTIONS.SHOW_PICKER });
     }
+  }
+
+  public androidBack() {
+    setTimeout(() => {
+      this.location.back();
+    });
+  }
+
+  private initRecorder() {
+    if (isIOS) {
+      this._recorder = new TNSEZRecorder();
+      this._recorder.delegate().audioEvents.on('audioBuffer', (eventData) => {
+        this._audioplot.bufferData = {
+          buffer: eventData.data.buffer,
+          bufferSize: eventData.data.bufferSize
+        };
+      });
+      this._recorder.delegate().audioEvents.on('recordTime', (eventData) => {
+        this.recordTime = eventData.data.time;
+      });
+
+      // player
+      this._player = new TNSEZAudioPlayer(true);
+      this._player.delegate().audioEvents.on('audioBuffer', (eventData) => {
+        this._audioplot.bufferData = {
+          buffer: eventData.data.buffer,
+          bufferSize: eventData.data.bufferSize
+        };
+      });
+      this._player.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
+        this.logger.debug(`RecordComponent: audioEvents.on('reachedEnd'), calling this.togglePlay()`);
+        this.togglePlay();
+      }));
+
+    } else {
+ 
+      permissions.requestPermission(global.android.Manifest.permission.WRITE_EXTERNAL_STORAGE, `To be able to save shoutouts.`)
+        .then(() => {
+          this.logger.debug(`granted`);
+          permissions.requestPermission(global.android.Manifest.permission.RECORD_AUDIO, `To be able to record audio.`)
+            .then(() => {
+              this.logger.debug(`granted`);
+
+              this._player = new TNSPlayer();
+              this._recorder = new TNSRecorder();
+
+            })
+            .catch(() => {
+              this.logger.debug(`declined.`);
+            });
+        })
+        .catch(() => {
+          this.logger.debug(`declined.`);
+        });
+    } 
+  }
+
+  private setupRecording(): string {
+    this._recordingPath = Utils.documentsPath(`recording-${Date.now()}.${isIOS ? 'm4a' : 'mp3'}`);
+    this.logger.debug(this._recordingPath);
+    this._sessionRecordings.push({ path: this._recordingPath, saved: false });
+    return this._recordingPath;
   }
 
   private addToTrack(track?: TrackModel) {
@@ -252,11 +365,11 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private showPlayControls(enable: boolean) {
     this.logger.debug(`showPlayControls: ${enable}`);
     
-    let fullHeight = screen.mainScreen.heightDIPs;
+    let fullHeight = isIOS ? screen.mainScreen.heightDIPs : screen.mainScreen.heightPixels;
     let playY = 320;
     let backX = 70;
-    let addY = screen.mainScreen.heightDIPs - 140;
-    let backY = screen.mainScreen.heightDIPs - 250;
+    let addY = fullHeight - 140;
+    let backY = fullHeight - 250;
 
     if (fullHeight <= 568) {
       this.isSmallerScreen = true;
@@ -331,10 +444,11 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
   private hideGiantRecordUI() {
     this._showingGiantRecordUI = false;
+    let screenWidth = isIOS ? screen.mainScreen.widthDIPs : screen.mainScreen.widthPixels;
     let animateDefs = [];
     animateDefs.push({
       target: this._bigRecordBtn,
-      translate: { x: screen.mainScreen.widthDIPs-140, y: -120 },
+      translate: { x: screenWidth-140, y: -120 },
       scale: { x: .5, y: .5 },
       opacity: 0,
       duration: 600,
@@ -455,11 +569,6 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this._addToTrackArea = this.addToTrackArea.nativeElement;
     this._bigSaveBg = this.bigSaveBg.nativeElement;
     // animate start
-    // this.logger.debug(screen.mainScreen.widthDIPs + 'x' + screen.mainScreen.heightDIPs);
-    // this.logger.debug(((screen.mainScreen.widthDIPs/2)-100) + 'x' + ((screen.mainScreen.heightDIPs/2)-100));
-    // this.logger.debug('btn size:');
-    // this.logger.debug(this._bigRecordBtn.width + 'x' + this._bigRecordBtn.height);
-
     this.setupRecordAnimation();
   }
 
@@ -468,17 +577,29 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     // this._bigRecordBtn.ios.frame = CGRectMake(((screen.mainScreen.widthDIPs / 2) - 120), ((screen.mainScreen.heightDIPs / 2) - 170), this._bigRecordBtn.ios.bounds.size.width, this._bigRecordBtn.ios.bounds.size.height);
     // this._readyRecordLabel.ios.frame = CGRectMake(screen.mainScreen.widthDIPs, ((screen.mainScreen.heightDIPs/2)-170), this._readyRecordLabel.ios.bounds.size.width, this._readyRecordLabel.ios.bounds.size.height);
 
+
+    this.logger.debug(`screen.mainScreen.widthDIPs + 'x' + screen.mainScreen.heightDIPs`);
+    this.logger.debug(screen.mainScreen.widthDIPs + 'x' + screen.mainScreen.heightDIPs);
+    this.logger.debug(((screen.mainScreen.widthDIPs / 2) - 100) + 'x' + ((screen.mainScreen.heightDIPs / 2) - 100));
+    this.logger.debug(`screen.mainScreen.widthPixels + 'x' + screen.mainScreen.heightPixels`);
+    this.logger.debug(screen.mainScreen.widthPixels + 'x' + screen.mainScreen.heightPixels);   
+
+
+    let screenWidth = isIOS ? screen.mainScreen.widthDIPs : screen.mainScreen.widthPixels;
+    let screenHeight = isIOS ? screen.mainScreen.heightDIPs : screen.mainScreen.heightPixels;
+
+
     // set initial position, using animation which works
     let animateDefs = [];
     animateDefs.push({
       target: this._bigRecordBtn,
-      translate: { x: ((screen.mainScreen.widthDIPs/2)-120), y: ((screen.mainScreen.heightDIPs/2)-170) },
+      translate: { x: ((screenWidth/2)-120), y: ((screenHeight/2)-170) },
       opacity: 0,
       duration: 1
     });
     animateDefs.push({
       target: this._readyRecordLabel,
-      translate: { x: screen.mainScreen.widthDIPs, y: screen.mainScreen.heightDIPs - 200 },
+      translate: { x: screenWidth, y: screenHeight - 200 },
       opacity: 0,
       duration: 1
     });
@@ -488,7 +609,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       animateDefs = [];
       animateDefs.push({
         target: this._bigRecordBtn,
-        translate: { x: ((screen.mainScreen.widthDIPs/2)-84), y: ((screen.mainScreen.heightDIPs/2)-150) },
+        translate: { x: ((screenWidth/2)-84), y: ((screenHeight/2)-150) },
         scale: { x: 1.2, y: 1.2 },
         opacity: 1,
         duration: 1000,
@@ -496,7 +617,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       });
       animateDefs.push({
         target: this._readyRecordLabel,
-        translate: { x: (-screen.mainScreen.widthDIPs - 220), y: screen.mainScreen.heightDIPs - 200 },
+        translate: { x: (-screenWidth - 220), y: screenHeight - 200 },
         opacity: 1,
         duration: 3000,
         iterations: Number.POSITIVE_INFINITY
@@ -524,23 +645,34 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this.logger.debug(`RecordComponent ngOnDestroy`);
     this.shoutoutService.removeRecordings(this._sessionRecordings.filter(r => !r.saved).map(r => r.path));
     // remove events and free up resources
-    this._recorder.delegate().audioEvents.off('audioBuffer');
-    this._recorder.delegate().audioEvents.off('recordTime');
-    this._player.delegate().audioEvents.off('audioBuffer');
-    this._player.delegate().audioEvents.off('reachedEnd');
-    this._recorder = undefined;
-    this._player = undefined;
     
     if (isIOS) {
+      this._recorder.delegate().audioEvents.off('audioBuffer');
+      this._recorder.delegate().audioEvents.off('recordTime');
+      this._player.delegate().audioEvents.off('audioBuffer');
+      this._player.delegate().audioEvents.off('reachedEnd');
+      this._recorder = undefined;
+      this._player = undefined;
+      
       // set av category session back to playback
       // if we don't do this, will cause issue with bluetooth speaker settings
       // https://github.com/NathanWalker/ShoutOutPlay/issues/46
       let errorRef = new interop.Reference();
       (<any>AVAudioSession.sharedInstance()).setCategoryError(AVAudioSessionCategoryPlayback, errorRef);
       if (errorRef) {
-        console.log(`setCategoryError: ${errorRef.value}`);
+        this.logger.debug(`setCategoryError: ${errorRef.value}`);
       }
       (<any>AVAudioSession.sharedInstance()).setActiveError(true, errorRef); 
+    } else {
+
+      if (this._player && this._player.dispose) {
+        this._player.dispose().then(() => {
+          this.logger.debug('player disposed.');
+          this._player = undefined;
+        }, (err) => {
+          this.logger.debug(err);
+        });
+      }      
     }
     
     // reset fallback (issue stems from spotify playlist bulk creation - when tracks have no playlistId)

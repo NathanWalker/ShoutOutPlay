@@ -4,6 +4,15 @@ SearchBar {
   color:#fff;
 }
 
+.side-drawer {
+  .side-item {
+    .side-icon,
+    .side-label {
+      vertical-align: center;
+    }
+  }
+}
+
 .player-full {
   .full-close {
     width:50;

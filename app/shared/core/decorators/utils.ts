@@ -1,13 +1,13 @@
 // angular
 import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+// import {ROUTER_DIRECTIVES} from '@angular/router';
 
 // nativescript
-import {NS_ROUTER_DIRECTIVES} from 'nativescript-angular/router';
-import {NS_DIRECTIVES} from "nativescript-angular/directives";
+// import {NS_ROUTER_DIRECTIVES} from 'nativescript-angular/router';
+// import {NS_DIRECTIVES} from "nativescript-angular/directives";
 
 // libs
-import {TNSFontIconPipe, TNSFontIconPurePipe} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
+// import {TNSFontIconPipe, TNSFontIconPurePipe} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
 
 declare var Reflect: any;
 const _reflect: any = Reflect;
@@ -20,26 +20,26 @@ export class DecoratorUtils {
      * For instance, here we make `TNSFontIconPipe` available for all our components
      */
     // default directives
-    let DIRECTIVES: any[] = [
-      ROUTER_DIRECTIVES,
-      NS_ROUTER_DIRECTIVES,
-      NS_DIRECTIVES
-    ];
-    // default pipes
-    let PIPES: any[] = [TNSFontIconPipe, TNSFontIconPurePipe];   
+    // let DIRECTIVES: any[] = [
+    //   ROUTER_DIRECTIVES,
+    //   NS_ROUTER_DIRECTIVES,
+    //   NS_DIRECTIVES
+    // ];
+    // // default pipes
+    // let PIPES: any[] = [TNSFontIconPipe, TNSFontIconPurePipe];   
     
-    // custom decorator options
-    if (customDecoratorMetadata) {
-      if (customDecoratorMetadata.directives) {
-        DIRECTIVES.push(...customDecoratorMetadata.directives); 
-      }
-      if (customDecoratorMetadata.pipes) {
-        PIPES.push(...customDecoratorMetadata.pipes); 
-      }
-    }
+    // // custom decorator options
+    // if (customDecoratorMetadata) {
+    //   if (customDecoratorMetadata.directives) {
+    //     DIRECTIVES.push(...customDecoratorMetadata.directives); 
+    //   }
+    //   if (customDecoratorMetadata.pipes) {
+    //     PIPES.push(...customDecoratorMetadata.pipes); 
+    //   }
+    // }
     
-    metadata.directives = metadata.directives ? metadata.directives.concat(DIRECTIVES) : DIRECTIVES;
-    metadata.pipes = metadata.pipes ? metadata.pipes.concat(PIPES) : PIPES;
+    // metadata.directives = metadata.directives ? metadata.directives.concat(DIRECTIVES) : DIRECTIVES;
+    // metadata.pipes = metadata.pipes ? metadata.pipes.concat(PIPES) : PIPES;
     
     if (metadata.changeDetection) {
       metadata.changeDetection = metadata.changeDetection;
