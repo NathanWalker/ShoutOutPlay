@@ -1,7 +1,7 @@
 import {OnDestroy, NgZone} from '@angular/core';
 
 // nativescript
-import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import {isIOS} from 'platform';
 import * as utils from 'utils/utils';
 import {File} from 'file-system';
@@ -31,7 +31,6 @@ declare var zonedCallback: Function;
   // moduleId: module.id,
   selector: 'shoutout-list',
   templateUrl: './components/shoutout/shoutout-list.component.html',
-  directives: [ModalDialogHost],
   providers: [ModalDialogService]
 })
 export class ShoutOutListComponent implements OnDestroy {

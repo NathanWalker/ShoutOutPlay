@@ -1,6 +1,10 @@
 // angular
 import { NgModule } from '@angular/core';
 
+// nativescript
+import { NS_HTTP_PROVIDERS } from 'nativescript-angular/http';
+import { NativeScriptRouterModule } from 'nativescript-angular/router';
+
 // app
 import { SHOUTOUTPLAY_PROVIDERS } from './index';
 
@@ -9,7 +13,16 @@ import { SHOUTOUTPLAY_PROVIDERS } from './index';
  */
 
 @NgModule({
-  providers: SHOUTOUTPLAY_PROVIDERS
+  imports: [
+    NativeScriptRouterModule
+  ],
+  exports: [
+    NativeScriptRouterModule
+  ],
+  providers: [
+    NS_HTTP_PROVIDERS,
+    SHOUTOUTPLAY_PROVIDERS
+  ]
 })
 export class ShoutOutPlayModule {
 

@@ -1,7 +1,7 @@
 import {Router} from '@angular/router';
 
 // nativescript
-import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 
 // app
 import {LogService, BaseComponent} from '../../shared/core/index';

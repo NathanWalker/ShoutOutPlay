@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import {screen, isIOS} from 'platform';
 import {Animation} from 'ui/animation';
 import {topmost} from 'ui/frame';
@@ -25,7 +25,6 @@ import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
   // moduleId: module.id,
   selector: 'search',
   templateUrl: './components/search/search.component.html',
-  directives: [ModalDialogHost, EmptyComponent],
   providers: [ModalDialogService]
 })
 export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {

@@ -2,15 +2,15 @@
 import { NativeScriptModule } from 'nativescript-angular/platform';
 import { NativeScriptFormsModule } from 'nativescript-angular/forms';
 import { NativeScriptRouterModule } from 'nativescript-angular/router';
-import {SIDEDRAWER_PROVIDERS} from "nativescript-telerik-ui-pro/sidedrawer/angular";
-import {LISTVIEW_PROVIDERS} from 'nativescript-telerik-ui-pro/listview/angular';
+import { SIDEDRAWER_PROVIDERS, SIDEDRAWER_DIRECTIVES } from "nativescript-telerik-ui-pro/sidedrawer/angular";
+import { LISTVIEW_PROVIDERS, LISTVIEW_DIRECTIVES } from 'nativescript-telerik-ui-pro/listview/angular';
 
 // angular
 import { NgModule } from '@angular/core';
-import {Routes} from '@angular/router';
+import { Routes } from '@angular/router';
 
 // libs
-import {TNSFontIconService, TNSFontIconPipe, TNSFontIconPurePipe} from 'nativescript-ng2-fonticon';
+import { TNSFontIconService, TNSFontIconPipe, TNSFontIconPurePipe } from 'nativescript-ng2-fonticon';
 
 // app
 import {HomeComponent} from './home/home.component';
@@ -57,6 +57,30 @@ export const routes: Routes = [
   { path: "welcome", component: WelcomeComponent }
 ];
 
+export const ENTRY_COMPONENTS: any[] = [
+  HomeComponent,
+  SearchComponent,
+  PlaylistComponent,
+  ShoutOutListComponent,
+  ThemeComponent,
+  GeneralComponent,
+  HelpComponent,
+  AboutComponent,
+  IntroComponent,
+  RecordComponent,
+  PlaylistDetailComponent,
+  WelcomeComponent
+];
+
+export const AUX_COMPONENTS: any[] = [
+  PlayerControlsComponent,
+  PlayerFullComponent,
+  PlaylistChooserComponent,
+  TrackChooserComponent,
+  VideoComponent,
+  ShoutOutDetailComponent
+]
+
 /**
  * Do not specify providers for modules that might be imported by a lazy loaded module.
  */
@@ -65,33 +89,21 @@ export const routes: Routes = [
   imports: [
     NativeScriptModule,
     NativeScriptFormsModule,
-    NativeScriptRouterModule.forRoot(routes)
+    NativeScriptRouterModule
   ],
   declarations: [
     TNSFontIconPipe,
     TNSFontIconPurePipe,
-    HomeComponent,
-    IntroComponent,
-    WelcomeComponent,
-    PlayerControlsComponent,
-    PlayerFullComponent,
-    PlaylistChooserComponent,
-    PlaylistDetailComponent,
-    PlaylistComponent,
-    RecordComponent,
-    TrackChooserComponent,
-    SearchComponent,
-    AboutComponent,
-    GeneralComponent,
-    HelpComponent,
-    ThemeComponent,
-    VideoComponent,
-    ShoutOutDetailComponent,
-    ShoutOutListComponent
+    SIDEDRAWER_DIRECTIVES,
+    LISTVIEW_DIRECTIVES,
+    AUX_COMPONENTS
   ],
   exports: [
     TNSFontIconPipe,
     TNSFontIconPurePipe,
+    SIDEDRAWER_DIRECTIVES,
+    LISTVIEW_DIRECTIVES,
+    AUX_COMPONENTS,
     NativeScriptModule,
     NativeScriptFormsModule,
     NativeScriptRouterModule

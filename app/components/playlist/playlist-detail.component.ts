@@ -3,7 +3,7 @@ import {NgZone} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 
 // nativescript
-import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import * as dialogs from 'ui/dialogs';
 import {topmost} from 'ui/frame';
 import * as utils from 'utils/utils';
@@ -13,7 +13,7 @@ import {Store} from '@ngrx/store';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} from '../../shared/core/index';
-import {PlaylistService, IPlaylistState, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, EmptyComponent, ShoutoutService} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 declare var zonedCallback: Function;
@@ -22,7 +22,6 @@ declare var zonedCallback: Function;
   // moduleId: module.id,
   selector: 'playlist-detail',
   templateUrl: './components/playlist/playlist-detail.component.html',
-  directives: [ModalDialogHost, EmptyComponent],
   providers: [ModalDialogService]
 })
 export class PlaylistDetailComponent {

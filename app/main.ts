@@ -2,9 +2,9 @@
 // this import should be first in order to load some required settings (like globals and reflect-metadata)
 import { NativeScriptModule, platformNativeScriptDynamic, onAfterLivesync, onBeforeLivesync } from 'nativescript-angular/platform';
 import { NativeScriptFormsModule } from 'nativescript-angular/forms';
-import { NativeScriptRouterModule } from 'nativescript-angular/router';
-
-// nativescript
+import { NS_HTTP_PROVIDERS } from 'nativescript-angular/http';
+import { NativeScriptRouterModule, NS_ROUTER_PROVIDERS } from 'nativescript-angular/router';
+import {ModalDialogHost} from "nativescript-angular/directives/dialogs";
 import {isIOS, device} from 'platform';
 import * as app from 'application';
 
@@ -23,6 +23,7 @@ import {Config} from './shared/core/index';
 Config.DEBUG.LEVEL_4 = true;
 
 // libs
+import {TNSFontIconService, TNSFontIconPipe, TNSFontIconPurePipe} from 'nativescript-ng2-fonticon';
 import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
 import 'rxjs/add/operator/do';
@@ -48,7 +49,7 @@ import {
   shoutoutReducer,
   ShoutoutEffects
 } from './shared/shoutoutplay/index';
-import {ComponentsModule} from './components/components.module';
+import {ComponentsModule, routes, ENTRY_COMPONENTS} from './components/components.module';
 import {AppComponent} from './app.component';
 
 // Spotify setup
@@ -88,14 +89,16 @@ enableProdMode();
       search: searchReducer,
       shoutout: shoutoutReducer
     }),
+    ShoutOutPlayModule,
     EffectsModule.run(FirebaseEffects),
     EffectsModule.run(PlaylistEffects),
-    EffectsModule.run(ShoutoutEffects),
-    ShoutOutPlayModule,
-    ComponentsModule
+    EffectsModule.run(ShoutoutEffects), 
+    ComponentsModule,
+    NativeScriptRouterModule.forRoot(routes)
   ],
   declarations: [
-    AppComponent
+    AppComponent,
+    ENTRY_COMPONENTS
   ],
   bootstrap: [AppComponent]
 })

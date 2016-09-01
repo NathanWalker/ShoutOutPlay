@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import * as app from 'application';
 import * as dialogs from 'ui/dialogs';
 import * as fs from 'file-system';
@@ -47,7 +47,6 @@ declare var interop: any, zonedCallback: Function, kCGBlendModeSourceAtop: any, 
   selector: 'record',
   templateUrl: './components/record/record.component.html',
   // styleUrls: ['./components/record/record.component.css'],
-  directives: [ModalDialogHost],
   providers: [ModalDialogService]
 })
 export class RecordComponent implements AfterViewInit, OnDestroy {
