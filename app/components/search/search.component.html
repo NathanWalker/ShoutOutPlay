@@ -4,7 +4,8 @@
   <StackLayout class="logged-out" [visibility]="(authService.state$ | async)?.loggedIn ? 'collapsed': 'visible'">   <!--*ngIf="(authService.state$ | async)?.loggedIn==false"-->
     <Label text="Prepare to give some ShoutOuts!" class="instruction heading-1"></Label>
     <Image src="~/assets/login-btn.png" (tap)="authService.login()" class="login-btn"></Image> 
-    <Label text="Music streaming requires a Spotify Premium subscription." class="instruction padding" textWrap="true"></Label>
+    <Label text="Music streaming requires a Spotify Premium subscription." class="instruction padding" textWrap="true" padding="20"></Label>
+    <Image src="~/assets/request-btn.png" (tap)="requestIntegration()" class="login-btn"></Image> 
   </StackLayout>
   
   <!-- auth -->

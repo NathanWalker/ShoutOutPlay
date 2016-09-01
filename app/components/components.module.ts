@@ -4,6 +4,7 @@ import { NativeScriptFormsModule } from 'nativescript-angular/forms';
 import { NativeScriptRouterModule } from 'nativescript-angular/router';
 import { SIDEDRAWER_PROVIDERS, SIDEDRAWER_DIRECTIVES } from "nativescript-telerik-ui-pro/sidedrawer/angular";
 import { LISTVIEW_PROVIDERS, LISTVIEW_DIRECTIVES } from 'nativescript-telerik-ui-pro/listview/angular';
+import {ModalDialogHost} from "nativescript-angular/directives/dialogs";
 
 // angular
 import { NgModule } from '@angular/core';
@@ -96,6 +97,7 @@ export const AUX_COMPONENTS: any[] = [
     TNSFontIconPurePipe,
     SIDEDRAWER_DIRECTIVES,
     LISTVIEW_DIRECTIVES,
+    ModalDialogHost,
     AUX_COMPONENTS
   ],
   exports: [
@@ -103,6 +105,7 @@ export const AUX_COMPONENTS: any[] = [
     TNSFontIconPurePipe,
     SIDEDRAWER_DIRECTIVES,
     LISTVIEW_DIRECTIVES,
+    ModalDialogHost,
     AUX_COMPONENTS,
     NativeScriptModule,
     NativeScriptFormsModule,

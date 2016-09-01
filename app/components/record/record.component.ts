@@ -584,60 +584,65 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this.logger.debug(screen.mainScreen.widthPixels + 'x' + screen.mainScreen.heightPixels);   
 
 
-    let screenWidth = isIOS ? screen.mainScreen.widthDIPs : screen.mainScreen.widthPixels;
-    let screenHeight = isIOS ? screen.mainScreen.heightDIPs : screen.mainScreen.heightPixels;
-
-
-    // set initial position, using animation which works
-    let animateDefs = [];
-    animateDefs.push({
-      target: this._bigRecordBtn,
-      translate: { x: ((screenWidth/2)-120), y: ((screenHeight/2)-170) },
-      opacity: 0,
-      duration: 1
-    });
-    animateDefs.push({
-      target: this._readyRecordLabel,
-      translate: { x: screenWidth, y: screenHeight - 200 },
-      opacity: 0,
-      duration: 1
-    });
-    let animateSet = new Animation(animateDefs);
-    animateSet.play();
+    // let screenWidth = isIOS ? screen.mainScreen.widthDIPs : screen.mainScreen.widthPixels;
+    // let screenHeight = isIOS ? screen.mainScreen.heightDIPs : screen.mainScreen.heightPixels;
     setTimeout(() => {
-      animateDefs = [];
+      let screenWidth = screen.mainScreen.widthDIPs;
+      let screenHeight = screen.mainScreen.heightDIPs;
+
+
+      // set initial position, using animation which works
+      let animateDefs = [];
       animateDefs.push({
         target: this._bigRecordBtn,
-        translate: { x: ((screenWidth/2)-84), y: ((screenHeight/2)-150) },
-        scale: { x: 1.2, y: 1.2 },
-        opacity: 1,
-        duration: 1000,
-        curve: AnimationCurve.spring
+        translate: { x: ((screenWidth/2)-120), y: ((screenHeight/2)-170) },
+        opacity: 0,
+        duration: 1
       });
       animateDefs.push({
         target: this._readyRecordLabel,
-        translate: { x: (-screenWidth - 220), y: screenHeight - 200 },
-        opacity: 1,
-        duration: 3000,
-        iterations: Number.POSITIVE_INFINITY
+        translate: { x: screenWidth, y: screenHeight - 200 },
+        opacity: 0,
+        duration: 1
       });
-      this._startAnimateSet = new Animation(animateDefs);
-      this._startAnimateSet.play().then(() => {
-        // nothing
-      }, () => {
-        // stopped
-      }).catch((e) => {
-        this.logger.debug(`_startAnimateSet error: ${e.message}`);
-      });
+      let animateSet = new Animation(animateDefs);
+      animateSet.play();
       setTimeout(() => {
-        if (isIOS) {
-          this.nativeiOSGlow();
-        } else {
-          // TODO
-          this.nativeAndroidGlow();
-        }
-      }, 1000);
-    }, 600);
+        animateDefs = [];
+        animateDefs.push({
+          target: this._bigRecordBtn,
+          translate: { x: ((screenWidth/2)-84), y: ((screenHeight/2)-150) },
+          scale: { x: 1.2, y: 1.2 },
+          opacity: 1,
+          duration: 1000,
+          curve: AnimationCurve.spring
+        });
+        animateDefs.push({
+          target: this._readyRecordLabel,
+          translate: { x: (-screenWidth - 220), y: screenHeight - 200 },
+          opacity: 1,
+          duration: 3000,
+          iterations: Number.POSITIVE_INFINITY
+        });
+        this._startAnimateSet = new Animation(animateDefs);
+        this._startAnimateSet.play().then(() => {
+          // nothing
+        }, () => {
+          // stopped
+        }).catch((e) => {
+          this.logger.debug(`_startAnimateSet error: ${e.message}`);
+        });
+        setTimeout(() => {
+          if (isIOS) {
+            this.nativeiOSGlow();
+          } else {
+            // TODO
+            this.nativeAndroidGlow();
+          }
+        }, 1000);
+      }, 600);
+
+    }, 400);
   }
 
   ngOnDestroy() {

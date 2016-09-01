@@ -4,7 +4,6 @@ import { NativeScriptModule, platformNativeScriptDynamic, onAfterLivesync, onBef
 import { NativeScriptFormsModule } from 'nativescript-angular/forms';
 import { NS_HTTP_PROVIDERS } from 'nativescript-angular/http';
 import { NativeScriptRouterModule, NS_ROUTER_PROVIDERS } from 'nativescript-angular/router';
-import {ModalDialogHost} from "nativescript-angular/directives/dialogs";
 import {isIOS, device} from 'platform';
 import * as app from 'application';
 
@@ -102,7 +101,6 @@ enableProdMode();
   ],
   bootstrap: [AppComponent]
 })
-
 export class NativeModule { }
 
 platformNativeScriptDynamic().bootstrapModule(NativeModule);

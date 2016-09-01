@@ -20,6 +20,7 @@ import 'rxjs/add/operator/take';
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
 import {SearchService, AuthService, IAuthState, PlaylistService, PLAYLIST_ACTIONS, TrackModel, EmptyComponent, CoachmarksService} from '../../shared/shoutoutplay/index';
 import {PlaylistChooserComponent} from '../playlist/playlist-chooser.component';
+import {IntegrationsComponent} from './integrations.component';
 
 @BaseComponent({
   // moduleId: module.id,
@@ -74,7 +75,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
       setTimeout(() => {
         // this.searchBarEl.nativeElement.android.clearFocus();
         this.searchBarEl.nativeElement.dismissSoftInput();
-      }, 100);
+      }, 400);
     }
   }
 
@@ -109,6 +110,20 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
         this.router.navigate(['/record']);
       }   
     })
+  }
+
+  public requestIntegration() {
+    let options: ModalDialogOptions = {
+      context: { promptMsg: "This is the prompt message!" },
+      fullscreen: false
+    };
+    this.modal.showModal(IntegrationsComponent, options).then((choices: any) => {
+      this.logger.debug(choices);
+      for (let key in choices) {
+        this.logger.debug(`key: ${key}, ${choices[key]}`);
+      }
+      this.authService.sendRequests(choices);
+    });
   }
 
   ngAfterViewInit() {

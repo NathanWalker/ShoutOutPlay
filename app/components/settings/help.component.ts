@@ -1,7 +1,7 @@
 import {Router} from '@angular/router';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogHost, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 
 // app
 import {LogService, BaseComponent} from '../../shared/core/index';
@@ -11,7 +11,8 @@ import {VideoComponent} from './video.component';
 @BaseComponent({
   // moduleId: module.id,
   selector: 'settings-help',
-  templateUrl: './components/settings/help.component.html'
+  templateUrl: './components/settings/help.component.html',
+  directives: [ModalDialogHost]
 })
 export class HelpComponent {
 
