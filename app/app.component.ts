@@ -8,7 +8,6 @@ import {screen, isIOS} from 'platform';
 
 /* register elements */
 import {registerElement} from "nativescript-angular/element-registry"
-registerElement("CardView", () => require("nativescript-cardview").CardView);
 registerElement("Slide", () => require("nativescript-slides").Slide);
 registerElement("SlideContainer", () => require("nativescript-slides").SlideContainer);
 registerElement("Gif", () => require("nativescript-gif").Gif);

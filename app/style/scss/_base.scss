@@ -26,7 +26,7 @@ SearchBar {
   border-width:0;
 }
 
-.logo-text {
+.t-white {
   color:#fff;
 }
 
@@ -484,6 +484,20 @@ ListView {
   color:$bright;
 }
 
+.switch{
+  &[checked=true]{
+    background-color: $highlight;
+  }
+  &[checked=true][isEnabled=false]{
+    background-color: $secondary;
+    color: $secondary;
+  }
+  &[isEnabled=false]{
+    background-color: $secondary;
+    color: $secondary;
+  }
+}
+
 .modal-title {
   font-weight: bold;
   text-align:center;
@@ -733,7 +747,7 @@ $lightpurple: #7C3FE8;
 
 .save-area {
   width:100%;
-  horizontal-align:center;
+  // horizontal-align:center;
   opacity:0;
 
   .save-btn {

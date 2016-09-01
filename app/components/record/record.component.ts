@@ -1,5 +1,5 @@
 // angular
-import {Component, OnDestroy, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
+import {Component, OnDestroy, ViewChild, ElementRef, AfterViewInit, NgZone} from '@angular/core';
 import {Router} from '@angular/router';
 import {Location} from '@angular/common';
 
@@ -58,6 +58,9 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   @ViewChild('bigSaveBg') bigSaveBg: ElementRef;
   
   public audioPlotColor: string;
+  public androidEQSide$: BehaviorSubject<any>;
+  public androidEQSide2$: BehaviorSubject<any>;
+  public androidEQ$: BehaviorSubject<any>;
   public recordTime: string;
   public showPlayBtn: boolean = false;
   public showSaveArea: boolean = false;
@@ -74,6 +77,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _recorder: any;
   private _player: any;
   private _audioplot: any;
+  private _androidMeterInterval: any;
   private _bigRecordBtn: any;
   private _readyRecordLabel: any;
   private _playbackArea: any;
@@ -88,17 +92,23 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _glowiOSView;  
   private _sub: Subscription;
 
-  constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private progress: ProgressService, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService) {
+  constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private progress: ProgressService, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService, private ngZone: NgZone) {
 
     // set audio plot color based on active theme
     this.audioPlotColor = ColorService.Active.BRIGHT;
+    // android eq
+    if (!isIOS) {
+      this.androidEQSide$ = new BehaviorSubject(0);
+      this.androidEQSide2$ = new BehaviorSubject(0);
+      this.androidEQ$ = new BehaviorSubject(0);
+    }
 
     // always stop all tracks playing from search results
     searchService.stopAll();
     // always reset player to clear internal state (like shoutouts in queue, etc.)
     store.dispatch({ type: PLAYER_ACTIONS.STOP, payload: { reset: true } });
     logger.debug(`RecordComponent constructor()`);
-    this.isSmallerScreen = screen.mainScreen.heightDIPs <= 568;
+    this.isSmallerScreen = screen.mainScreen.heightDIPs <= 568 || (!isIOS && screen.mainScreen.heightDIPs <= 592);
 
     if (this.shoutoutService.quickRecordTrack) {
       this.saveTxt = 'Save';
@@ -107,7 +117,12 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     } else {
       this.saveTxt = 'Add to Track';
       this.saveBtnWidth = '55%';
-      this.saveBtnTxtWidth = '45%';
+      this.saveBtnTxtWidth = '45%';   
+    }
+
+    if (!isIOS) {
+      this.saveBtnWidth = '20%';
+      this.saveBtnTxtWidth = '80%';
     }
 
     this.initRecorder();  
@@ -145,7 +160,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
         }, (ex) => {
           this.logger.debug(ex);
           this.toggleRecordState(false);
-        });
+          });
         this._reloadPlayer = true;
       } else {
         if (TNSRecorder.CAN_RECORD()) {
@@ -160,15 +175,42 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
             }
           };
 
+          this.resetAndroidMeter();
+
           this._recorder.start(recorderOptions).then((result) => {
-            this.toggleRecordState(true);      
-          }, (err) => {          
+            this.toggleRecordState(true);  
+          }, (err) => {  
+            this.toggleRecordState(false);
             this.logger.debug(err);
           });
         } else {
           this.fancyalert.show(`This device cannot record audio.`);
         }
       }     
+    }
+  }
+
+  private startAndroidMeter(isRecord?: boolean) {
+    this._androidMeterInterval = setInterval(() => {
+      let meters = 0;
+      if (isRecord) {
+        meters = this._recorder.getMeters();
+      }
+      let totalValue = Math.floor(200 * (meters / 6000));
+      if (totalValue < 0) totalValue = 0;
+      this.logger.debug(totalValue);
+      this.ngZone.run(() => {
+        this.androidEQSide2$.next(totalValue > 40 ? totalValue - Math.floor(Math.random()*40) : 0);
+        this.androidEQSide$.next(totalValue > 30 ? totalValue - Math.floor(Math.random()*30) : 0);
+        this.androidEQ$.next(totalValue);
+      });
+    }, 100);
+  }
+
+  private resetAndroidMeter() {
+    if (this._androidMeterInterval) {
+      clearInterval(this._androidMeterInterval);
+      this._androidMeterInterval = undefined;
     }
   }
 
@@ -222,14 +264,25 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       } else {
         this.showPlayControls(false);
       }
+
+      if (!isIOS) {
+        this.startAndroidMeter(true);
+      }
     } else {
       this.recordBtn$.next('fa-circle');
       this.showPlayControls(true);
+      if (!isIOS) {
+        this.resetAndroidMeter();
+      }
     }
   }
 
   public rewind() {
-    this._player.seekToFrame(0);
+    if (isIOS) {
+      this._player.seekToFrame(0);
+    } else {
+      this._player.seekTo(0);
+    }
   }
 
   public saveToTrack() {
@@ -364,17 +417,23 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private showPlayControls(enable: boolean) {
     this.logger.debug(`showPlayControls: ${enable}`);
     
-    let fullHeight = isIOS ? screen.mainScreen.heightDIPs : screen.mainScreen.heightPixels;
+    let fullHeight = screen.mainScreen.heightDIPs;
+    this.logger.debug(`fullHeight: ${fullHeight}`);
     let playY = 320;
     let backX = 70;
     let addY = fullHeight - 140;
     let backY = fullHeight - 250;
 
-    if (fullHeight <= 568) {
+    if (fullHeight <= 568 || (!isIOS && fullHeight <= 592)) {
       this.isSmallerScreen = true;
-      // iphone 5
+      // iphone 5 or smaller android
       playY = playY - 100;
       backX = backX - 50;
+    } 
+
+    if (!isIOS) {
+      // big save background is smaller so position from the right
+      backX = screen.mainScreen.widthDIPs - 140;
     }
     
     let opacity = 1;
@@ -403,7 +462,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       });
       animateDefs.push({
         target: this._bigSaveBg,
-        translate: { x: 70, y: fullHeight },
+        translate: { x: backX, y: fullHeight },
         opacity: 0,
         duration: 1
       });
@@ -443,7 +502,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
   private hideGiantRecordUI() {
     this._showingGiantRecordUI = false;
-    let screenWidth = isIOS ? screen.mainScreen.widthDIPs : screen.mainScreen.widthPixels;
+    let screenWidth = screen.mainScreen.widthDIPs;
     let animateDefs = [];
     animateDefs.push({
       target: this._bigRecordBtn,
@@ -583,10 +642,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this.logger.debug(`screen.mainScreen.widthPixels + 'x' + screen.mainScreen.heightPixels`);
     this.logger.debug(screen.mainScreen.widthPixels + 'x' + screen.mainScreen.heightPixels);   
 
-
-    // let screenWidth = isIOS ? screen.mainScreen.widthDIPs : screen.mainScreen.widthPixels;
-    // let screenHeight = isIOS ? screen.mainScreen.heightDIPs : screen.mainScreen.heightPixels;
-    setTimeout(() => {
+    let doSetup = () => {
       let screenWidth = screen.mainScreen.widthDIPs;
       let screenHeight = screen.mainScreen.heightDIPs;
 
@@ -641,8 +697,16 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
           }
         }, 1000);
       }, 600);
+    };
 
-    }, 400);
+    if (isIOS) {
+      doSetup();
+    } else {
+      setTimeout(() => {
+        // android needs timeout to grab the width/height properly
+        doSetup();
+      }, 400);
+    }
   }
 
   ngOnDestroy() {

@@ -11,8 +11,8 @@ import {LogService, BaseComponent} from '../../shared/core/index';
 
 @BaseComponent({
   // moduleId: module.id,
-  selector: 'track-chooser',
-  templateUrl: './components/record/track-chooser.component.html'
+  selector: 'integrations',
+  templateUrl: './components/search/integrations.component.html'
 })
 export class IntegrationsComponent {
   public choices: any;

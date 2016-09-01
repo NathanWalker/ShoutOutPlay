@@ -36,20 +36,29 @@ export class IntroComponent implements OnInit, AfterViewInit {
     logger.debug(`Device model: ${device.model}`);
     logger.debug(`Dimensions: ${screen.mainScreen.widthPixels}x${screen.mainScreen.heightPixels}`);
     // iphone 6 plus: Dimensions: 1242x2208
+    // Google Nexus 5 - 5.1.0 - API 22 - 1080x1920
 
     this._deviceHeight = screen.mainScreen.heightPixels;
     
     let gifSuffix = '.gif';
     // TODO: make diff sized masks for other devices
     let mask = '';
+
+    let adjustGifTop = () => {
+      this.gif1Top = 90;
+      this.gif3Top = -50;
+    };
+
     if (this._deviceHeight > 2001) {
       mask = 'iphone6plus';
       gifSuffix = `-plus${gifSuffix}`;
-    } else if (this._deviceHeight < 2001 && this._deviceHeight > 1136) {
+    } else if ((this._deviceHeight < 2001 && this._deviceHeight > 1136) || (!isIOS && this._deviceHeight <= 1920)) {
       mask = 'iphone6';
+      if (!isIOS) {
+        adjustGifTop();
+      }
     } else if (this._deviceHeight <= 1136) {
-      this.gif1Top = 90;
-      this.gif3Top = -50;
+      adjustGifTop();
       this.textTop = 330;
       this.textSize = 26;
       this.textPadding = 32;

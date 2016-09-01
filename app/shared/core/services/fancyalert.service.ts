@@ -100,6 +100,10 @@ export class FancyAlertService {
           inputType: dialogs.inputType.text
         };
         this._ngZone.run(() => {
+          this.logger.debug('calling dialogs.prompt with options:');
+          this.logger.debug(options);
+          this.logger.debug('dialogs.prompt:');
+          this.logger.debug(dialogs.prompt);
           dialogs.prompt(options).then((result: any) => {
             this.logger.debug(`User entered ${result.text}`);
             this._ngZone.run(() => {

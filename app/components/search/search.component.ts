@@ -73,7 +73,14 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   private dismissKeyboard() {
     if (!isIOS) {
       setTimeout(() => {
-        // this.searchBarEl.nativeElement.android.clearFocus();
+        if (this.searchBarEl.nativeElement) {
+          if (this.searchBarEl.nativeElement.android) {
+            this.searchBarEl.nativeElement.android.clearFocus();
+          } else if (this.searchBarEl.nativeElement.clearFocus) {
+            this.searchBarEl.nativeElement.clearFocus();
+          }
+        }
+        
         this.searchBarEl.nativeElement.dismissSoftInput();
       }, 400);
     }
@@ -130,6 +137,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
     this.logger.debug(`SearchComponent ngAfterViewInit`);
 
     // coach marks
+    this.logger.debug(this.searchBarEl);
     if (this.searchBarEl) {
       this.coachmarks.teachSearch(this.searchBarEl.nativeElement);
 
