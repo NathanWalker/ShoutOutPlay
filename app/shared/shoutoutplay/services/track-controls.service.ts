@@ -14,6 +14,7 @@ import 'rxjs/add/operator/take';
 import {LogService} from '../../core/index';
 import {PlayerService, IPlayerState} from './player.service';
 import {PlaylistService} from './playlist.service';
+import {SearchService} from './search.service';
 
 @Injectable()
 export class TrackControlService {
@@ -22,7 +23,7 @@ export class TrackControlService {
   private _currentTrackId: string;
   private _sub: Subscription;
 
-  constructor(private logger: LogService, public player: PlayerService, public playlistService: PlaylistService) {
+  constructor(private logger: LogService, public player: PlayerService, public playlistService: PlaylistService, public searchService: SearchService) {
     player.state$.subscribe((state: IPlayerState) => {
       this._currentTrackId = state.currentTrackId || state.previewTrackId;
       this.isPreview$.next(state.previewTrackId ? true : false);
@@ -31,7 +32,11 @@ export class TrackControlService {
   }
 
   public togglePlay() {
-    this.playlistService.togglePlay(null, { id: this._currentTrackId });
+    if (PlayerService.isPreview) {
+      this.searchService.togglePreview({ id: this._currentTrackId, playing: PlayerService.isPlaying });
+    } else {
+      this.playlistService.togglePlay(null, { id: this._currentTrackId });
+    }
     // this.player.togglePlay(this._currentTrackId, PlayerService.isPreview, !PlayerService.isPlaying);
   }
 

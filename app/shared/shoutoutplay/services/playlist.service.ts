@@ -10,11 +10,22 @@ declare var TNSFancyAlertButton;
 if (isIOS) {
   var fAlerts = require('nativescript-fancyalert');
   TNSFancyAlertButton = fAlerts.TNSFancyAlertButton;
+} else {
+  // android
+  TNSFancyAlertButton = (function () {
+    function TNSFancyAlertButton(model) {
+        if (model) {
+            this.label = model.label;
+            this.action = model.action;
+        }
+    }
+    return TNSFancyAlertButton;
+  }());
 }
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
-import {Effect, toPayload, StateUpdates} from '@ngrx/effects';
+import {Effect, Actions} from '@ngrx/effects';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
@@ -198,6 +209,7 @@ export class PlaylistService extends Analytics {
   }
 
   public addPrompt(track: TrackModel) {
+    this.logger.debug('show prompt!');
     this.selectedTrack = track;
     this.getRawPlaylists().then((playlists: Array<PlaylistModel>) => {
       let promptNew = () => {
@@ -211,6 +223,7 @@ export class PlaylistService extends Analytics {
         promptNew();
       } else {
 
+        this.logger.debug('fancyalert.action');        
         this.fancyalert.action('Add track to...', null, 'question', [
           new TNSFancyAlertButton({
             label: 'Existing Playlist',
@@ -377,35 +390,35 @@ export class PlaylistService extends Analytics {
 
 @Injectable()
 export class PlaylistEffects {
-  constructor(private store: Store<any>, private logger: LogService, private updates$: StateUpdates<any>, private playlistService: PlaylistService) { }
+  constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private playlistService: PlaylistService) { }
   
-  @Effect() deletedPlayist$ = this.updates$
-    .whenAction(FIREBASE_ACTIONS.PLAYLIST_DELETED)
-    .do((update) => {
+  @Effect() deletedPlayist$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.PLAYLIST_DELETED)
+    .do((action) => {
       this.logger.debug(`PlaylistEffects.PLAYLIST_DELETED`);
-      this.playlistService.clearTrackShoutouts(update.action.payload);
+      this.playlistService.clearTrackShoutouts(action.payload);
     })
     .filter(() => false);
   
-  @Effect() skipNext$ = this.updates$
-    .whenAction(PLAYLIST_ACTIONS.SKIP_NEXT)
-    .do((update) => {
+  @Effect() skipNext$ = this.actions$
+    .ofType(PLAYLIST_ACTIONS.SKIP_NEXT)
+    .do((action) => {
       this.logger.debug(`PlaylistEffects.SKIP_NEXT`);
       this.playlistService.skipNextPrev(1);
     })
     .filter(() => false);
   
-  @Effect() skipBack$ = this.updates$
-    .whenAction(PLAYLIST_ACTIONS.SKIP_BACK)
-    .do((update) => {
+  @Effect() skipBack$ = this.actions$
+    .ofType(PLAYLIST_ACTIONS.SKIP_BACK)
+    .do((action) => {
       this.logger.debug(`PlaylistEffects.SKIP_BACK`);
       this.playlistService.skipNextPrev(0);
     })
     .filter(() => false);
   
-  @Effect() loopNext$ = this.updates$
-    .whenAction(PLAYLIST_ACTIONS.LOOP_NEXT)
-    .do((update) => {
+  @Effect() loopNext$ = this.actions$
+    .ofType(PLAYLIST_ACTIONS.LOOP_NEXT)
+    .do((action) => {
       this.logger.debug(`PlaylistEffects.LOOP_NEXT`);
       this.playlistService.skipNextPrev(1);
     })

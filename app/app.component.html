@@ -1,34 +1,24 @@
 <ActionBar title="ShoutOutPlay">
-  <!--<android>
-    <NavigationButton class="fa" [text]="'fa-bars' | fonticonPure" (tap)="drawerService.toggle()"></NavigationButton>
-    <NavigationButton text="ios text" android.systemIcon="ic_menu_back" (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn"></NavigationButton>
-  </android>-->
-  <!--<StackLayout orientation="horizontal" horizontalAlignment="center" verticalAlignment="center" padding="5">
-    <android>
-      <Image src="res://logo" class="action-image"></Image>
-    </android>
-    <ios>
-      <Image src="res://logo-160.png" class="action-image"></Image>
-    </ios>
-  </StackLayout>-->
-  <GridLayout cols="auto,*,auto" rows="*" horizontalAlignment="center" verticalAlignment="center" padding="5">
-    <android>
-      <Button class="fa" [text]="'fa-bars' | fonticonPure" row="0" col="0" (tap)="drawerService.toggle()"></Button>
-      <Image src="res://logo" class="action-image" row="0" col="1"></Image>
-    </android>
-    <ios>
-      <Image src="res://logo-160.png" class="action-image" row="0" col="1"></Image>
-    </ios>
-  </GridLayout>
 
-  <ios>
-    <ActionItem (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn">
-      <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
-    </ActionItem>
-  </ios>
+  <!-- Android -->
+  <!--<GridLayout rows="auto" columns="auto,*,auto">
+    <Button class="fa" [text]="'fa-bars' | fonticonPure" row="0" col="0" (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn"></Button>
+    <Image src="res://logo" class="action-image" row="0" col="1" height="30"></Image>
+    <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure" nsRouterLink="/record" row="0" col="2" *ngIf="(authService.state$ | async)?.loggedIn"></Button>
+  </GridLayout>-->
+
+  <!-- iOS -->
+  <StackLayout orientation="horizontal" horizontalAlignment="center" verticalAlignment="center" padding="5">
+    <Image src="res://logo-160.png" class="action-image"></Image>
+  </StackLayout>
+
+  <ActionItem (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn">
+    <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
+  </ActionItem>
   <ActionItem nsRouterLink="/record" ios.position="right" android.position="popup" *ngIf="(authService.state$ | async)?.loggedIn">
     <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure"></Button>
   </ActionItem>
+  
 </ActionBar>
 
 <page-router-outlet class="page-bg"></page-router-outlet>

@@ -251,9 +251,13 @@ export class PlayerService extends Analytics {
       } else {
         if (PlayerService.isPreview) {
           // seek to beginning of track
-          this._spotify.player.seekToOffsetCallback(0, (error: any) => {
-            this.logger.debug('seeked to 0.');
-          });
+          if (isIOS) {
+            this._spotify.player.seekToOffsetCallback(0, (error: any) => {
+              this.logger.debug('seeked to 0.');
+            });
+          } else {
+            // TODO: android seek
+          }
         } else {
           this.store.dispatch({ type: PLAYLIST_ACTIONS.SKIP_BACK });
         }
@@ -565,7 +569,7 @@ export class PlayerService extends Analytics {
         // consider track ending if this fires and currentPlaybackPosition is within 1.2 seconds of total durationMs
         // spotify changed their api with beta.20 and no longer have official stopped track delegate method :(
         let diff = totalDurationSeconds - currentPlayback;
-        if (diff < 2.5) {
+        if (diff < 2.5 && diff > 0) {
           this.trackEnded(state.currentTrack.uri);
         }
       } else {

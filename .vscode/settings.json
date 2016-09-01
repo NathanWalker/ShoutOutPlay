@@ -6,12 +6,20 @@
     "**/.svn": true,
     "**/.DS_Store": true,
     "**/*.js": true,
+    "hooks": true,
+    "lib": true,
+    "platforms": true,
+    "typings": true,
     "webpack.config.js": false,
     "**/*.css": true
   },
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true,
-    "**/*.js": true
+    "**/*.js": true,
+    "hooks": true,
+    "lib": true,
+    "platforms": true,
+    "typings": true
   }
 }

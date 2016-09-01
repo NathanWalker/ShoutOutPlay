@@ -19,7 +19,6 @@ export const CORE_PROVIDERS: any[] = [
 
 // decorators
 export * from './decorators/base.component';
-export * from './decorators/reuse.component';
 
 // interfaces
 export * from './interfaces/iconsole';

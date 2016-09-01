@@ -17,15 +17,14 @@ import {isString, includes} from 'lodash';
 
 // app
 import {AnimateService, LogService, BaseComponent, ProgressService, FancyAlertService, DrawerService} from '../../shared/core/index';
-import {PlaylistService, IPlaylistState, PlaylistModel, PLAYLIST_ACTIONS, IPlayerState, FirebaseService, FIREBASE_ACTIONS, IFirebaseState, IAuthState, ShoutoutService, SearchService, EmptyComponent} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, PLAYLIST_ACTIONS, IPlayerState, FirebaseService, FIREBASE_ACTIONS, IFirebaseState, IAuthState, ShoutoutService, SearchService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 
 @BaseComponent({
   // moduleId: module.id,
   selector: 'playlist',
-  templateUrl: './components/playlist/playlist.component.html',
-  directives: [EmptyComponent]
+  templateUrl: './components/playlist/playlist.component.html'
 })
 export class PlaylistComponent {
   private _currentIndex: number;

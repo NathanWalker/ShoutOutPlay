@@ -1,9 +1,6 @@
-import {Input} from '@angular/core';
+import {Component, Input} from '@angular/core';
 
-// app
-import {ReuseComponent} from '../../core/';
-
-@ReuseComponent({
+@Component({
   moduleId: module.id,
   selector: 'EmptyView',
   template: `

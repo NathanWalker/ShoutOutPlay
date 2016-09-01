@@ -77,7 +77,7 @@ export class SearchService extends Analytics {
     });
   }
 
-  public togglePreview(track: TrackModel) {
+  public togglePreview(track: any) {
     this.logger.debug(`togglePreview -- track is currently playing: ${track.playing}`);
     this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { previewTrackId: track.id, playing: !track.playing } });
     this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
@@ -123,6 +123,8 @@ export class SearchService extends Analytics {
     
     TNSSpotifySearch.QUERY(query, queryType, offset).then((result) => {
       if (result) {
+        this.resetTimeout();
+        
         if (result.tracks) {
           this._hasMore = result.hasNextPage;
           // for (let key in result) {
@@ -155,10 +157,6 @@ export class SearchService extends Analytics {
     if (this._hasMore) {
       this._currentOffset = this._currentOffset + 20;
       this.search(this._currentQuery, null, this._currentOffset);
-      setTimeout(() => {
-        // fallback to prevent infinte spin in case search above never returns
-        this.loader.hide();
-      }, 2000);
     }
   }
 

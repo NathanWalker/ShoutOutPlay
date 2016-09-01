@@ -1,5 +1,5 @@
 <ActionBar title="Record"> 
-  <NavigationButton text="Back" android.systemIcon="ic_menu_back" class="action-btn"></NavigationButton>
+  <NavigationButton text="Back" android.systemIcon="ic_menu_back" (tap)="androidBack()" class="action-btn"></NavigationButton>
   <ActionItem (tap)="toggleRecord()" ios.position="right" android.position="popup"><!--*ngIf="showRecord"-->
     <Button class="fa record-btn" [text]="(recordBtn$ | async) | fonticonPure"></Button>
   </ActionItem>

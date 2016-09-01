@@ -1,10 +1,10 @@
 // require('nativescript-master-technology');
 // this import should be first in order to load some required settings (like globals and reflect-metadata)
-import {nativeScriptBootstrap} from 'nativescript-angular/application';
-
-// nativescript
-import {SIDEDRAWER_PROVIDERS} from "nativescript-telerik-ui-pro/sidedrawer/angular";
-import {LISTVIEW_PROVIDERS} from 'nativescript-telerik-ui-pro/listview/angular';
+import { NativeScriptModule, platformNativeScriptDynamic, onAfterLivesync, onBeforeLivesync } from 'nativescript-angular/platform';
+import { NativeScriptFormsModule } from 'nativescript-angular/forms';
+import { NS_HTTP_PROVIDERS } from 'nativescript-angular/http';
+import { NativeScriptRouterModule, NS_ROUTER_PROVIDERS } from 'nativescript-angular/router';
+import {ModalDialogHost} from "nativescript-angular/directives/dialogs";
 import {isIOS, device} from 'platform';
 import * as app from 'application';
 
@@ -13,28 +13,19 @@ if (global.NSObject && global.NSString) {
   var font = require("ui/styling/font");
   font.ios.registerFont('RobotoRegular.ttf');
   font.ios.registerFont('fontawesome-webfont.ttf');
-} else if (global.android) {
-  // var permissions = require('nativescript-permissions');
-  // permissions.requestPermission(global.android.Manifest.permission.READ_CONTACTS, "I need these permissions because I'm cool")
-  //   .then(function() {
-  //     console.log("Woo Hoo, I have the power!");
-  //   })
-  //   .catch(function() {
-  //     console.log("Uh oh, no permissions - plan B time!");
-  //   });
-}
+} 
 
 // angular
-import {provide, enableProdMode} from '@angular/core';
+import {NgModule, enableProdMode} from '@angular/core';
 
 // config
 import {Config} from './shared/core/index';
 Config.DEBUG.LEVEL_4 = true;
 
 // libs
-import {provideStore} from '@ngrx/store';
-import {runEffects} from '@ngrx/effects';
-import {TNSFontIconService} from 'nativescript-ng2-fonticon';
+import {TNSFontIconService, TNSFontIconPipe, TNSFontIconPurePipe} from 'nativescript-ng2-fonticon';
+import {StoreModule} from '@ngrx/store';
+import {EffectsModule} from '@ngrx/effects';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/take';
@@ -42,19 +33,12 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
 
-// Spotify setup
-import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
-TNSSpotifyConstants.CLIENT_ID = '1acac12e7fc448e188d8d70aa14249df';
-TNSSpotifyAuth.REDIRECT_URL = 'shoutoutplay://spotifylogin';
-if (isIOS) {
-  app.ios.delegate = SpotifyAppDelegate;
-}
-
 // app
-import {CORE_PROVIDERS, ConsoleService, SpotifyAppDelegate, ColorService} from './shared/core/index';
-import {ANALYTICS_PROVIDERS} from './shared/analytics/index';
+import {ConsoleService, SpotifyAppDelegate, ColorService} from './shared/core/index';
+import {CoreModule} from './shared/core/core.module';
+import {AnalyticsModule} from './shared/analytics/analytics.module';
+import {ShoutOutPlayModule} from './shared/shoutoutplay/shoutoutplay.module';
 import {
-  SHOUTOUTPLAY_PROVIDERS,
   authReducer,
   firebaseReducer,
   FirebaseEffects,
@@ -65,8 +49,16 @@ import {
   shoutoutReducer,
   ShoutoutEffects
 } from './shared/shoutoutplay/index';
+import {ComponentsModule, routes, ENTRY_COMPONENTS} from './components/components.module';
 import {AppComponent} from './app.component';
-import {APP_ROUTES_PROVIDER} from './app.routes';
+
+// Spotify setup
+import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
+TNSSpotifyConstants.CLIENT_ID = '1acac12e7fc448e188d8d70aa14249df';
+TNSSpotifyAuth.REDIRECT_URL = 'shoutoutplay://spotifylogin';
+if (isIOS) {
+  app.ios.delegate = SpotifyAppDelegate;
+}
 
 // Theme (reapply any user chosen theme)
 var themes = require('nativescript-themes');
@@ -83,31 +75,34 @@ ColorService.swapScheme(activeTheme.split('/').slice(-1)[0]);
 
 enableProdMode();
 
-nativeScriptBootstrap(AppComponent, [
-  APP_ROUTES_PROVIDER,
-  SIDEDRAWER_PROVIDERS,
-  LISTVIEW_PROVIDERS,
-  { provide: ConsoleService, useValue: console },
-  CORE_PROVIDERS,
-  ANALYTICS_PROVIDERS,
-  SHOUTOUTPLAY_PROVIDERS,
-  { provide: TNSFontIconService, useFactory: () => {
-      return new TNSFontIconService({
-        'fa': 'font-awesome.css'
-      });
-    }
-  },
-  provideStore({
-    auth: authReducer,
-    firebase: firebaseReducer,
-    player: playerReducer,
-    playlist: playlistReducer,
-    search: searchReducer,
-    shoutout: shoutoutReducer
-  }),
-  runEffects(
-    FirebaseEffects,
-    PlaylistEffects,
-    ShoutoutEffects
-  )
-], { startPageActionBarHidden: false }); // https://github.com/NativeScript/nativescript-angular/issues/121
+@NgModule({
+  imports: [
+    CoreModule.forRoot([
+      { provide: ConsoleService, useValue: console }
+    ]),
+    AnalyticsModule,
+    StoreModule.provideStore({
+      auth: authReducer,
+      firebase: firebaseReducer,
+      player: playerReducer,
+      playlist: playlistReducer,
+      search: searchReducer,
+      shoutout: shoutoutReducer
+    }),
+    ShoutOutPlayModule,
+    EffectsModule.run(FirebaseEffects),
+    EffectsModule.run(PlaylistEffects),
+    EffectsModule.run(ShoutoutEffects), 
+    ComponentsModule,
+    NativeScriptRouterModule.forRoot(routes)
+  ],
+  declarations: [
+    AppComponent,
+    ENTRY_COMPONENTS
+  ],
+  bootstrap: [AppComponent]
+})
+
+export class NativeModule { }
+
+platformNativeScriptDynamic().bootstrapModule(NativeModule);

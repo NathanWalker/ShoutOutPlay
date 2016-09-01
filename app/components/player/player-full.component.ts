@@ -23,6 +23,14 @@ export class PlayerFullComponent {
     this.params.closeCallback();
   }
 
+  public navToTrack() {
+    let currentTrack = this.trackControl.player.currentTrack$.getValue();
+    this.logger.debug(currentTrack);
+    for (let key in currentTrack) {
+      this.logger.debug(`key: ${key}, ${currentTrack[key]}`);
+    }
+  }
+
   public onSwipe(e: any) {
     this.logger.debug(`Swipe Direction: ${e.direction}`);
     if (e.direction==8) {
