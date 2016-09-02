@@ -37,6 +37,7 @@ export class IntroComponent implements OnInit, AfterViewInit {
     logger.debug(`Dimensions: ${screen.mainScreen.widthPixels}x${screen.mainScreen.heightPixels}`);
     // iphone 6 plus: Dimensions: 1242x2208
     // Google Nexus 5 - 5.1.0 - API 22 - 1080x1920
+    // Samsung Galaxy S6 - 6.0.0 - API 23 - 1440x2560
 
     this._deviceHeight = screen.mainScreen.heightPixels;
     
