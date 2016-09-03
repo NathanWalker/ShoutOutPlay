@@ -53,6 +53,10 @@ export class IntroComponent implements OnInit, AfterViewInit {
     if (this._deviceHeight > 2001) {
       mask = 'iphone6plus';
       gifSuffix = `-plus${gifSuffix}`;
+      if (this._deviceHeight >= 2560 && !isIOS) {
+        // large android
+        this.gif3Top = -50;
+      }
     } else if ((this._deviceHeight < 2001 && this._deviceHeight > 1136) || (!isIOS && this._deviceHeight <= 1920)) {
       mask = 'iphone6';
       if (!isIOS) {

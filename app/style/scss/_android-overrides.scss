@@ -1,3 +1,17 @@
+.android-action-bar {
+  margin:0;
+  padding:0;
+  vertical-align: center;
+
+  .android-btn {
+    text-align: left;
+  }
+  .microphone-btn {
+    text-align: right;
+    margin-right:10;
+  }
+}
+
 SearchBar {
   padding:0;
   background-color: $action-bar-match;
@@ -13,10 +27,23 @@ SearchBar {
   }
 }
 
+.full-page-icon-label {
+  font-size:140;
+  opacity:1;
+}
+
 .player-full {
   .full-close {
     width:50;
   }
+}
+
+.play-btn {
+  margin:0 2 0 2;
+}
+
+.add-btn {
+  margin-right: 2;
 }
 
 .number {
@@ -48,10 +75,18 @@ SearchBar {
 
 .big-record-btn {
   font-size:180;
+
+  &.android-big {
+    font-size:140;
+  }
 }
 
 .big-save-bg {
   font-size:180;
+
+  &.android-big {
+    font-size:140;
+  }
 }
 
 .save-area {
@@ -67,11 +102,16 @@ SearchBar {
 }
 
 .modal-action-bar {
-  padding: 5;
+  padding: 2 4 2 4;
 
   .modal-title {
     vertical-align: center;
     text-align:right;
     padding-right:20;
+
+    &.centered {
+      text-align: center;
+      padding-right:10;
+    }
   }
 }

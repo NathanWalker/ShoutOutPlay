@@ -16,9 +16,6 @@ import { SHOUTOUTPLAY_PROVIDERS } from './index';
   imports: [
     NativeScriptRouterModule
   ],
-  exports: [
-    NativeScriptRouterModule
-  ],
   providers: [
     NS_HTTP_PROVIDERS,
     SHOUTOUTPLAY_PROVIDERS

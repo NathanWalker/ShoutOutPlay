@@ -21,8 +21,9 @@ export class IntegrationsComponent {
     
   }
 
-  public close() {
-    this.params.closeCallback(this.choices);
+  public close(save?: boolean) {
+    // for now, closing will also save choice (good way to report device usage)
+    this.params.closeCallback(save ? this.choices : null);
   }
 
   ngOnInit() {

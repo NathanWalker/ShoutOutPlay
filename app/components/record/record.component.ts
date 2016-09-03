@@ -61,6 +61,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   public androidEQSide$: BehaviorSubject<any>;
   public androidEQSide2$: BehaviorSubject<any>;
   public androidEQ$: BehaviorSubject<any>;
+  public isAndroidBig: boolean = false;
   public recordTime: string;
   public showPlayBtn: boolean = false;
   public showSaveArea: boolean = false;
@@ -108,7 +109,8 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     // always reset player to clear internal state (like shoutouts in queue, etc.)
     store.dispatch({ type: PLAYER_ACTIONS.STOP, payload: { reset: true } });
     logger.debug(`RecordComponent constructor()`);
-    this.isSmallerScreen = screen.mainScreen.heightDIPs <= 568 || (!isIOS && screen.mainScreen.heightDIPs <= 592);
+    this.isAndroidBig = !isIOS && screen.mainScreen.heightDIPs >= 640;
+    this.isSmallerScreen = screen.mainScreen.heightDIPs <= 568 || (!isIOS && screen.mainScreen.heightDIPs <= 640);
 
     if (this.shoutoutService.quickRecordTrack) {
       this.saveTxt = 'Save';
@@ -434,6 +436,9 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     if (!isIOS) {
       // big save background is smaller so position from the right
       backX = screen.mainScreen.widthDIPs - 140;
+      if (this.isAndroidBig) {
+        backY = fullHeight - 200;
+      }
     }
     
     let opacity = 1;
@@ -638,9 +643,12 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
     this.logger.debug(`screen.mainScreen.widthDIPs + 'x' + screen.mainScreen.heightDIPs`);
     this.logger.debug(screen.mainScreen.widthDIPs + 'x' + screen.mainScreen.heightDIPs);
-    this.logger.debug(((screen.mainScreen.widthDIPs / 2) - 100) + 'x' + ((screen.mainScreen.heightDIPs / 2) - 100));
     this.logger.debug(`screen.mainScreen.widthPixels + 'x' + screen.mainScreen.heightPixels`);
     this.logger.debug(screen.mainScreen.widthPixels + 'x' + screen.mainScreen.heightPixels);   
+
+    // iphone 6 plus: Dimensions: 1242x2208
+    // Google Nexus 5 - 5.1.0 - API 22 - 1080x1920    
+    // Samsung Galaxy S6 - 6.0.0 - API 23 - 1440x2560
 
     let doSetup = () => {
       let screenWidth = screen.mainScreen.widthDIPs;

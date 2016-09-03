@@ -2,8 +2,7 @@
 // this import should be first in order to load some required settings (like globals and reflect-metadata)
 import { NativeScriptModule, platformNativeScriptDynamic, onAfterLivesync, onBeforeLivesync } from 'nativescript-angular/platform';
 import { NativeScriptFormsModule } from 'nativescript-angular/forms';
-import { NS_HTTP_PROVIDERS } from 'nativescript-angular/http';
-import { NativeScriptRouterModule, NS_ROUTER_PROVIDERS } from 'nativescript-angular/router';
+import { NativeScriptRouterModule } from 'nativescript-angular/router';
 import {isIOS, device} from 'platform';
 import * as app from 'application';
 

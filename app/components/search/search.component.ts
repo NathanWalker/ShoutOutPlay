@@ -125,11 +125,13 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
       fullscreen: false
     };
     this.modal.showModal(IntegrationsComponent, options).then((choices: any) => {
-      this.logger.debug(choices);
-      for (let key in choices) {
-        this.logger.debug(`key: ${key}, ${choices[key]}`);
+      if (choices) {
+        this.logger.debug(choices);
+        for (let key in choices) {
+          this.logger.debug(`key: ${key}, ${choices[key]}`);
+        }
+        this.authService.sendRequests(choices);
       }
-      this.authService.sendRequests(choices);
     });
   }
 

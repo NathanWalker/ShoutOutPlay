@@ -26,7 +26,7 @@
     </GridLayout>
   </android>
 
-  <Button #bigSaveBg [text]="'fa-circle' | fonticonPure" class="fa big-save-bg" (tap)="saveToTrack()"></Button>
+  <Button #bigSaveBg [text]="'fa-circle' | fonticonPure" class="fa big-save-bg" (tap)="saveToTrack()" [ngClass]="{'android-big':isAndroidBig}"></Button>
   <GridLayout #playbackArea rows="auto" columns="*,*" class="play-controls" [ngClass]="{'play-controls-smaller': isSmallerScreen}">
     <StackLayout class="play-btns" orientation="horizontal" row="0" col="0">
        <Button [text]="'fa-step-backward' | fonticonPure" class="fa rewind-btn" (tap)="rewind()" row="0" col="0"></Button> 
@@ -40,7 +40,7 @@
     <Button [text]="saveTxt" class="save-btn-txt" (tap)="saveToTrack()" [width]="saveBtnTxtWidth"></Button>   
   </StackLayout>
 
-  <Button #bigRecordBtn [text]="(recordBtn$ | async) | fonticonPure" (tap)="toggleRecord()" class="fa big-record-btn"></Button>
+  <Button #bigRecordBtn [text]="(recordBtn$ | async) | fonticonPure" (tap)="toggleRecord()" class="fa big-record-btn" [ngClass]="{'android-big':isAndroidBig}"></Button>
   <Label #readyRecordLabel text="READY TO RECORD" textWrap="true" class="ready-record-label"></Label>
   
   
