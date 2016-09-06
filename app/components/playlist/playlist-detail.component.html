@@ -1,5 +1,5 @@
 <ActionBar [title]="(firebaseService.state$ | async)?.playlists[playlistIndex].name">
-  <NavigationButton text="Playlists" android.systemIcon="ic_menu_back" class="action-btn"></NavigationButton>
+  <NavigationButton text="Playlists" android.systemIcon="ic_menu_back" class="action-btn" (tap)="androidBack()"></NavigationButton>
   <ActionItem (tap)="edit()" ios.position="right" android.position="popup">
     <Button class="fa action-btn" [text]="'fa-pencil' | fonticonPure"></Button>
   </ActionItem>
@@ -20,7 +20,12 @@
     <template tkListItemTemplate let-item="item" let-odd="odd" let-even="even">
       <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
         <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa track-plain" (tap)="playlistService.togglePlay(item.playlistId, item)" *ngIf="!item.shoutoutId"></Button>
-        <Image row="0" col="0" [src]="(item.playing ? 'res://logo-160-pause.png' : 'res://logo-160.png')" class="play-btn-img" (tap)="playlistService.togglePlay(item.playlistId, item)" stretch="aspectFit" *ngIf="item.shoutoutId" marginRight="10"></Image>
+        <!--<ios>-->
+          <!--<Image row="0" col="0" [src]="(item.playing ? 'res://logo-160-pause.png' : 'res://logo-160.png')" class="play-btn-img" (tap)="playlistService.togglePlay(item.playlistId, item)" stretch="aspectFit" *ngIf="item.shoutoutId" marginRight="10"></Image>-->
+        <!--</ios>-->
+        <!--<android>-->
+          <Image row="0" col="0" [src]="(item.playing ? 'res://logo-pause' : 'res://logo')" class="play-btn-img" (tap)="playlistService.togglePlay(item.playlistId, item)" *ngIf="item.shoutoutId" marginRight="10"></Image>
+        <!--</android>-->
         <StackLayout row="0" col="1" class="row-center">
           <Label [text]="item.name" textWrap="true" class="title"></Label> 
           <Label [text]="item.artist.name" textWrap="true" class="title-sub"></Label> 

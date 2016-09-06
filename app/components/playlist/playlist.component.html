@@ -31,13 +31,11 @@
           <Label [text]="item.tracks.length + ' Tracks'" textWrap="true" class="title-sub"></Label> 
         </StackLayout>
         <Button row="0" col="2" [text]="'fa-chevron-right' | fonticonPure" class="detail-btn fa"></Button>
-        <!--<StackLayout class="divider divider2" row="1" colSpan="3"></StackLayout>-->
       </GridLayout>
     </template>
     <GridLayout *tkListItemSwipeTemplate rows="auto" columns="100,*,100" class="list-item-swipe">
       <Button id="editBtn" text="Edit" class="btn edit-btn" row="0" col="0" (tap)="edit($event)"></Button>
       <Button id="deleteBtn" text="Delete" class="btn delete-btn" row="0" col="2" (tap)="remove($event)"></Button>
-      <!--<StackLayout class="divider" row="1" colSpan="3"></StackLayout>-->
     </GridLayout>
   </RadListView>
 </StackLayout>

@@ -356,8 +356,14 @@ export class PlayerService extends Analytics {
   }
 
   private cancelShoutOutQueue() {
-    if (this._shoutOutPlayer.isPlaying()) {
-      this._shoutOutPlayer.togglePlay(this._currentShoutOutPath);
+    if (isIOS) {
+      if (this._shoutOutPlayer.isPlaying()) {
+        this._shoutOutPlayer.togglePlay(this._currentShoutOutPath);
+      }
+    } else {
+      if (this._shoutOutPlayer.isAudioPlaying()) {
+        this._shoutOutPlayer.pause();
+      }
     }
     if (this._shoutoutTimeout) {  
       clearTimeout(this._shoutoutTimeout);
@@ -368,18 +374,8 @@ export class PlayerService extends Analytics {
   }
 
   private setSpotifyVolume(volume: number) {
-    if (this._spotify.player) {
-      if (isIOS) {
-        this._spotify.player.setVolumeCallback(volume, (error) => {
-          if (error !== null) {
-            console.log(`Spotify Player volume adjust error:`);
-            console.log(error);
-          }
-        });
-      } else {
-        // TODO: android volume 
-        // https://github.com/spotify/android-sdk/issues/208
-      }
+    if (this._spotify) {
+      this._spotify.setVolume(volume);
     }
   }
 

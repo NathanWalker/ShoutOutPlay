@@ -4,11 +4,12 @@ import {Router, NavigationEnd} from '@angular/router';
 // app
 import {BaseComponent, Config, LogService, ActionBarUtil, DrawerService} from '../../shared/core/index';
 import {AuthService, PlayerService, IPlayerState, FirebaseService, PlaylistService} from '../../shared/shoutoutplay/index';
+import {PlayerControlsComponent} from '../player/player-controls.component';
 import {PlayerFullComponent} from '../player/player-full.component';
 
 // nativescript
 import {NS_ROUTER_DIRECTIVES, nsProvideRouter} from 'nativescript-angular/router';
-import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions, ModalDialogHost} from "nativescript-angular/directives/dialogs";
 import {RadSideDrawerComponent} from 'nativescript-telerik-ui-pro/sidedrawer/angular';
 import {PushTransition, DrawerTransitionBase, SlideInOnTopTransition} from 'nativescript-telerik-ui-pro/sidedrawer';
 import {Page} from "ui/page";
@@ -26,6 +27,7 @@ declare var zonedCallback: Function;
   selector: 'home',
   templateUrl: './components/home/home.component.html',
   providers: [ModalDialogService],
+  directives: [ModalDialogHost, PlayerControlsComponent],
   changeDetection: ChangeDetectionStrategy.Default
 })
 export class HomeComponent implements AfterViewInit, OnInit {

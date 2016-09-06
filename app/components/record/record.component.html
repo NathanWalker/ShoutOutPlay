@@ -13,10 +13,10 @@
 </ActionBarExtension>-->
 
 <AbsoluteLayout modal-dialog-host class="record-view">
-  <ios>
-    <AudioPlot #audioplot class="audioPlot" [plotColor]="audioPlotColor" plotType="buffer"></AudioPlot>
-  </ios>
-  <android>
+  <!--<ios>-->
+    <!--<AudioPlot #audioplot class="audioPlot" [plotColor]="audioPlotColor" plotType="buffer"></AudioPlot>-->
+  <!--</ios>-->
+  <!--<android>-->
     <GridLayout rows="200" columns="*,50,50,50,50,50,*" class="android-eq">
         <StackLayout class="equalizer faded2" row="0" col="1" [attr.height]="androidEQSide2$ | async"></StackLayout>
         <StackLayout class="equalizer faded" row="0" col="2" [attr.height]="androidEQSide$ | async"></StackLayout>
@@ -24,7 +24,7 @@
         <StackLayout class="equalizer faded" row="0" col="4" [attr.height]="androidEQSide$ | async"></StackLayout>
         <StackLayout class="equalizer faded2" row="0" col="5" [attr.height]="androidEQSide2$ | async"></StackLayout>
     </GridLayout>
-  </android>
+  <!--</android>-->
 
   <Button #bigSaveBg [text]="'fa-circle' | fonticonPure" class="fa big-save-bg" (tap)="saveToTrack()" [ngClass]="{'android-big':isAndroidBig}"></Button>
   <GridLayout #playbackArea rows="auto" columns="*,*" class="play-controls" [ngClass]="{'play-controls-smaller': isSmallerScreen}">

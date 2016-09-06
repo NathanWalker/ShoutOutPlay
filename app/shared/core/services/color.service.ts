@@ -44,6 +44,34 @@ const GRAY_SCHEME: ICOLORS = {
   BRIGHT_ALT: '#FF9505'
 };
 
+const AQUA_SCHEME: ICOLORS = {
+  BASE: '#0e3839',
+  COMPLIMENTARY: '#134b4c',
+  PRIMARY: '#efefef',
+  ANDROID_STATUS_BAR: '#092526',
+  SECONDARY: '#165a5b',
+  HIGHLIGHT: '#999999',
+  BRIGHT: '#34AAAC',
+  RED: '#BC1224',
+  WHITE: '#fff',
+  YELLOW: '#FFD110',
+  BRIGHT_ALT: '#16aeb1'
+};
+
+const GREEN_SCHEME: ICOLORS = {
+  BASE: '#2c3708',
+  COMPLIMENTARY: '#35430b',
+  PRIMARY: '#efefef',
+  ANDROID_STATUS_BAR: '#1e2606',
+  SECONDARY: '#3b4a0c',
+  HIGHLIGHT: '#999999',
+  BRIGHT: '#a0c921',
+  RED: '#BC1224',
+  WHITE: '#fff',
+  YELLOW: '#FFD110',
+  BRIGHT_ALT: '#7da307'
+};
+
 export class ColorService {
 
   public static ActiveId: number = 0;  
@@ -61,6 +89,14 @@ export class ColorService {
         ColorService.ActiveId = 1;
         ColorService.Active = GRAY_SCHEME;
         break;
+      case 'aqua.css':
+        ColorService.ActiveId = 2;
+        ColorService.Active = AQUA_SCHEME;
+        break;
+      case 'green.css':
+        ColorService.ActiveId = 3;
+        ColorService.Active = GREEN_SCHEME;
+        break;
       // TODO: support more
     }
 
@@ -68,16 +104,20 @@ export class ColorService {
     if (!isIOS) {
       let adjustStatusBar = () => {
         if (app.android && device.sdkVersion >= '21') {
-          let LayoutParams = <any>android.view.WindowManager.LayoutParams;
-          let window: any;
-          if (app.android.foregroundActivity != null) {
-            window = app.android.foregroundActivity.getWindow();
-          } else {
-            window = app.android.startActivity.getWindow();
-          }
+          try {
+            let LayoutParams = <any>android.view.WindowManager.LayoutParams;
+            let window: any;
+            if (app.android.foregroundActivity != null) {
+              window = app.android.foregroundActivity.getWindow();
+            } else {
+              window = app.android.startActivity.getWindow();
+            }
 
-          window.addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-          window.setStatusBarColor(new Color(ColorService.Active.ANDROID_STATUS_BAR).android);
+            window.addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(new Color(ColorService.Active.ANDROID_STATUS_BAR).android);
+          } catch (err) {
+            console.log(err);
+          }
         }
       };
 //       console.log(knife);

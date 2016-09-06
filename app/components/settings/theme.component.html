@@ -4,9 +4,20 @@
         <Image src="~/components/settings/img/purple.png" col="0" row="0" (tap)="changeTheme('app.css')" class="theme-img"></Image>
         <Button text="Purple People Eater" class="settings-btn bigger theme-img-label" (tap)="changeTheme('app.css')" col="0" row="1"></Button>
     </GridLayout>
+    <StackLayout class="divider m-b-10"></StackLayout>
     <GridLayout rows="175,auto" columns="*" class="theme-area" [ngClass]="{active:activeTheme=='gray.css'}">
         <Image src="~/components/settings/img/gray.png" col="0" row="0" (tap)="changeTheme('gray.css')" class="theme-img"></Image>
         <Button text="Gray Fox" class="settings-btn bigger theme-img-label" (tap)="changeTheme('gray.css')" col="0" row="1"></Button>
+    </GridLayout>
+    <StackLayout class="divider m-b-10"></StackLayout>
+    <GridLayout rows="175,auto" columns="*" class="theme-area" [ngClass]="{active:activeTheme=='aqua.css'}">
+        <Image src="~/components/settings/img/aqua.png" col="0" row="0" (tap)="changeTheme('aqua.css')" class="theme-img"></Image>
+        <Button text="Aquanator" class="settings-btn bigger theme-img-label" (tap)="changeTheme('aqua.css')" col="0" row="1"></Button>
+    </GridLayout>
+    <StackLayout class="divider m-b-10"></StackLayout>
+    <GridLayout rows="175,auto" columns="*" class="theme-area" [ngClass]="{active:activeTheme=='green.css'}">
+        <Image src="~/components/settings/img/green.png" col="0" row="0" (tap)="changeTheme('green.css')" class="theme-img"></Image>
+        <Button text="G.I. Joe" class="settings-btn bigger theme-img-label" (tap)="changeTheme('green.css')" col="0" row="1"></Button>
     </GridLayout>
   </StackLayout>  
 </ScrollView>

@@ -1,9 +1,10 @@
 // angular
-import {NgZone} from '@angular/core';
+import {NgZone, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
+import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions, ModalDialogHost} from "nativescript-angular/directives/dialogs";
 import * as dialogs from 'ui/dialogs';
 import {topmost} from 'ui/frame';
 import * as utils from 'utils/utils';
@@ -22,27 +23,17 @@ declare var zonedCallback: Function;
   // moduleId: module.id,
   selector: 'playlist-detail',
   templateUrl: './components/playlist/playlist-detail.component.html',
+  directives: [ModalDialogHost],
   providers: [ModalDialogService]
 })
-export class PlaylistDetailComponent {
+export class PlaylistDetailComponent implements OnInit {
   public playlistIndex: number;
   private _playlist: PlaylistModel;
   private _swipedView: any;
   private _currentIndex: number;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService) {
-    ar.params.map(r => r['id']).take(1).subscribe((id: string) => {
-      console.log(`PlaylistDetailComponent id: ${id}`);
-      store.take(1).subscribe((s: any) => {
-        for (let i = 0; i < s.firebase.playlists.length; i++) {
-          if (s.firebase.playlists[i].id === id) {
-            this._playlist = Object.assign({id: id}, s.firebase.playlists[i]);
-            this.playlistIndex = i;
-            break;
-          }
-        }
-      });
-    });
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location) {
+    
   } 
 
   public viewShoutout(track: TrackModel) {
@@ -91,6 +82,12 @@ export class PlaylistDetailComponent {
     // }));
   }
 
+  public androidBack() {
+    setTimeout(() => {
+      this.location.back();
+    });
+  }
+
   // public swipeReveal(e: any) {
   //   this._swipedView = AnimateService.SWIPE_REVEAL(e);
   // }
@@ -113,5 +110,20 @@ export class PlaylistDetailComponent {
   public onItemReordered(args: any) {
     this.logger.debug("Item reordered. Old index: " + args.itemIndex + " " + "new index: " + args.data.targetIndex);
     this.store.dispatch({ type: FIREBASE_ACTIONS.REORDER, payload: { type: 'track', itemIndex: args.itemIndex, targetIndex: args.data.targetIndex, playlist: this._playlist } });
+  }
+
+  ngOnInit() {
+    this.ar.params.map(r => r['id']).take(1).subscribe((id: string) => {
+      console.log(`PlaylistDetailComponent id: ${id}`);
+      this.store.take(1).subscribe((s: any) => {
+        for (let i = 0; i < s.firebase.playlists.length; i++) {
+          if (s.firebase.playlists[i].id === id) {
+            this._playlist = Object.assign({id: id}, s.firebase.playlists[i]);
+            this.playlistIndex = i;
+            break;
+          }
+        }
+      });
+    });
   }
 }

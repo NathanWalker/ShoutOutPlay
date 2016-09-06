@@ -1,0 +1,66 @@
+ActionBar {
+  background-color: $base;
+}
+
+.side-drawer {
+  background-color: $dark;
+}
+
+.play-btn-img {
+  background-color:$bright-alt;
+}
+
+/* Player controls */
+.player-controls {
+
+  .title-sub {
+    color:$highlight;
+  }
+}
+.player-full {
+  background-color:$base;
+
+  .artist-name {
+    color: $highlight;
+  }
+}
+
+.settings-bottom {
+  background-color:$base;
+}
+
+.theme-page {
+  background-color:$complimentary;
+}
+.theme-area {
+  
+  &.active {
+    background-color:#000;
+  }
+}
+
+.slider {
+  background-color:$bright;
+  color:$primary;
+}
+.switch {
+  background-color:$bright;
+  color:$primary;
+}
+
+.odd.playing,
+.even.playing {
+  background-color: $dark;
+
+  .title-sub {
+    color: $highlight;
+  }  
+
+  .detail-btn {
+    color: $highlight;
+  }
+}
+
+.modal-action-bar {
+  background-color:$base;
+}

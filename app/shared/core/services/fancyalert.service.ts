@@ -36,7 +36,7 @@ declare var zonedCallback: Function, UIBezierPath, SCLAlertViewStyleKit, CGPoint
 export class FancyAlertService {
   private _plusImage: any;
   private _micImage: any;
-  private _androidTimeout: number = 400;
+  private _androidTimeout: number = 800;
 
   constructor(private logger: LogService, private progress: ProgressService, private _ngZone: NgZone) {
 
@@ -80,10 +80,12 @@ export class FancyAlertService {
         new TNSFancyAlertButton({
           label: 'Save',
           action: (value: any) => {
-            this.logger.debug(`User entered ${value}`);
-            this._ngZone.run(() => {
-              action(value);
-            });
+            if (value) {
+              this.logger.debug(`User entered ${value}`);
+              this._ngZone.run(() => {
+                action(value);
+              });
+            }
           }
         }),
         this.getAlertImage(image),
@@ -100,15 +102,17 @@ export class FancyAlertService {
           inputType: dialogs.inputType.text
         };
         this._ngZone.run(() => {
-          this.logger.debug('calling dialogs.prompt with options:');
-          this.logger.debug(options);
-          this.logger.debug('dialogs.prompt:');
-          this.logger.debug(dialogs.prompt);
+          // this.logger.debug('calling dialogs.prompt with options:');
+          // this.logger.debug(options);
+          // this.logger.debug('dialogs.prompt:');
+          // this.logger.debug(dialogs.prompt);
           dialogs.prompt(options).then((result: any) => {
-            this.logger.debug(`User entered ${result.text}`);
-            this._ngZone.run(() => {
-              action(result.text);
-            });
+            if (result && result.text) {
+              this.logger.debug(`User entered ${result.text}`);
+              this._ngZone.run(() => {
+                action(result.text);
+              });
+            }
           });
         });
       }, this._androidTimeout);
@@ -139,6 +143,7 @@ export class FancyAlertService {
       );
     } else {
 
+      this.closeProgress();      
       setTimeout(() => {
         this._ngZone.run(() => {
           dialogs.confirm(subTitle).then((result: boolean) => {
@@ -191,14 +196,16 @@ export class FancyAlertService {
             actions: buttons.map(b => b.label)
           }).then((result: any) => {
             this.logger.debug(`User chose ${result}`);
-            for (let b of buttons) {
-              if (b.label === result) {
-                this._ngZone.run(() => {
-                  b.action();
-                });
-                break;
+            setTimeout(() => {
+              for (let b of buttons) {
+                if (b.label === result) {
+                  this._ngZone.run(() => {
+                    b.action();
+                  });
+                  break;
+                }
               }
-            }
+            }, this._androidTimeout);
           });
         });
       }, this._androidTimeout);

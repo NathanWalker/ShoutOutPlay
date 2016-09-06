@@ -37,6 +37,15 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
+    
+    <activity 
+      android:name="co.fitcom.SplashScreen" android:noHistory="true">
+      <intent-filter>
+      <category android:name="android.intent.category.LAUNCHER" />
+      <action android:name="android.intent.action.MAIN" />
+      </intent-filter>
+      </activity>
+
 		<activity android:name="com.tns.ErrorReportActivity"/>
     <activity android:name="com.spotify.sdk.android.authentication.LoginActivity" 
                   android:theme="@android:style/Theme.Translucent.NoTitleBar" />

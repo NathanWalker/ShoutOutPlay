@@ -169,6 +169,8 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
           let recorderOptions = {
             filename: this.setupRecording(),
+            format: 2, // MediaRecorder.OutputFormat.MPEG_4
+            encoder: 3, // MediaRecorder.AudioEncoder.AAC
             infoCallback: () => {
               this.logger.debug('info');
             },
@@ -351,7 +353,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   }
 
   private setupRecording(): string {
-    this._recordingPath = Utils.documentsPath(`recording-${Date.now()}.${isIOS ? 'm4a' : 'mp3'}`);
+    this._recordingPath = Utils.documentsPath(`recording-${Date.now()}.m4a`);
     this.logger.debug(this._recordingPath);
     this._sessionRecordings.push({ path: this._recordingPath, saved: false });
     return this._recordingPath;
@@ -369,10 +371,18 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       if (!this.shoutoutService.savedName || Config.SHOUTOUT_ASK_NAME()) {
         // prompt user for their name
         // always ask the first time, subsequently base it on settings
-        this.fancyalert.prompt('Name', '', 'Add your name...', 'edit', (value: any) => {
+        if (isIOS) {
+          this.fancyalert.prompt('Name', '', 'Add your name...', 'edit', (value: any) => {
+            this.shoutoutService.savedName = value;
+            this.saveShoutout(value);
+          });
+        } else {
+          // Android has bug with this for some reason
+          // Error: java.lang.NullPointerException: Attempt to invoke virtual method 'android.content.res.Resources$Theme android.content.Context.getTheme()' on a null object reference
+          let value = 'Recording';
           this.shoutoutService.savedName = value;
           this.saveShoutout(value);
-        });
+        }
       } else {
         // use previous saved name during session
         this.saveShoutout(this.shoutoutService.savedName);
@@ -439,6 +449,10 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       if (this.isAndroidBig) {
         backY = fullHeight - 200;
       }
+    } else if (fullHeight >= 1366) {
+      // iPad Pro
+      playY = fullHeight - 500;
+      backX = 330;
     }
     
     let opacity = 1;
@@ -625,7 +639,9 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
   private _startAnimateSet: Animation;  
   ngAfterViewInit() {
-    this._audioplot = this.audioplotEl.nativeElement;
+    if (this.audioplotEl) {
+      this._audioplot = this.audioplotEl.nativeElement;
+    }
     this._bigRecordBtn = this.bigRecordBtn.nativeElement;
     this._readyRecordLabel = this.readyRecordLabel.nativeElement;
     this._playbackArea = this.playbackArea.nativeElement;
