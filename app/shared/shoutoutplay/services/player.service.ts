@@ -198,14 +198,10 @@ export class PlayerService extends Analytics {
     PlayerService.isPlaying = playing;
 
     if (!isPreview) {
-      if (playing) {
-        // when playing playlist tracks, queue shoutouts
-        this.queueShoutOut(trackId);
-      } else {
+      if (!playing) {
         // ensure queued shoutouts are turned off
         this.cancelShoutOutQueue();
       }
-      this._currentTrackId = trackId;
     }
 
     // ensure spotify volume is up to normal
@@ -216,6 +212,12 @@ export class PlayerService extends Analytics {
     this.logger.debug(`playing: ${playing}`);
     this._spotify.togglePlay(trackUri, playing).then((isPlaying: boolean) => {
       this.playerUIStateReset();
+      // could rely on isPlaying return value for consistency, using static values here
+      if (!PlayerService.isPreview && PlayerService.isPlaying) {
+        // when playing playlist tracks, queue shoutouts
+        this.queueShoutOut(trackId);
+      }
+      this._currentTrackId = trackId;
     }, (error) => {
       this.logger.debug(`togglePlay error:`);
       this.logger.debug(error);
@@ -375,7 +377,15 @@ export class PlayerService extends Analytics {
 
   private setSpotifyVolume(volume: number) {
     if (this._spotify) {
-      this._spotify.setVolume(volume);
+      this._spotify.setVolume(volume).then(() => {
+        // ignore
+      }, () => {
+        // ignore
+        // without this being defined, appears it throws this on Android:
+        // Error: Uncaught (in promise): undefined
+        //     at resolvePromise (/data/data/com.wwwalkerrun.ShoutOutPlay/files/app/tns_modules/zone.js/dist/zone-node.js:496:32)
+        //    at /data/data/com.wwwalkerrun.ShoutOutPlay/files/app/tns_modules/zone.js/dist/zone-node.js:473:14
+      });
     }
   }
 

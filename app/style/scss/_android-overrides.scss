@@ -40,15 +40,20 @@ SearchBar {
 
 .play-btn {
   margin:0 2 0 2;
+
+  &.track-plain {
+    margin: 0 2 0 5;
+    width:50;
+  }
 }
 
 .play-btn-img {
   margin:0 5 0 5;
   width:46;
   height:46;
-  // background-color:$primary;
-  // border-radius:23;
-  // padding:30;
+  background-color:transparent;
+  border-radius:0;
+  padding:0;
 }
 
 .add-btn {

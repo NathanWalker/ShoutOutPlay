@@ -1,7 +1,7 @@
 <StackLayout modal-dialog-host class="full-page">
 
   <!-- unauth -->
-  <StackLayout class="logged-out" [visibility]="(authService.state$ | async)?.loggedIn ? 'collapsed': 'visible'">   <!--*ngIf="(authService.state$ | async)?.loggedIn==false"-->
+  <StackLayout class="logged-out" [visibility]="(authService.state$ | async)?.loggedIn ? 'collapsed': 'visible'">   
     <Label text="Prepare to give some ShoutOuts!" class="instruction heading-1"></Label>
     <Image src="~/assets/login-btn.png" (tap)="authService.login()" class="login-btn"></Image> 
     <Label text="Music streaming requires a Spotify Premium subscription." class="instruction padding" textWrap="true" padding="20"></Label>
@@ -9,14 +9,14 @@
   </StackLayout>
   
   <!-- auth -->
-  <StackLayout class="full-page" [visibility]="(authService.state$ | async)?.loggedIn ? 'visible': 'collapsed'"><!--*ngIf="(authService.state$ | async)?.loggedIn==true"-->
-    <ios>
+  <StackLayout class="full-page" [visibility]="(authService.state$ | async)?.loggedIn ? 'visible': 'collapsed'">
+    <!--<ios>
       <SearchBar #searchbar hint="Search" textFieldHintColor="#777" (submit)="search($event)" (clear)="clear()"></SearchBar>
     </ios>
-    <android>
+    <android>-->
       <SearchBar #searchbar hint="Search" textFieldHintColor="#fff" (submit)="search($event)" (clear)="clear()"></SearchBar>
-    </android>
-    <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333" (itemLoading)="itemLoading($event)" (loadMoreItems)="loadMore($event)" *ngIf="(searchService.state$ | async)?.results.length">
+    <!--</android>-->
+    <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333" (itemLoading)="itemLoading($event)" (loadMoreItems)="loadMore($event)" [visibility]="(searchService.state$ | async)?.results.length ? 'visible' : 'collapsed'"><!--*ngIf="(searchService.state$ | async)?.results.length"-->
       <template let-item="item" let-odd="odd" let-even="even">
         <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item result-item">
           <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="searchService.togglePreview(item)"></Button>
@@ -29,7 +29,7 @@
       </template>
     </ListView>
 
-    <StackLayout class="full-page-message" [visibility]="(searchService.state$ | async)?.results.length ? 'collapsed': 'visible'"><!--*ngIf="(searchService.state$ | async)?.results.length==0"-->
+    <StackLayout class="full-page-message" [visibility]="(searchService.state$ | async)?.results.length ? 'collapsed': 'visible'">
       <Label [text]="'fa-long-arrow-up' | fonticonPure" class="fa full-page-icon-label"></Label><!--&#xf176;-->
       <Label text="Search by artist or track name." textWrap="true" class="full-page-message-label"></Label>
     </StackLayout>

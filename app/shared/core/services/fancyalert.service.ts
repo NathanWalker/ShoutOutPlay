@@ -62,7 +62,11 @@ export class FancyAlertService {
       // ensure a progress dialog (loading-indicator) is always closed *before* opening a dialog
       this.closeProgress();
       setTimeout(() => {
-        dialogs.alert(message);
+        dialogs.alert(message).then(() => {
+          // ignore
+        }, () => {
+          // ignore
+        });
       }, this._androidTimeout);
     }
   }
@@ -99,11 +103,13 @@ export class FancyAlertService {
         let options = {
           title: title,
           defaultText: placeholder || initialValue,
-          inputType: dialogs.inputType.text
+          inputType: dialogs.inputType.text,
+          okButtonText: 'Save',
+          cancelButtonText: 'Cancel'
         };
-        this._ngZone.run(() => {
-          // this.logger.debug('calling dialogs.prompt with options:');
-          // this.logger.debug(options);
+        // this._ngZone.run(() => {
+          this.logger.debug('calling dialogs.prompt with options:');
+          this.logger.debug(options);
           // this.logger.debug('dialogs.prompt:');
           // this.logger.debug(dialogs.prompt);
           dialogs.prompt(options).then((result: any) => {
@@ -113,8 +119,10 @@ export class FancyAlertService {
                 action(result.text);
               });
             }
+          }, () => {
+            // canceled
           });
-        });
+        // });
       }, this._androidTimeout);
 
     }
@@ -152,6 +160,8 @@ export class FancyAlertService {
                 action();
               });
             }
+          }, () => {
+            // ignore
           });
         })
       }, this._androidTimeout);
@@ -206,6 +216,8 @@ export class FancyAlertService {
                 }
               }
             }, this._androidTimeout);
+          }, () => {
+            // ignore
           });
         });
       }, this._androidTimeout);

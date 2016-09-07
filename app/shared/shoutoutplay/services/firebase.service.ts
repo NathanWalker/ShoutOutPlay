@@ -274,10 +274,10 @@ export class FirebaseService {
   }
 
   public createUser(email: string, pass: string) {
-    this.logger.debug(`createUser: ${email}, ${pass + this._passSuffix}`);
+    this.logger.debug(`createUser: ${email}, ${pass}`);
     firebase.createUser({
       email: email,
-      password: pass + this._passSuffix
+      password: pass
     }).then((result: any) => {
       this.logger.debug(`firebase createUser success:`);
       this.logger.debug(result);
