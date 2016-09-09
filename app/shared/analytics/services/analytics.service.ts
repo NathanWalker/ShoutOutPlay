@@ -1,8 +1,15 @@
 // angular
 import {Injectable, Inject} from '@angular/core';
 
+// nativescript
+import * as app from 'application';
+import {isIOS} from 'platform';
+
+declare var com;
+
 // libs
 import * as _ from 'lodash';
+import firebase = require("nativescript-plugin-firebase");
 
 export interface IAnalyticsProperties {
   category?: string;
@@ -16,7 +23,6 @@ export interface IAnalytics {
 
 @Injectable()
 export class AnalyticsService implements IAnalytics {
-  private _firebase: any;
   private _devMode: boolean = false;
 
   constructor() {
@@ -27,8 +33,8 @@ export class AnalyticsService implements IAnalytics {
    * Track actions, events, etc.
    **/
   public track(action: string, properties: IAnalyticsProperties): void {
-    if (!this.devMode() && this._firebase && this._firebase.analytics) {
-      let props = [];
+    if (!this.devMode() && firebase && firebase.analytics) {
+      let props:any[] = [];
       if (properties) {
         if (properties.category) {
           props.push({
@@ -49,9 +55,13 @@ export class AnalyticsService implements IAnalytics {
           });
         }
       }
-      this._firebase.analytics.logEvent({
+      // console.log(`---------- logEvent key: ${action}`);
+      // for (let p of props) {
+      //   console.log(`key: ${p.key}, value: ${p.value}`);
+      // }
+      firebase.analytics.logEvent({
         key: action,
-        properties: props
+        parameters: props
       }).then(() => {
         // ignore
       });
@@ -62,13 +72,9 @@ export class AnalyticsService implements IAnalytics {
    * Identify authenticated users
    **/
   public identify(properties: any) {
-    if (!this.devMode() && this._firebase && this._firebase.analytics) {
-      this._firebase.analytics.setUserProperty(properties);
+    if (!this.devMode() && firebase && firebase.analytics) {
+      firebase.analytics.setUserProperty(properties);
     }
-  }
-
-  public setFirebase(fb: any) {
-    this._firebase = fb;
   }
 
   /**
@@ -92,16 +98,14 @@ export class Analytics implements IAnalytics {
   // sub-classes should define their category
   public category: string;
 
-  constructor( @Inject(AnalyticsService) public analytics: AnalyticsService, public firebase?: any) {
-    if (firebase) {
-      analytics.setFirebase(firebase);
-    }
+  constructor( @Inject(AnalyticsService) public analytics: AnalyticsService) {
+
   }
 
   /**
    * Track actions, events, etc.
    **/
   track(action: string, properties: IAnalyticsProperties): void {
-    this.analytics.track(action, _.extend(properties, { category: this.category }));
+    this.analytics.track(action, Object.assign({}, properties, { category: this.category }));
   }     
 }

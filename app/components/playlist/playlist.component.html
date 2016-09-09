@@ -10,6 +10,7 @@
   </StackLayout>
 
   <!-- iOS -->
+  <!-- ATTN: Vladimir - leaving this here so you can see the issue -->
   <RadListView id="listview" [items]="(firebaseService.state$ | async)?.playlists" (itemTap)="viewDetail($event)" row="1" colSpan="2" class="full-page"
   itemSwipe="true" itemReorder="true"
   (itemReordered)="onItemReordered($event)"
@@ -37,6 +38,7 @@
       </GridLayout>
     </template>
 
+    <!-- If using Android, behaves better with this commented out -->
     <GridLayout *tkListItemSwipeTemplate rows="auto" columns="100,*,100" class="list-item-swipe">
       <Button id="editBtn" text="Edit" class="btn edit-btn" row="0" col="0" (tap)="edit($event)"></Button>
       <Button id="deleteBtn" text="Delete" class="btn delete-btn" row="0" col="2" (tap)="remove($event)"></Button>

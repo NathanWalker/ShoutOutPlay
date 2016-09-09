@@ -132,7 +132,8 @@ export class FirebaseService extends Analytics {
   private _ignoreUpdate: boolean = false;
 
   constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private dialogs: DialogsService, private fancyalert: FancyAlertService, private ngZone: NgZone, private location: Location) {
-    super(analytics, firebase);
+    super(analytics);
+    this.category = CATEGORY;
     this.init();   
   }
 
@@ -265,7 +266,7 @@ export class FirebaseService extends Analytics {
       this.logger.debug(error);
       
       if (isString(error)) {
-        this.track(`LOGIN_ERROR`, { category: CATEGORY, label: error });
+        this.track(`LOGIN_ERROR`, { label: error });
         if (error.indexOf(`An internal error has occurred`) > -1 || error.indexOf('There is no user record') > -1) {
           // user not found, create one
           this.createUser(email, pass);
@@ -543,7 +544,7 @@ export class FirebaseService extends Analytics {
           this.logger.debug(`uri: ${user.uri}`);
           this.logger.debug(`product: ${user.product}`);
           this._spotifyUserProduct = user.product;
-          this.track('SPOTIFY_LOGIN', { category: CATEGORY, label: emailAddress, value: user.product });
+          this.track('SPOTIFY_LOGIN', { label: emailAddress, value: user.product });
           // for (let key in user) {
           //   this.logger.debug(key);
           //   this.logger.debug(user[key]);
@@ -576,7 +577,7 @@ export class FirebaseService extends Analytics {
           }
         });
       } else if (this._firebaseUser) {
-        this.track('SPOTIFY_LOGOUT', { category: CATEGORY, label: this._firebaseUser.email });
+        this.track('SPOTIFY_LOGOUT', { label: this._firebaseUser.email });
         firebase.logout().then(() => {
           this.resetInitializers();
         });
@@ -601,7 +602,7 @@ export class FirebaseService extends Analytics {
             this.logger.debug(`User's uid: ${data.user.uid}`);
             this._firebaseUser = <any>data.user;
             this.listenToUser(this._firebaseUser.uid);
-            this.track('FIREBASE_LOGIN', { category: CATEGORY, label: email });
+            this.track('FIREBASE_LOGIN', { label: email });
           } 
         }
       }
