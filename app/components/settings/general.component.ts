@@ -4,6 +4,7 @@ import {Location} from '@angular/common';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 // nativescript
+import {isIOS} from 'platform';
 import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
 import {Observable} from 'data/observable';
 
@@ -34,10 +35,11 @@ export class GeneralComponent implements AfterViewInit {
     if (TNSSpotifyAuth.SESSION) {
       TNSSpotifyAuth.CURRENT_USER().then((user: any) => {
         this.ngZone.run(() => {
-          this.logger.debug(`Current user: ${user.displayName}`);
-          if (user.displayName) {
-            this.displayName$.next(user.displayName);
-            this.emailAddress$.next(user.emailAddress);
+          let displayName = isIOS ? user.displayName : user.display_name;
+          this.logger.debug(`Current user: ${displayName}`);
+          if (displayName) {
+            this.displayName$.next(displayName);
+            this.emailAddress$.next(isIOS ? user.emailAddress : user.email);
           } else {
             this.displayName$.next(`Non-premium user`);
             this.emailAddress$.next('');

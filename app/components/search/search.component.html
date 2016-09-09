@@ -11,10 +11,10 @@
   <!-- auth -->
   <StackLayout class="full-page" [visibility]="(authService.state$ | async)?.loggedIn ? 'visible': 'collapsed'">
     <!--<ios>-->
-      <SearchBar #searchbar hint="Search" textFieldHintColor="#777" (submit)="search($event)" (clear)="clear()"></SearchBar>
+      <!--<SearchBar #searchbar hint="Search" textFieldHintColor="#777" (submit)="search($event)" (clear)="clear()"></SearchBar>-->
     <!--</ios>-->
     <!--<android>-->
-      <!--<SearchBar #searchbar hint="Search" textFieldHintColor="#fff" (submit)="search($event)" (clear)="clear()"></SearchBar>-->
+      <SearchBar #searchbar hint="Search" textFieldHintColor="#fff" (submit)="search($event)" (clear)="clear()"></SearchBar>
     <!--</android>-->
     <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333" (itemLoading)="itemLoading($event)" (loadMoreItems)="loadMore($event)" [visibility]="(searchService.state$ | async)?.results.length ? 'visible' : 'collapsed'"><!--*ngIf="(searchService.state$ | async)?.results.length"-->
       <template let-item="item" let-odd="odd" let-even="even">

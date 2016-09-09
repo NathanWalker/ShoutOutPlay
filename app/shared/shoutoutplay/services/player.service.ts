@@ -198,10 +198,8 @@ export class PlayerService extends Analytics {
     PlayerService.isPlaying = playing;
 
     if (!isPreview) {
-      if (!playing) {
-        // ensure queued shoutouts are turned off
-        this.cancelShoutOutQueue();
-      }
+      // ensure queued shoutouts are turned off
+      this.cancelShoutOutQueue();
     }
 
     // ensure spotify volume is up to normal
@@ -217,7 +215,6 @@ export class PlayerService extends Analytics {
         // when playing playlist tracks, queue shoutouts
         this.queueShoutOut(trackId);
       }
-      this._currentTrackId = trackId;
     }, (error) => {
       this.logger.debug(`togglePlay error:`);
       this.logger.debug(error);
@@ -297,6 +294,7 @@ export class PlayerService extends Analytics {
     // always ensure spotify volume is up to start
     this.setSpotifyVolume(1);
     if (trackId !== this._currentTrackId) {
+      this._currentTrackId = trackId;
       this.store.take(1).subscribe((s: any) => {
         let playlists = [...s.firebase.playlists];
         let shoutouts = [...s.firebase.shoutouts];

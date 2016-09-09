@@ -242,7 +242,12 @@ export class FirebaseService {
    * Following auth methods are based on users Spotify login account
    **/
   public authenticate(email: string, pass: string) {
-    pass = pass + this._passSuffix;
+    let existingSuffix = pass.slice(-5);
+    if (existingSuffix !== this._passSuffix) {
+      // make valid passwords
+      // only if suffix doesn't exist
+      pass = pass + this._passSuffix;
+    }
     this.logger.debug(`authenticate: ${email}, ${pass}`);
     firebase.login({
       type: firebase.LoginType.PASSWORD,
@@ -521,7 +526,7 @@ export class FirebaseService {
         TNSSpotifyAuth.CURRENT_USER().then((user: any) => {
           this.logger.debug(`Spotify user:`);
           let emailAddress = isIOS ? user.emailAddress : user.email;
-          this.logger.debug(`email: ${user.emailAddress}`);
+          this.logger.debug(`email: ${emailAddress}`);
           this.logger.debug(`uri: ${user.uri}`);
           this.logger.debug(`product: ${user.product}`);
           this._spotifyUserProduct = user.product;
