@@ -33,7 +33,7 @@ export class AnalyticsService implements IAnalytics {
    * Track actions, events, etc.
    **/
   public track(action: string, properties: IAnalyticsProperties): void {
-    if (!this.devMode() && firebase && firebase.analytics) {
+    if (isIOS && !this.devMode() && firebase && firebase.analytics) {
       let props:any[] = [];
       if (properties) {
         if (properties.category) {
