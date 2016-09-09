@@ -36,9 +36,26 @@ export class PlaylistComponent {
   }
 
   public viewDetail(e: any) {
-    (<any>topmost().currentPage.getViewById("listview")).notifySwipeToExecuteFinished();
+    this.logger.debug(`trying to nav to playlist at index: ${e.itemIndex}`);
+    try {
+      (<any>topmost().currentPage.getViewById("listview")).notifySwipeToExecuteFinished();
+    } catch (err) {
+      this.logger.debug(err);
+    }
+    this.logger.debug(`getting state...`);
     this.store.take(1).subscribe((s: any) => {
-      this.router.navigate(['/playlist', s.firebase.playlists[e.itemIndex].id]);
+      this.logger.debug(s.firebase);
+      if (s.firebase.playlists && s.firebase.playlists.length) {
+        this.logger.debug(s.firebase.playlists[e.itemIndex]);
+        if (s.firebase.playlists[e.itemIndex]) {
+          this.logger.debug(s.firebase.playlists[e.itemIndex].id);
+          this.router.navigate(['/playlist', s.firebase.playlists[e.itemIndex].id]);
+        } else {
+          this.logger.debug(`playlist not found, index: ${e.itemIndex}`);
+        }
+      } else {
+        this.logger.debug(`playlist doesn't exist at index: ${e.itemIndex}`);
+      }
     });  
   }
 

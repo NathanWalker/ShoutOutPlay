@@ -35,7 +35,7 @@ interface ISEARCH_ACTIONS {
 }
 
 export const SEARCH_ACTIONS: ISEARCH_ACTIONS = {
-  RESULTS_CHANGE: `[${CATEGORY}] RESULTS_CHANGE`
+  RESULTS_CHANGE: `${CATEGORY}_RESULTS_CHANGE`
 };
 
 export const searchReducer: ActionReducer<ISearchState> = (state: ISearchState = initialState, action: Action) => {
@@ -133,12 +133,14 @@ export class SearchService extends Analytics {
           //     console.log(result[key]);
           //   }
           if (this._currentOffset > 0) {
+            this.track(SEARCH_ACTIONS.RESULTS_CHANGE, { category: CATEGORY, label: `${query}, offset: ${this._currentOffset}` });
             this.store.take(1).subscribe((s: any) => {
               if (s.search) {
                 this.resultChange([...s.search.results, ...result.tracks], query);
               }
             });
           } else {
+            this.track(SEARCH_ACTIONS.RESULTS_CHANGE, { category: CATEGORY, label: query });
             this.resultChange(result.tracks, query);
           }
         } else {
@@ -175,7 +177,6 @@ export class SearchService extends Analytics {
 
   private resultChange(tracks: Array<TNSTrack>, term: string) {
     this.loader.hide();
-    this.track(SEARCH_ACTIONS.RESULTS_CHANGE, { label: term });
     // convert to TrackModel
     let results: Array<TrackModel> = [];
     for (let track of tracks) {

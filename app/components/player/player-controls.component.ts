@@ -1,4 +1,4 @@
-import {ElementRef, Output, OnInit, ViewChild, AfterViewInit, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {ElementRef, Output, OnInit, ViewChild, AfterViewInit, EventEmitter} from '@angular/core';
 
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
 import {TrackControlService} from '../../shared/shoutoutplay/index';
@@ -6,8 +6,7 @@ import {TrackControlService} from '../../shared/shoutoutplay/index';
 @BaseComponent({
   // moduleId: module.id,
   selector: 'player-controls',
-  templateUrl: './components/player/player-controls.component.html',
-  changeDetection: ChangeDetectionStrategy.Default
+  templateUrl: './components/player/player-controls.component.html'
 })
 export class PlayerControlsComponent {
   @Output() public expand: EventEmitter<any> = new EventEmitter();

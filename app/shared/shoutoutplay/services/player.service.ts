@@ -51,8 +51,8 @@ interface IPLAYER_ACTIONS {
 }
 
 export const PLAYER_ACTIONS: IPLAYER_ACTIONS = {
-  TOGGLE_PLAY: `[${CATEGORY}] TOGGLE_PLAY`,
-  STOP: `[${CATEGORY}] STOP`
+  TOGGLE_PLAY: `${CATEGORY}_TOGGLE_PLAY`,
+  STOP: `${CATEGORY}_STOP`
 };
 
 export const playerReducer: ActionReducer<IPlayerState> = (state: IPlayerState = initialState, action: Action) => {
@@ -508,7 +508,9 @@ export class PlayerService extends Analytics {
         if (!this._spotify.isPlaying()) {
           // only if player has stopped
           // otherwise it's just triggered when user clicks to play another track
-          this.store.dispatch({ type: PLAYLIST_ACTIONS.LOOP_NEXT });
+          this.ngZone.run(() => {
+            this.store.dispatch({ type: PLAYLIST_ACTIONS.LOOP_NEXT });
+          });
         }
       }
     });
@@ -555,7 +557,9 @@ export class PlayerService extends Analytics {
           artistName: state.currentTrack.artistName.trim(),
           trackDuration: state.currentTrack.durationMs
         };
-        this.currentTrack$.next(this._currentTrack);
+        this.ngZone.run(() => {
+          this.currentTrack$.next(this._currentTrack);
+        });
       }
 
       this.logger.debug(`----------`);
@@ -594,9 +598,7 @@ export class PlayerService extends Analytics {
       });
     });
     this._spotify.events.on('changedPlaybackState', (eventData: any) => {
-      this.ngZone.run(() => {
-        this.updatePlayerState(eventData.data.state);
-      });
+      this.updatePlayerState(eventData.data.state);
     });
     this._spotify.events.on('playerReady', (eventData: any) => {
       this.ngZone.run(() => {

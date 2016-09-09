@@ -48,7 +48,7 @@ export class TrackControlService {
 Check out this track:\n
 https://open.spotify.com/track/${uri}\n
 Enjoyed with ShoutOutPlay, download here:\n
-${isIOS ? 'https://itunes.apple.com/us/app/shoutoutplay/id1130768471?mt=8' : 'TODO: android play link'}
+${isIOS ? 'https://itunes.apple.com/us/app/shoutoutplay/id1130768471?mt=8' : 'https://play.google.com/store/apps/details?id=com.wwwalkerrun.ShoutOutPlay'}
         `;
       socialShare.shareText(msg, 'Check out this track I enjoyed with ShoutOutPlay');
     });

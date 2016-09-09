@@ -30,8 +30,8 @@ const initialState: IAuthState = {
 };
 
 export const AUTH_ACTIONS: any = {
-  LOGGED_IN_CHANGE: `[${CATEGORY}] LOGGED_IN_CHANGE`,
-  SET_CURRENT_USER: `[${CATEGORY}] SET_CURRENT_USER`
+  LOGGED_IN_CHANGE: `${CATEGORY}_LOGGED_IN_CHANGE`,
+  SET_CURRENT_USER: `${CATEGORY}_SET_CURRENT_USER`
 };
 
 export const authReducer: ActionReducer<IAuthState> = (state: IAuthState = initialState, action: Action) => {

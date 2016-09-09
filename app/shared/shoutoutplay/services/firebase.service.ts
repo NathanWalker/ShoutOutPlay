@@ -16,6 +16,7 @@ import {Observable} from 'rxjs/Observable';
 import {isString, isObject, keys, orderBy, includes, find} from 'lodash';
 
 // app
+import {Analytics, AnalyticsService} from '../../analytics/index';
 import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, IAuthState, SHOUTOUT_ACTIONS} from '../index';
 import {Config, LogService, DialogsService, FancyAlertService, Utils, TextService} from '../../core/index';
 
@@ -58,18 +59,18 @@ interface IFIREBASE_ACTIONS {
 }
 
 export const FIREBASE_ACTIONS: IFIREBASE_ACTIONS = {
-  CREATE: `[${CATEGORY}] CREATE`,
-  CREATE_SHOUTOUT: `[${CATEGORY}] CREATE_SHOUTOUT`,
-  UPDATE: `[${CATEGORY}] UPDATE`,
-  UPDATE_PLAYLIST: `[${CATEGORY}] UPDATE_PLAYLIST`,
-  PROCESS_UPDATES: `[${CATEGORY}] PROCESS_UPDATES`,
-  DELETE: `[${CATEGORY}] DELETE`,
-  DELETE_TRACK: `[${CATEGORY}] DELETE_TRACK`,
-  PLAYLIST_DELETED: `[${CATEGORY}] PLAYLIST_DELETED`,
-  SHOUTOUT_DELETED: `[${CATEGORY}] SHOUTOUT_DELETED`,
-  RESET_PLAYLISTS: `[${CATEGORY}] RESET_PLAYLISTS`,
-  REORDER: `[${CATEGORY}] REORDER`,
-  RESET_ACCOUNT: `[${CATEGORY}] RESET_ACCOUNT`
+  CREATE: `${CATEGORY}_CREATE`,
+  CREATE_SHOUTOUT: `${CATEGORY}_CREATE_SHOUTOUT`,
+  UPDATE: `${CATEGORY}_UPDATE`,
+  UPDATE_PLAYLIST: `${CATEGORY}_UPDATE_PLAYLIST`,
+  PROCESS_UPDATES: `${CATEGORY}_PROCESS_UPDATES`,
+  DELETE: `${CATEGORY}_DELETE`,
+  DELETE_TRACK: `${CATEGORY}_DELETE_TRACK`,
+  PLAYLIST_DELETED: `${CATEGORY}_PLAYLIST_DELETED`,
+  SHOUTOUT_DELETED: `${CATEGORY}_SHOUTOUT_DELETED`,
+  RESET_PLAYLISTS: `${CATEGORY}_RESET_PLAYLISTS`,
+  REORDER: `${CATEGORY}_REORDER`,
+  RESET_ACCOUNT: `${CATEGORY}_RESET_ACCOUNT`
 };
 
 export const firebaseReducer: ActionReducer<IFirebaseState> = (state: IFirebaseState = initialState, action: Action) => {
@@ -121,7 +122,7 @@ interface IFirebaseUser {
 }
 
 @Injectable()
-export class FirebaseService {
+export class FirebaseService extends Analytics {
   public state$: Observable<IFirebaseState>;
   private _initialized: boolean = false;
   private _firebaseUser: IFirebaseUser; // logged in firebase user
@@ -130,7 +131,8 @@ export class FirebaseService {
   private _passSuffix: string = 'A814~'; // make passwords strong
   private _ignoreUpdate: boolean = false;
 
-  constructor(private store: Store<any>, private logger: LogService, private dialogs: DialogsService, private fancyalert: FancyAlertService, private ngZone: NgZone, private location: Location) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private dialogs: DialogsService, private fancyalert: FancyAlertService, private ngZone: NgZone, private location: Location) {
+    super(analytics, firebase);
     this.init();   
   }
 
@@ -261,7 +263,9 @@ export class FirebaseService {
     }, (error: any) => {
       this.logger.debug(`firebase auth error:`);
       this.logger.debug(error);
+      
       if (isString(error)) {
+        this.track(`LOGIN_ERROR`, { category: CATEGORY, label: error });
         if (error.indexOf(`An internal error has occurred`) > -1 || error.indexOf('There is no user record') > -1) {
           // user not found, create one
           this.createUser(email, pass);
@@ -271,6 +275,7 @@ export class FirebaseService {
           TNSSpotifyAuth.LOGOUT();
         }  
       } else if (isObject(error)) {
+        this.track(`LOGIN_ERROR`, { category: CATEGORY, label: `Error object` });
         for (let key in error) {
           this.logger.debug(error[key]);
         }
@@ -290,6 +295,7 @@ export class FirebaseService {
         this.logger.debug(key);
         this.logger.debug(result[key]);
       }
+      this.track(`NEW_USER`, { category: CATEGORY, label: email });
       this.authenticate(email, pass);
     }, (error: any) => {
       this.logger.debug(`firebase createUser error:`);
@@ -312,6 +318,7 @@ export class FirebaseService {
   public resetAccount() {
     // clear all playlists
     this.logger.debug(`Deleting all playlists...`);
+    this.track(`RESET_PLAYLISTS`, { category: CATEGORY, label: Config.USER_KEY });
     firebase.remove(
       `/users/${Config.USER_KEY}/playlists`
     ).then((result: any) => {
@@ -328,6 +335,7 @@ export class FirebaseService {
           playlist
         ).then((result: any) => {
           this.logger.debug(`New Playlist created: ${result.key}`);
+          this.track(FIREBASE_ACTIONS.CREATE, { category: CATEGORY, label: `New Playlist` });
           resolve();
         })
       }
@@ -343,6 +351,7 @@ export class FirebaseService {
         shoutout
       ).then((result: any) => {
         this.logger.debug(`New Shoutout created: ${result.key}`);
+        this.track(FIREBASE_ACTIONS.CREATE_SHOUTOUT, { category: CATEGORY, label: `New Shoutout` });
         this.uploadFile(shoutout.filename);
 
         let findPlaylistId;        
@@ -465,6 +474,7 @@ export class FirebaseService {
     ).then((result: any) => {
       this.logger.debug(`Playlist deleted.`);
       this.store.dispatch({ type: FIREBASE_ACTIONS.PLAYLIST_DELETED, payload: playlist });
+      this.track(FIREBASE_ACTIONS.PLAYLIST_DELETED, { category: CATEGORY, label: Config.USER_KEY });
       // TODO: loop through tracks and remove shoutouts attached to all the tracks.
       // OR: leave shoutouts but remove trackId and playlistId references in them
       // ^ would require the ability to add existing shoutouts to other tracks
@@ -480,6 +490,7 @@ export class FirebaseService {
       this.ngZone.run(() => {
         this.store.dispatch({ type: FIREBASE_ACTIONS.SHOUTOUT_DELETED, payload: shoutout });
       });  
+      this.track(FIREBASE_ACTIONS.SHOUTOUT_DELETED, { category: CATEGORY, label: Config.USER_KEY });
     });
   }  
 
@@ -500,6 +511,7 @@ export class FirebaseService {
         // }
       }
       this.updatePlaylists(playlists);
+      this.track(FIREBASE_ACTIONS.REORDER, { category: CATEGORY, label: 'Playlists' });
     });
   }
 
@@ -515,6 +527,7 @@ export class FirebaseService {
         // }
       }
       this.updatePlaylist(data.playlist);
+      this.track(FIREBASE_ACTIONS.REORDER, { category: CATEGORY, label: 'Tracks' });
     }
   }
 
@@ -530,6 +543,7 @@ export class FirebaseService {
           this.logger.debug(`uri: ${user.uri}`);
           this.logger.debug(`product: ${user.product}`);
           this._spotifyUserProduct = user.product;
+          this.track('SPOTIFY_LOGIN', { category: CATEGORY, label: emailAddress, value: user.product });
           // for (let key in user) {
           //   this.logger.debug(key);
           //   this.logger.debug(user[key]);
@@ -562,6 +576,7 @@ export class FirebaseService {
           }
         });
       } else if (this._firebaseUser) {
+        this.track('SPOTIFY_LOGOUT', { category: CATEGORY, label: this._firebaseUser.email });
         firebase.logout().then(() => {
           this.resetInitializers();
         });
@@ -581,10 +596,12 @@ export class FirebaseService {
         this.logger.debug(`Logged ${data.loggedIn ? 'into' : 'out of'} firebase.`);
         if (data.loggedIn) {
           if (!this._firebaseUser) {
-            this.logger.debug(`User's email address: ${data.user.email ? data.user.email : 'N/A'}`);
+            let email = data.user.email ? data.user.email : 'N/A';
+            this.logger.debug(`User's email address: ${email}`);
             this.logger.debug(`User's uid: ${data.user.uid}`);
             this._firebaseUser = <any>data.user;
             this.listenToUser(this._firebaseUser.uid);
+            this.track('FIREBASE_LOGIN', { category: CATEGORY, label: email });
           } 
         }
       }

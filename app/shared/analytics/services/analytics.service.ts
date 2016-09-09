@@ -3,8 +3,6 @@ import {Injectable, Inject} from '@angular/core';
 
 // libs
 import * as _ from 'lodash';
-import {Angulartics2} from 'angulartics2';
-import {Angulartics2Segment} from 'angulartics2/src/providers/angulartics2-segment';
 
 export interface IAnalyticsProperties {
   category?: string;
@@ -16,49 +14,61 @@ export interface IAnalytics {
   track(action: string, properties: IAnalyticsProperties): void;
 }
 
-/**
- * Wrapper for Angulartics2
- */
 @Injectable()
 export class AnalyticsService implements IAnalytics {
+  private _firebase: any;
+  private _devMode: boolean = false;
 
-  constructor(private angulartics2: Angulartics2, private segment: Angulartics2Segment) {
-    // options
-    // https://github.com/angulartics/angulartics2/blob/master/src/core/angulartics2.ts#L90-L104
-    // angulartics2.virtualPageviews(value: boolean);
-    // angulartics2.excludeRoutes(routes: Array<string>);
-    // angulartics2.firstPageview(value: boolean);
-    // angulartics2.withBase(value: string);
- 
-    this.devMode(true);
+  constructor() {
+    // this.devMode(true);
   }
 
   /**
    * Track actions, events, etc.
    **/
   public track(action: string, properties: IAnalyticsProperties): void {
-    if (!this.devMode()) {
-      this.segment.eventTrack(action, properties);
+    if (!this.devMode() && this._firebase && this._firebase.analytics) {
+      let props = [];
+      if (properties) {
+        if (properties.category) {
+          props.push({
+            key: 'category',
+            value: properties.category
+          });
+        }
+        if (properties.label) {
+          props.push({
+            key: 'label',
+            value: properties.label
+          });
+        }
+        if (properties.value) {
+          props.push({
+            key: 'value',
+            value: properties.value
+          });
+        }
+      }
+      this._firebase.analytics.logEvent({
+        key: action,
+        properties: props
+      }).then(() => {
+        // ignore
+      });
     } 
-  }
-
-  /**
-   * Called automatically by default with Angular 2 Routing
-   * However, that can be turned off and this could be used manually
-   **/
-  public pageTrack(path: string, location: any) {
-    if (!this.devMode()) {
-      this.segment.pageTrack(path, location);
-    }
   }
 
   /**
    * Identify authenticated users
    **/
   public identify(properties: any) {
-    if (!this.devMode()) {
-      this.segment.setUserProperties(properties);
+    if (!this.devMode() && this._firebase && this._firebase.analytics) {
+      this._firebase.analytics.setUserProperty(properties);
     }
+  }
+
+  public setFirebase(fb: any) {
+    this._firebase = fb;
   }
 
   /**
@@ -68,9 +78,9 @@ export class AnalyticsService implements IAnalytics {
    **/
   public devMode(enable?: boolean): boolean {
     if (typeof enable !== 'undefined') {
-      this.angulartics2.developerMode(enable);
+      this._devMode = enable;
     } 
-    return this.angulartics2.settings.developerMode;
+    return this._devMode;
   }   
 }
 
@@ -82,8 +92,10 @@ export class Analytics implements IAnalytics {
   // sub-classes should define their category
   public category: string;
 
-  constructor(@Inject(AnalyticsService) public analytics: AnalyticsService) {
-
+  constructor( @Inject(AnalyticsService) public analytics: AnalyticsService, public firebase?: any) {
+    if (firebase) {
+      analytics.setFirebase(firebase);
+    }
   }
 
   /**

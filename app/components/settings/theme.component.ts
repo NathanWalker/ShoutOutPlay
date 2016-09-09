@@ -6,6 +6,7 @@ import 'rxjs/add/operator/take';
 var themes = require('nativescript-themes');
 
 // app
+import {Analytics, AnalyticsService} from '../../shared/analytics/index';
 import {LogService, BaseComponent, ColorService} from '../../shared/core/index';
 import {FIREBASE_ACTIONS} from '../../shared/shoutoutplay/index';
 
@@ -15,10 +16,11 @@ import {FIREBASE_ACTIONS} from '../../shared/shoutoutplay/index';
   templateUrl: './components/settings/theme.component.html',
   changeDetection: ChangeDetectionStrategy.Default
 })
-export class ThemeComponent {
+export class ThemeComponent extends Analytics {
   public activeTheme: string;
 
-  constructor(private store: Store<any>) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>) {
+    super(analytics);
     let currentTheme = themes.getAppliedTheme('style/app.css');
     console.log(`currentTheme: ${currentTheme}`);
     this.changeTheme(currentTheme.split('/').slice(-1)[0]); // just the filename
@@ -28,5 +30,6 @@ export class ThemeComponent {
     this.activeTheme = cssFilename;
     themes.applyTheme(`style/${cssFilename}`);
     ColorService.swapScheme(cssFilename);
+    this.track('CHANGE_THEME', { category: 'THEMES', label: cssFilename });
   }
 }

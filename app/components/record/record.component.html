@@ -14,16 +14,16 @@
 
 <AbsoluteLayout modal-dialog-host class="record-view">
   <!--<ios>-->
-    <!--<AudioPlot #audioplot class="audioPlot" [plotColor]="audioPlotColor" plotType="buffer"></AudioPlot>-->
+    <AudioPlot #audioplot class="audioPlot" [plotColor]="audioPlotColor" plotType="buffer"></AudioPlot>
   <!--</ios>-->
   <!--<android>-->
-    <GridLayout rows="200" columns="*,50,50,50,50,50,*" class="android-eq">
+    <!--<GridLayout rows="200" columns="*,50,50,50,50,50,*" class="android-eq">
         <StackLayout class="equalizer faded2" row="0" col="1" [attr.height]="androidEQSide2$ | async"></StackLayout>
         <StackLayout class="equalizer faded" row="0" col="2" [attr.height]="androidEQSide$ | async"></StackLayout>
         <StackLayout class="equalizer" row="0" col="3" [attr.height]="androidEQ$ | async"></StackLayout>
         <StackLayout class="equalizer faded" row="0" col="4" [attr.height]="androidEQSide$ | async"></StackLayout>
         <StackLayout class="equalizer faded2" row="0" col="5" [attr.height]="androidEQSide2$ | async"></StackLayout>
-    </GridLayout>
+    </GridLayout>-->
   <!--</android>-->
 
   <Button #bigSaveBg [text]="'fa-circle' | fonticonPure" class="fa big-save-bg" (tap)="saveToTrack()" [ngClass]="{'android-big':isAndroidBig}"></Button>
