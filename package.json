@@ -28,7 +28,7 @@
     "@ngrx/store": "2.1.2",
     "es6-shim": "^0.35.0",
     "lodash": "^4.15.0",
-    "nativescript-angular": "next",
+    "nativescript-angular": "0.4.1-2016-09-08-882",
     "nativescript-audio": "^2.0.6",
     "nativescript-coachmarks": "^1.0.2",
     "nativescript-ezaudio": "^1.1.6",
