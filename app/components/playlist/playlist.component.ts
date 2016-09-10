@@ -38,7 +38,10 @@ export class PlaylistComponent {
   public viewDetail(e: any) {
     this.logger.debug(`trying to nav to playlist at index: ${e.itemIndex}`);
     try {
-      (<any>topmost().currentPage.getViewById("listview")).notifySwipeToExecuteFinished();
+      let listview: any = topmost().currentPage.getViewById("listview");
+      if (listview) {
+        listview.notifySwipeToExecuteFinished();
+      }
     } catch (err) {
       this.logger.debug(err);
     }

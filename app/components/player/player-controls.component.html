@@ -3,8 +3,8 @@
   </StackLayout>
   <Button row="1" col="0" [text]="(trackControl.playingIcon$ | async) | fonticonPure" class="play-btn fa" (tap)="trackControl.togglePlay()"></Button>
   <StackLayout row="1" col="1" class="row-center">
-    <Label [text]="(trackControl.player.currentTrack$ | async)?.trackName" class="title"></Label> 
-    <Label [text]="(trackControl.player.currentTrack$ | async)?.artistName" class="title-sub"></Label> 
+    <Label [text]="currentTrack?.trackName" class="title"></Label> 
+    <Label [text]="currentTrack?.artistName" class="title-sub"></Label> 
   </StackLayout>
   <Button row="1" col="2" [text]="'fa-ellipsis-h' | fonticonPure" class="options-btn fa" (tap)="trackControl.openShareOptions()"></Button>
 </GridLayout>
