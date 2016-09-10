@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions, ModalDialogHost} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import * as dialogs from 'ui/dialogs';
 import {topmost} from 'ui/frame';
 import * as utils from 'utils/utils';
@@ -17,13 +17,10 @@ import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} fr
 import {PlaylistService, IPlaylistState, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
-declare var zonedCallback: Function;
-
 @BaseComponent({
   // moduleId: module.id,
   selector: 'playlist-detail',
   templateUrl: './components/playlist/playlist-detail.component.html',
-  directives: [ModalDialogHost],
   providers: [ModalDialogService]
 })
 export class PlaylistDetailComponent implements OnInit {
@@ -33,7 +30,7 @@ export class PlaylistDetailComponent implements OnInit {
   private _currentIndex: number;
 
   constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location) {
-    
+    logger.debug(`PlaylistDetailComponent constructor`);
   } 
 
   public viewShoutout(track: TrackModel) {
@@ -43,9 +40,9 @@ export class PlaylistDetailComponent implements OnInit {
           context: { id: track.shoutoutId },
           fullscreen: true
         };
-        this.modal.showModal(ShoutOutDetailComponent, options).then(zonedCallback(() => {
+        this.modal.showModal(ShoutOutDetailComponent, options).then(() => {
           
-        }));
+        });
       } else {
         Config.SELECTED_PLAYLIST_ID = this._playlist.id;
         this.shoutoutService.quickRecordTrack = track;
@@ -73,13 +70,6 @@ export class PlaylistDetailComponent implements OnInit {
       this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE_TRACK, payload: { track, playlistId } });
       // AnimateService.SWIPE_RESET(this._swipedView);
     });
-    // dialogs.confirm('Are you sure you want to remove this track?').then(zonedCallback((result) => {
-    //   if (result) {
-    //     let playlistId = this._playlist.id;
-    //     this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE_TRACK, payload: { track, playlistId } });
-    //     AnimateService.SWIPE_RESET(this._swipedView);
-    //   }
-    // }));
   }
 
   public androidBack() {

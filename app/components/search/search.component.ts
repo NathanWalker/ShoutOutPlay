@@ -26,8 +26,7 @@ import {IntegrationsComponent} from './integrations.component';
   // moduleId: module.id,
   selector: 'search',
   templateUrl: './components/search/search.component.html',
-  providers: [ModalDialogService],
-  directives: [ModalDialogHost]
+  providers: [ModalDialogService]
 })
 export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('searchbar') searchBarEl: ElementRef;

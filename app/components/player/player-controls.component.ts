@@ -1,4 +1,4 @@
-import {ElementRef, Output, OnInit, ViewChild, AfterViewInit, EventEmitter} from '@angular/core';
+import {ElementRef, Input, Output, OnInit, ViewChild, AfterViewInit, EventEmitter} from '@angular/core';
 
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
 import {TrackControlService} from '../../shared/shoutoutplay/index';
@@ -9,6 +9,7 @@ import {TrackControlService} from '../../shared/shoutoutplay/index';
   templateUrl: './components/player/player-controls.component.html'
 })
 export class PlayerControlsComponent {
+  @Input() public currentTrack: any;
   @Output() public expand: EventEmitter<any> = new EventEmitter();
 
   constructor(private logger: LogService, public trackControl: TrackControlService) {

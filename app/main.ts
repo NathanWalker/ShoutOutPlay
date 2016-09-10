@@ -71,7 +71,7 @@ themes.applyTheme(activeTheme);
 // need to change colorservice (used for programmatic colors like in fancyalert)
 ColorService.swapScheme(activeTheme.split('/').slice(-1)[0]);
 
-enableProdMode();
+// enableProdMode();
 
 @NgModule({
   imports: [

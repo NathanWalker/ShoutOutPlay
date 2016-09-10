@@ -1,9 +1,9 @@
 <ScrollView orientation="vertical">
   <StackLayout>
-    <GridLayout rows="auto" columns="auto,*,auto" class="modal-action-bar">
-        <Button text="Cancel" (tap)="close(true)" row="0" col="0" class="cancel-btn"></Button>
-        <Label text="Choices" textWrap="true" row="0" col="1" class="modal-label modal-title centered"></Label>
-        <Button text="Save" (tap)="close(true)" row="0" col="2" class="cancel-btn"></Button>
+    <GridLayout rows="auto" columns="100,*,100" class="modal-action-bar">
+        <Button text="Cancel" (tap)="close()" row="0" col="0" class="cancel-btn"></Button>
+        <Label text="Choices" row="0" col="1" class="modal-label modal-title centered"></Label>
+        <Button text="Save" (tap)="close(true)" row="0" col="2" class="modal-save-btn"></Button>
     </GridLayout>
     
     <StackLayout class="full-page settings-list pad-bottom">

@@ -2,7 +2,8 @@
 import { NgModule } from '@angular/core';
 
 // nativescript
-import { NS_HTTP_PROVIDERS } from 'nativescript-angular/http';
+import { NativeScriptModule } from 'nativescript-angular/platform';
+import { NativeScriptHttpModule } from 'nativescript-angular/http';
 import { NativeScriptRouterModule } from 'nativescript-angular/router';
 
 // app
@@ -14,10 +15,16 @@ import { SHOUTOUTPLAY_PROVIDERS } from './index';
 
 @NgModule({
   imports: [
+    NativeScriptModule,
+    NativeScriptHttpModule,
+    NativeScriptRouterModule
+  ],
+  exports: [
+    NativeScriptModule,
+    NativeScriptHttpModule,
     NativeScriptRouterModule
   ],
   providers: [
-    NS_HTTP_PROVIDERS,
     SHOUTOUTPLAY_PROVIDERS
   ]
 })
