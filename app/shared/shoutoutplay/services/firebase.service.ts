@@ -312,7 +312,9 @@ export class FirebaseService extends Analytics {
         } else if (error.indexOf(`An internal error has occurred`) > -1) {
           // could not create user
           this.fancyalert.show(`An error occurred. Please try quitting the app and restarting it.`);
-        }   
+        } else {
+          this.fancyalert.show('An unknown error has occurred. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com.');
+        } 
       } else if (isObject(error)) {
         for (let key in error) {
           this.logger.debug(error[key]);
