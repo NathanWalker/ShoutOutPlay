@@ -278,7 +278,9 @@ export class FirebaseService extends Analytics {
           // TNSSpotifyAuth.CLEAR_COOKIES = true;
           // TNSSpotifyAuth.LOGOUT();
           this.createUser(email, pass);
-        }  
+        } else {
+          this.createUser(email, pass);
+        }
       } else if (isObject(error)) {
         this.logger.debug(`error was an object`);
         this.track(`LOGIN_ERROR`, { category: CATEGORY, label: `Error object` });
