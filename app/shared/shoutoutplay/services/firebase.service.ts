@@ -266,6 +266,9 @@ export class FirebaseService extends Analytics {
       this.logger.debug(error);
       
       if (isString(error)) {
+        if (error.length > 35) {
+          error = error.substring(0, 35);
+        }
         this.track(`LOGIN_ERROR`, { label: error });
         if (error.indexOf(`An internal error has occurred`) > -1 || error.indexOf('There is no user record') > -1) {
           // user not found, create one
@@ -764,6 +767,12 @@ export class FirebaseService extends Analytics {
    **/
   private addNewUser() {
     if (this._firebaseUser) {
+      let emailLog = this._firebaseUser.email || '';
+      if (emailLog && emailLog.length > 35) {
+        emailLog = emailLog.substring(0, 35);
+      }
+      this.track('NEW_FIREBASE_USER', { label: emailLog });
+      this.logger.debug(`creating new firebase user: ${this._firebaseUser.email}`);
       let newUser = new ShoutOutPlayUser({
         uid: this._firebaseUser.uid,
         email: this._firebaseUser.email,
@@ -851,6 +860,8 @@ export class FirebaseService extends Analytics {
       if (result.playlists.length) {
         addPlaylist();
       }
+    }, () => {
+      this.logger.debug('User had no existing Spotify playlists.');
     });
   }
 
