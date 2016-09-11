@@ -21,6 +21,7 @@ export class ThemeComponent extends Analytics {
 
   constructor(public analytics: AnalyticsService, private store: Store<any>) {
     super(analytics);
+    this.category = 'THEMES';
     let currentTheme = themes.getAppliedTheme('style/app.css');
     console.log(`currentTheme: ${currentTheme}`);
     this.changeTheme(currentTheme.split('/').slice(-1)[0]); // just the filename
@@ -30,6 +31,6 @@ export class ThemeComponent extends Analytics {
     this.activeTheme = cssFilename;
     themes.applyTheme(`style/${cssFilename}`);
     ColorService.swapScheme(cssFilename);
-    this.track('CHANGE_THEME', { category: 'THEMES', label: cssFilename });
+    this.track('CHANGE_THEME', { label: cssFilename });
   }
 }

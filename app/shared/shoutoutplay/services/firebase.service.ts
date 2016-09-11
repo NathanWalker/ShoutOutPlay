@@ -266,24 +266,25 @@ export class FirebaseService extends Analytics {
       this.logger.debug(error);
       
       if (isString(error)) {
-        if (error.length > 35) {
-          error = error.substring(0, 35);
+        let errorTrack = error;
+        if (errorTrack.length > 35) {
+          // firebase analytics labels limited to 36 characters
+          errorTrack = errorTrack.substring(0, 35);
         }
-        this.track(`LOGIN_ERROR`, { label: error });
+        this.track(`LOGIN_ERROR`, { label: errorTrack });
         if (error.indexOf(`An internal error has occurred`) > -1 || error.indexOf('There is no user record') > -1) {
           // user not found, create one
           this.createUser(email, pass);
         } else if (error.indexOf('The password is invalid') > -1) {
-          // this.fancyalert.show('It appears your password may be incorrect for that account. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
-          // TNSSpotifyAuth.CLEAR_COOKIES = true;
-          // TNSSpotifyAuth.LOGOUT();
-          this.createUser(email, pass);
+          this.fancyalert.show('It appears your password may be incorrect for that account. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
+          TNSSpotifyAuth.CLEAR_COOKIES = true;
+          TNSSpotifyAuth.LOGOUT();
         } else {
-          this.createUser(email, pass);
+          this.fancyalert.show(error);
         }
       } else if (isObject(error)) {
         this.logger.debug(`error was an object`);
-        this.track(`LOGIN_ERROR`, { category: CATEGORY, label: `Error object` });
+        this.track(`LOGIN_ERROR`, { label: `Error object` });
         for (let key in error) {
           this.logger.debug(error[key]);
         }
@@ -303,7 +304,7 @@ export class FirebaseService extends Analytics {
         this.logger.debug(key);
         this.logger.debug(result[key]);
       }
-      this.track(`NEW_USER`, { category: CATEGORY, label: email });
+      this.track(`NEW_USER`, { label: email });
       this.authenticate(email, pass);
     }, (error: any) => {
       this.logger.debug(`firebase createUser error:`);
@@ -328,7 +329,7 @@ export class FirebaseService extends Analytics {
   public resetAccount() {
     // clear all playlists
     this.logger.debug(`Deleting all playlists...`);
-    this.track(`RESET_PLAYLISTS`, { category: CATEGORY, label: Config.USER_KEY });
+    this.track(`RESET_PLAYLISTS`, { label: Config.USER_KEY });
     firebase.remove(
       `/users/${Config.USER_KEY}/playlists`
     ).then((result: any) => {
@@ -345,7 +346,7 @@ export class FirebaseService extends Analytics {
           playlist
         ).then((result: any) => {
           this.logger.debug(`New Playlist created: ${result.key}`);
-          this.track(FIREBASE_ACTIONS.CREATE, { category: CATEGORY, label: `New Playlist` });
+          this.track(FIREBASE_ACTIONS.CREATE, { label: `New Playlist` });
           resolve();
         })
       }
@@ -361,7 +362,7 @@ export class FirebaseService extends Analytics {
         shoutout
       ).then((result: any) => {
         this.logger.debug(`New Shoutout created: ${result.key}`);
-        this.track(FIREBASE_ACTIONS.CREATE_SHOUTOUT, { category: CATEGORY, label: `New Shoutout` });
+        this.track(FIREBASE_ACTIONS.CREATE_SHOUTOUT, { label: `New Shoutout` });
         this.uploadFile(shoutout.filename);
 
         let findPlaylistId;        
@@ -484,7 +485,7 @@ export class FirebaseService extends Analytics {
     ).then((result: any) => {
       this.logger.debug(`Playlist deleted.`);
       this.store.dispatch({ type: FIREBASE_ACTIONS.PLAYLIST_DELETED, payload: playlist });
-      this.track(FIREBASE_ACTIONS.PLAYLIST_DELETED, { category: CATEGORY, label: Config.USER_KEY });
+      this.track(FIREBASE_ACTIONS.PLAYLIST_DELETED, { label: Config.USER_KEY });
       // TODO: loop through tracks and remove shoutouts attached to all the tracks.
       // OR: leave shoutouts but remove trackId and playlistId references in them
       // ^ would require the ability to add existing shoutouts to other tracks
@@ -500,7 +501,7 @@ export class FirebaseService extends Analytics {
       this.ngZone.run(() => {
         this.store.dispatch({ type: FIREBASE_ACTIONS.SHOUTOUT_DELETED, payload: shoutout });
       });  
-      this.track(FIREBASE_ACTIONS.SHOUTOUT_DELETED, { category: CATEGORY, label: Config.USER_KEY });
+      this.track(FIREBASE_ACTIONS.SHOUTOUT_DELETED, { label: Config.USER_KEY });
     });
   }  
 
@@ -521,7 +522,7 @@ export class FirebaseService extends Analytics {
         // }
       }
       this.updatePlaylists(playlists);
-      this.track(FIREBASE_ACTIONS.REORDER, { category: CATEGORY, label: 'Playlists' });
+      this.track(FIREBASE_ACTIONS.REORDER, { label: 'Playlists' });
     });
   }
 
@@ -537,7 +538,7 @@ export class FirebaseService extends Analytics {
         // }
       }
       this.updatePlaylist(data.playlist);
-      this.track(FIREBASE_ACTIONS.REORDER, { category: CATEGORY, label: 'Tracks' });
+      this.track(FIREBASE_ACTIONS.REORDER, { label: 'Tracks' });
     }
   }
 
@@ -613,6 +614,8 @@ export class FirebaseService extends Analytics {
             this.listenToUser(this._firebaseUser.uid);
             this.track('FIREBASE_LOGIN', { label: email });
           } 
+        } else {
+          this.resetInitializers();
         }
       }
     }).then((instance) => {
