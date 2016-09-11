@@ -274,11 +274,13 @@ export class FirebaseService extends Analytics {
           // user not found, create one
           this.createUser(email, pass);
         } else if (error.indexOf('The password is invalid') > -1) {
-          this.fancyalert.show('It appears your password may be incorrect for that account. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
-          TNSSpotifyAuth.CLEAR_COOKIES = true;
-          TNSSpotifyAuth.LOGOUT();
+          // this.fancyalert.show('It appears your password may be incorrect for that account. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
+          // TNSSpotifyAuth.CLEAR_COOKIES = true;
+          // TNSSpotifyAuth.LOGOUT();
+          this.createUser(email, pass);
         }  
       } else if (isObject(error)) {
+        this.logger.debug(`error was an object`);
         this.track(`LOGIN_ERROR`, { category: CATEGORY, label: `Error object` });
         for (let key in error) {
           this.logger.debug(error[key]);
