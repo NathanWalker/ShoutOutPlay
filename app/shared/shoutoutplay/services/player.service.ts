@@ -220,7 +220,7 @@ export class PlayerService extends Analytics {
       this.logger.debug(error);
       
       this.playerUIStateReset();
-      this.track(`[${CATEGORY}] ERROR`, { label: error.toString() });
+      this.track(`${CATEGORY}_ERROR`, { label: error.toString() });
       if (error === 'login') {
         this.updateLogin(false);
       }

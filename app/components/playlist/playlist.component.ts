@@ -27,6 +27,7 @@ declare var zonedCallback: Function;
   templateUrl: './components/playlist/playlist.component.html'
 })
 export class PlaylistComponent {
+  public show: boolean = true;
   private _currentIndex: number;
   private _sub: Subscription;
 
@@ -79,17 +80,17 @@ export class PlaylistComponent {
     });
   }
 
-  public add() {
-    this.fancyalert.prompt('Name', '', 'Add New Playlist...', 'plus', (value: any) => {
-      this.loader.show();
-      this.logger.debug(`Creating playlist named '${value}'`);
-      let newPlaylist = new PlaylistModel({ name: value });
-      this.store.take(1).subscribe((s: any) => {
-        newPlaylist.order = s.firebase.playlists.length;
-        this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE, payload: newPlaylist });
-      });
-    });
-  } 
+  // public add() {
+  //   this.fancyalert.prompt('Name', '', 'Add New Playlist...', 'plus', (value: any) => {
+  //     this.loader.show();
+  //     this.logger.debug(`Creating playlist named '${value}'`);
+  //     let newPlaylist = new PlaylistModel({ name: value });
+  //     this.store.take(1).subscribe((s: any) => {
+  //       newPlaylist.order = s.firebase.playlists.length;
+  //       this.store.dispatch({ type: FIREBASE_ACTIONS.CREATE, payload: newPlaylist });
+  //     });
+  //   });
+  // } 
 
   public onSwipeCellStarted(args: any) {
     let density = utils.layout.getDisplayDensity();

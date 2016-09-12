@@ -36,3 +36,4 @@ export * from './services/track-controls.service';
 
 // components
 export * from './components/empty.component';
+export * from './components/actionbar.component';

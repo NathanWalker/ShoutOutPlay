@@ -1,24 +1,5 @@
-<ActionBar title="ShoutOutPlay">
-
-  <!-- Android -->
-  <!--<GridLayout rows="auto" columns="auto,*,auto" class="android-action-bar">
-    <Button class="fa android-btn" [text]="'fa-bars' | fonticonPure" row="0" col="0" (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn"></Button>
-    <Image src="res://logo" class="action-image" row="0" col="1" height="30"></Image>
-    <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure" nsRouterLink="/record" row="0" col="2" *ngIf="(authService.state$ | async)?.loggedIn"></Button>
-  </GridLayout>-->
-
-  <!-- iOS -->
-  <StackLayout orientation="horizontal" horizontalAlignment="center" verticalAlignment="center" padding="5">
-    <Image src="res://logo-160.png" class="action-image"></Image>
-  </StackLayout>
-
-  <ActionItem (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
-  </ActionItem>
-  <ActionItem nsRouterLink="/record" ios.position="right" android.position="popup" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure"></Button>
-  </ActionItem>
-  
-</ActionBar>
+<!-- actionbar was here -->
+<!-- encountered iOS issue with rightBarButtons and NSRangeException -->
+<!-- instead opted to use custom actionbar component on each route view -->
 
 <page-router-outlet class="page-bg"></page-router-outlet>

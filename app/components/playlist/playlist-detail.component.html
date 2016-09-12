@@ -4,11 +4,12 @@
     <Button class="fa action-btn" [text]="'fa-pencil' | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
-<StackLayout modal-dialog-host>  
-  <StackLayout class="full-page-message" *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0">
+<StackLayout modal-dialog-host class="full-page-bar-match">  
+  <!--<StackLayout class="full-page-message" *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0">
     <Label [text]="'fa-frown-o' | fonticonPure" class="fa full-page-icon-label"></Label>
     <Label text="There are no tracks here." textWrap="true" class="full-page-message-label"></Label>
-  </StackLayout> 
+  </StackLayout> -->
+  <EmptyView class="full-page-bar-match" *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0" [icon]="'fa-frown-o'" [text]="'There are no tracks here.'"></EmptyView>
   
   <RadListView id="listview" [items]="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks" row="1" colSpan="2" class="full-page pad-bottom"
   itemSwipe="true" itemReorder="true"

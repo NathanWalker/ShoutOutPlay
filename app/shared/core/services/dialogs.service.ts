@@ -16,17 +16,21 @@ export class DialogsService {
 
   }
 
+  public hide() {
+    this.loader.hide();
+  }
+
   public success(msg?: string) {
     let autoHide = () => {
       setTimeout(() => {
-        this.loader.hide();
+        this.hide();
       }, 1000);
     };
     if (isIOS) {
       this.loader.show({ message: msg, ios: { mode: MBProgressHUDModeCustomView, customView: 'Checkmark.png' } });
       autoHide();
     } else {
-      this.loader.hide(); // ensure all progress dialogs are closed
+      this.hide(); // ensure all progress dialogs are closed
       setTimeout(() => {
         this.loader.show({ message: msg });
         autoHide();

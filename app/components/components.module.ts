@@ -13,10 +13,14 @@ import { Routes } from '@angular/router';
 // libs
 import { TNSFontIconService, TNSFontIconPipe, TNSFontIconPurePipe } from 'nativescript-ng2-fonticon';
 
+// feature module components
+import {MainActionBarComponent} from '../shared/shoutoutplay/components/actionbar.component';
+import {PlaylistActionBarComponent} from '../shared/shoutoutplay/components/playlist-actionbar.component';
+import {EmptyComponent} from '../shared/shoutoutplay/components/empty.component';
+
 // app
 import {HomeComponent} from './home/home.component';
 import {IntroComponent} from './intro/intro.component';
-import {WelcomeComponent} from './intro/welcome.component';
 import {PlayerControlsComponent} from './player/player-controls.component';
 import {PlayerFullComponent} from './player/player-full.component';
 import {PlaylistChooserComponent} from './playlist/playlist-chooser.component';
@@ -55,8 +59,7 @@ export const routes: Routes = [
   },   
   { path: "intro", component: IntroComponent },
   { path: "record", component: RecordComponent },
-  { path: "playlist/:id", component: PlaylistDetailComponent },
-  { path: "welcome", component: WelcomeComponent }
+  { path: "playlist/:id", component: PlaylistDetailComponent }
 ];
 
 export const ENTRY_COMPONENTS: any[] = [
@@ -70,8 +73,7 @@ export const ENTRY_COMPONENTS: any[] = [
   AboutComponent,
   IntroComponent,
   RecordComponent,
-  PlaylistDetailComponent,
-  WelcomeComponent
+  PlaylistDetailComponent
 ];
 
 export const AUX_COMPONENTS: any[] = [
@@ -81,7 +83,10 @@ export const AUX_COMPONENTS: any[] = [
   TrackChooserComponent,
   VideoComponent,
   ShoutOutDetailComponent,
-  IntegrationsComponent
+  IntegrationsComponent,
+  MainActionBarComponent,
+  PlaylistActionBarComponent,
+  EmptyComponent
 ]
 
 /**

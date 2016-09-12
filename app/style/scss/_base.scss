@@ -34,6 +34,14 @@ SearchBar {
   border-width:0;
 }
 
+.action-title {
+  color:#fff;
+  text-align: center;
+  vertical-align: center;
+  font-weight: bold;
+  font-size:17;
+}
+
 .t-white {
   color:#fff;
 }
@@ -100,6 +108,12 @@ SearchBar {
       }
     }
   }
+}
+
+.full-page-bar-match {
+  width:100%;
+  height:100%;
+  background-color: $action-bar-match;
 }
 
 .full-page-message {
@@ -188,6 +202,10 @@ SearchBar {
 .login-btn {
   margin:20 0 20 0;
   width:75%;
+}
+
+.list-view {
+  background-color:#000;
 }
 
 .list-item,
@@ -317,10 +335,6 @@ SearchBar {
   height: 100%;
   background-color:$base;
   // padding-bottom:50;
-}
-.logged-out {
-  height: 100%;
-  background-color:$action-bar-match;
 }
 
 /* Player controls */

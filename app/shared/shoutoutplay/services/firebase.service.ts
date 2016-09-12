@@ -347,6 +347,7 @@ export class FirebaseService extends Analytics {
         ).then((result: any) => {
           this.logger.debug(`New Playlist created: ${result.key}`);
           this.track(FIREBASE_ACTIONS.CREATE, { label: `New Playlist` });
+          this.dialogs.hide();
           resolve();
         })
       }
@@ -428,7 +429,12 @@ export class FirebaseService extends Analytics {
   }
 
   private updatePlaylist(playlist: PlaylistModel) {
-    if (Config.USER_KEY) {
+    if (Config.USER_KEY && playlist) {
+      if (!playlist.id) {
+        this.logger.debug(`Tried updating playlist, but playlist.id was null or undefined`);
+        this.track('FIREBASE_PLAYLIST_UPDATE_ERROR', { label: Config.USER_KEY });
+        return;
+      }
       this._ignoreUpdate = false;
       this.logger.debug(`About to update playlist...`);
       // for (let key in playlist) {
@@ -456,9 +462,11 @@ export class FirebaseService extends Analytics {
     if (Config.USER_KEY) {
       this._ignoreUpdate = false;
       let playlistsObject = {};
+      let playlistIds = []; // just for logging ids below
       for (let p of playlists) {
         let id = p.id;
-        delete p.id;
+        playlistIds.push(id);
+        delete p.id; // firebase uses id as collection identifier so no need to store with object
         delete p.playing // never store playing state
         if (p.tracks) {
           for (let t of p.tracks) {
@@ -467,7 +475,7 @@ export class FirebaseService extends Analytics {
         }
         playlistsObject[id] = p;
       }   
-      this.logger.debug(`Updating all playlists: ${playlists.map(p => p.id).join(',')}`);
+      this.logger.debug(`Updating all playlists: ${playlistIds.join(',')}`);
       firebase.update(
         `/users/${Config.USER_KEY}/playlists`,
         playlistsObject
@@ -528,14 +536,15 @@ export class FirebaseService extends Analytics {
 
   private reorderTracks(data: any) {
     if (data.playlist) {
-      let targetItem = data.playlist.tracks[data.itemIndex];
-      targetItem.order = data.targetIndex;
-      this.logger.debug(`Reordering tracks, setting order: ${targetItem.order} of ${data.playlist.tracks.length} tracks.`);
+      // Using targetIndex here since RadListView binding is to array on playlist state so changed in view
+      this.logger.debug(`Changing order of track: ${data.playlist.tracks[data.targetIndex].name}`);
+      data.playlist.tracks[data.targetIndex].order = data.targetIndex;
+      this.logger.debug(`Reordering tracks, setting order: ${data.targetIndex} of ${data.playlist.tracks.length} tracks.`);
       for (var i = 0; i < data.playlist.tracks.length; i++) {
-        // if (targetItem.id !== data.playlist.tracks[i].id) {
+        if (i !== data.targetIndex) {
           this.logger.debug(`${data.playlist.tracks[i].name} - setting order: ${i}`);
           data.playlist.tracks[i].order = i;
-        // }
+        }
       }
       this.updatePlaylist(data.playlist);
       this.track(FIREBASE_ACTIONS.REORDER, { label: 'Tracks' });
@@ -805,7 +814,9 @@ export class FirebaseService extends Analytics {
   }
 
   private handleSpotifyPlaylists(playlists: Array<PlaylistModel>) {
-    if (this._initialized && !this._fetchedSpotifyPlaylists && (this._spotifyUserProduct == 1 || this._spotifyUserProduct == 2)) {
+    if (this._initialized && isIOS && !this._fetchedSpotifyPlaylists && (this._spotifyUserProduct == 1 || this._spotifyUserProduct == 2)) {
+      // iOS supported only atm
+      // TODO: implement in Android spotify lib
       this._fetchedSpotifyPlaylists = true;
       // only if premium or unlimited user
       this.fetchSpotifyPlaylists(playlists);
