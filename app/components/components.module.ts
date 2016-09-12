@@ -78,16 +78,19 @@ export const ENTRY_COMPONENTS: any[] = [
 
 export const AUX_COMPONENTS: any[] = [
   PlayerControlsComponent,
+  MainActionBarComponent,
+  PlaylistActionBarComponent,
+  EmptyComponent
+];
+
+export const FACTORY_COMPONENTS: any[] = [
   PlayerFullComponent,
   PlaylistChooserComponent,
   TrackChooserComponent,
   VideoComponent,
   ShoutOutDetailComponent,
-  IntegrationsComponent,
-  MainActionBarComponent,
-  PlaylistActionBarComponent,
-  EmptyComponent
-]
+  IntegrationsComponent
+];
 
 /**
  * Do not specify providers for modules that might be imported by a lazy loaded module.
@@ -101,14 +104,15 @@ export const AUX_COMPONENTS: any[] = [
     NativeScriptRouterModule
   ],
   entryComponents: [
-    AUX_COMPONENTS
+    FACTORY_COMPONENTS
   ],
   declarations: [
     TNSFontIconPipe,
     TNSFontIconPurePipe,
     SIDEDRAWER_DIRECTIVES,
     LISTVIEW_DIRECTIVES,
-    AUX_COMPONENTS
+    AUX_COMPONENTS,
+    FACTORY_COMPONENTS
   ],
   exports: [
     TNSFontIconPipe,
@@ -116,6 +120,7 @@ export const AUX_COMPONENTS: any[] = [
     SIDEDRAWER_DIRECTIVES,
     LISTVIEW_DIRECTIVES,
     AUX_COMPONENTS,
+    FACTORY_COMPONENTS,
     NativeScriptModule,
     NativeScriptFormsModule,
     NativeScriptHttpModule,

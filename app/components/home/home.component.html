@@ -35,6 +35,6 @@
   </GridLayout>
   <GridLayout rows="*,auto" columns="*" tkMainContent class="page-bg" modal-dialog-host>
     <router-outlet row="0" col="0"></router-outlet>
-    <player-controls row="1" col="0" #playerControls class="player-controls" [currentTrack]="player.currentTrack$ | async" (expand)="openFullPlayer()" *ngIf="showControls$ | async"></player-controls> <!--verticalAligment="bottom" [visibility]="(showControls$ | async) ? 'visible' : 'collapsed'"-->
+    <player-controls row="1" col="0" #playerControls class="player-controls" [currentTrack]="player.currentTrack$ | async" (expand)="openFullPlayer()" *ngIf="trackControl.showControls$ | async"></player-controls> <!--verticalAligment="bottom" [visibility]="(showControls$ | async) ? 'visible' : 'collapsed'"-->
   </GridLayout>
 </RadSideDrawer>

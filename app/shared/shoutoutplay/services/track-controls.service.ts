@@ -20,6 +20,7 @@ import {SearchService} from './search.service';
 export class TrackControlService {
   public playingIcon$: BehaviorSubject<string> = new BehaviorSubject('fa-play-circle');
   public isPreview$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public showControls$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private _currentTrackId: string;
   private _sub: Subscription;
 
@@ -28,6 +29,13 @@ export class TrackControlService {
       this._currentTrackId = state.currentTrackId || state.previewTrackId;
       this.isPreview$.next(state.previewTrackId ? true : false);
       this.playingIcon$.next(state.playing ? 'fa-pause-circle' : 'fa-play-circle');
+      let showControls = this._currentTrackId ? true : false;
+      this.showControls$.next(showControls);
+      this.logger.debug(`showControls: ${showControls}`);
+      // if (!showControls) {
+      //   // when cleared
+      //   this.player.currentTrack$.next(null);
+      // }
     });
   }
 
@@ -37,7 +45,6 @@ export class TrackControlService {
     } else {
       this.playlistService.togglePlay(null, { id: this._currentTrackId });
     }
-    // this.player.togglePlay(this._currentTrackId, PlayerService.isPreview, !PlayerService.isPlaying);
   }
 
   public openShareOptions() {

@@ -3,7 +3,7 @@ import {Router, NavigationEnd} from '@angular/router';
 
 // app
 import {BaseComponent, Config, LogService, ActionBarUtil, DrawerService} from '../../shared/core/index';
-import {AuthService, PlayerService, IPlayerState, FirebaseService, PlaylistService} from '../../shared/shoutoutplay/index';
+import {AuthService, PlayerService, IPlayerState, FirebaseService, PlaylistService, TrackControlService} from '../../shared/shoutoutplay/index';
 import {PlayerFullComponent} from '../player/player-full.component';
 
 // nativescript
@@ -28,14 +28,13 @@ declare var zonedCallback: Function;
   changeDetection: ChangeDetectionStrategy.Default
 })
 export class HomeComponent implements AfterViewInit, OnInit {
-  public showControls$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
-  private _sub: Subscription;
+  // private _sub: Subscription;
   
-  constructor(private logger: LogService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public player: PlayerService, public authService: AuthService, public drawerService: DrawerService, private modal: ModalDialogService) {
+  constructor(private logger: LogService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public player: PlayerService, public authService: AuthService, public drawerService: DrawerService, public trackControl: TrackControlService, private modal: ModalDialogService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
     this._page.on("loaded", this.onLoaded, this);
   }
@@ -53,9 +52,9 @@ export class HomeComponent implements AfterViewInit, OnInit {
       context: { },
       fullscreen: true
     };
-    this.modal.showModal(PlayerFullComponent, options).then(zonedCallback(() => {
+    this.modal.showModal(PlayerFullComponent, options).then(() => {
       
-    }));
+    });
   }
 
   ngOnInit() {
@@ -66,11 +65,11 @@ export class HomeComponent implements AfterViewInit, OnInit {
       }
     });
 
-    this._sub = this.player.state$.subscribe((state: IPlayerState) => {
-      let showControls = state.currentTrackId || state.previewTrackId ? true : false;
-      this.showControls$.next(showControls);
-      this.logger.debug(`showControls: ${showControls}`);
-    });
+    // this._sub = this.player.state$.subscribe((state: IPlayerState) => {
+    //   let showControls = state.currentTrackId || state.previewTrackId ? true : false;
+    //   this.showControls$.next(showControls);
+    //   this.logger.debug(`showControls: ${showControls}`);
+    // });
 
     // if (!Config.SEEN_INTRO()) {
     //   this.router.navigate(['/intro']);
@@ -88,9 +87,9 @@ export class HomeComponent implements AfterViewInit, OnInit {
     this.drawerService.drawer = this.drawerComponent.sideDrawer;
   }
 
-  ngOnDestroy() {
-    if (this._sub) {
-      this._sub.unsubscribe();
-    }
-  }
+  // ngOnDestroy() {
+  //   if (this._sub) {
+  //     this._sub.unsubscribe();
+  //   }
+  // }
 }

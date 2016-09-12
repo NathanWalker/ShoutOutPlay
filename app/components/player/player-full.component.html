@@ -10,14 +10,14 @@
       <!--<Label text="Choose a Playlist" textWrap="true" row="0" col="1" class="modal-label modal-title"></Label>-->
   </GridLayout>
   <StackLayout row="1" col="0" class="album-area" (swipe)="onSwipe($event)">
-    <Image [src]="trackControl.player.albumArtUrl$ | async" class="album-img"></Image>
+    <Image [src]="albumArtUrl" class="album-img"></Image>
   </StackLayout>
   <StackLayout row="2" col="0" padding="30">
-    <Label [text]="(trackControl.player.currentTrack$ | async)?.trackName" class="track-name"></Label>
+    <Label [text]="currentTrack?.trackName" class="track-name"></Label>
     <StackLayout orientation="horizontal" width="100%" horizontalAlignment="center" textAlign="center" (tap)="navToTrack($event)">
-      <Label [text]="(trackControl.player.currentTrack$ | async)?.artistName" class="artist-name right"></Label>  
+      <Label [text]="currentTrack?.artistName" class="artist-name right"></Label>  
       <Label text=" - " class="artist-name"></Label>
-      <Label [text]="(trackControl.player.currentTrack$ | async)?.albumName" class="artist-name left"></Label>
+      <Label [text]="currentTrack?.albumName" class="artist-name left"></Label>
     </StackLayout> 
   </StackLayout>
   <GridLayout rows="auto" columns="25,*,*,*,25" row="3" col="0" class="play-area">

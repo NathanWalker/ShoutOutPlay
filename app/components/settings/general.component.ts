@@ -77,8 +77,8 @@ export class GeneralComponent implements AfterViewInit {
     TNSSpotifyAuth.CLEAR_COOKIES = true;
     TNSSpotifyAuth.LOGOUT();
     setTimeout(() => {
-      // this.router.navigate([`/`]); 
-      this.loc.back(); 
+      this.router.navigate([`/`]); 
+      // this.loc.back(); 
       this.drawerService.toggle(false);
     }, 400);
   }

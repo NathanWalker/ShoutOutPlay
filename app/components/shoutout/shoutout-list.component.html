@@ -1,6 +1,6 @@
 <MainActionBar></MainActionBar>
 
-<StackLayout modal-dialog-host class="pad-bottom full-page-bar-match">
+<StackLayout modal-dialog-host class="full-page-bar-match" [ngClass]="(trackControl.showControls$ | async) ? 'pad-bottom' : ''">
   <!--<StackLayout class="full-page-message" *ngIf="(shoutouts$ | async).length==0">
     <Label [text]="'fa-frown-o' | fonticonPure" textWrap="true" class="fa full-page-icon-label"></Label>
     <Label text="There are no shoutouts yet." textWrap="true" class="full-page-message-label"></Label>

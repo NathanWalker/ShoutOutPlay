@@ -3,6 +3,7 @@ import {Location} from '@angular/common';
 
 // libs
 import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
+import {Subscription} from 'rxjs/Subscription';
 
 import {BaseComponent, Config, LogService} from '../../shared/core/index';
 import {IPlayerState, TrackControlService} from '../../shared/shoutoutplay/index';
@@ -14,8 +15,13 @@ import {IPlayerState, TrackControlService} from '../../shared/shoutoutplay/index
   changeDetection: ChangeDetectionStrategy.Default
 })
 export class PlayerFullComponent {
+  public currentTrack: any;
+  public albumArtUrl: string;
+  private _sub: Subscription;
+  private _sub2: Subscription;
 
   constructor(private logger: LogService, private params: ModalDialogParams, public trackControl: TrackControlService) {
+    
   }
 
   public close() {
@@ -36,5 +42,21 @@ export class PlayerFullComponent {
     if (e.direction==8) {
       this.close();
     }
+  }
+
+  ngOnInit() {
+    this.logger.debug('PlayerFullComponent ngOnInit');
+    this._sub = this.trackControl.player.currentTrack$.subscribe((currentTrack: any) => {
+      this.currentTrack = currentTrack;
+    });
+    this._sub2 = this.trackControl.player.albumArtUrl$.subscribe((url: string) => {
+      this.albumArtUrl = url;
+    });
+  }
+
+  ngOnDestroy() {
+    this.logger.debug('PlayerFullComponent ngOnDestroy');
+    if (this._sub) this._sub.unsubscribe();
+    if (this._sub2) this._sub2.unsubscribe();
   }
 }

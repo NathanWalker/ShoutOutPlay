@@ -19,6 +19,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescript-spotify';
+import {isString, isObject} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
@@ -480,20 +481,35 @@ export class PlayerService extends Analytics {
   }
 
   private updateLogin(loggedIn: boolean) {
-    this.store.dispatch({ type: AUTH_ACTIONS.LOGGED_IN_CHANGE, payload: { loggedIn } });
+    this.loader.hide();
+    setTimeout(() => {
+      this.store.dispatch({ type: AUTH_ACTIONS.LOGGED_IN_CHANGE, payload: { loggedIn } });
+      if (!loggedIn) {
+        // reset player when logging out
+        this.store.dispatch({ type: PLAYER_ACTIONS.STOP, payload: { reset: true } });
+      }
+    }, 300);
   }
 
   private loginSuccess() {
     this.logger.debug(`loginSuccess!`);
     this.updateLogin(true);
-    this.loader.hide();
   }
 
   private loginError(error: any) {
     this.logger.debug(`loginError!`);
     this.logger.debug(error);
+    let label = '';
+    if (isString(error)) {
+      label = error;
+      if (label.length > 35) {
+        label = label.substring(0, 35);
+      }
+    } else if (isObject(error)) {
+      label = error.localizedDescription || error.description || error.message;
+    }
+    this.track(`${CATEGORY}_LOGIN_ERROR`, { label });
     this.updateLogin(false);
-    this.loader.hide();
   }
 
   private trackEnded(url: string) {

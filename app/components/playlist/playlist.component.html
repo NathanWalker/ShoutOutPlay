@@ -9,7 +9,7 @@ Error: *** -[__NSArrayI objectAtIndex:]: index 2 beyond bounds [0 .. 1]
 </ActionBarExtension>-->
 <PlaylistActionBar></PlaylistActionBar>
 
-<StackLayout class="pad-bottom full-page-bar-match">
+<StackLayout class="full-page-bar-match" [ngClass]="(trackControl.showControls$ | async) ? 'pad-bottom' : ''">
   <!--<StackLayout class="full-page-message" *ngIf="(firebaseService.state$ | async)?.playlists.length==0">
     <Label [text]="'fa-frown-o' | fonticonPure" textWrap="true" class="fa full-page-icon-label"></Label>
     <Label text="There are no playlists yet." textWrap="true" class="full-page-message-label"></Label>

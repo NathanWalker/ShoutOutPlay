@@ -22,7 +22,7 @@ import 'rxjs/add/operator/take';
 
 // app
 import {LogService, BaseComponent, FancyAlertService, TextService, Utils} from '../../shared/core/index';
-import {ShoutoutModel, FIREBASE_ACTIONS, IFirebaseState, ShoutoutService, FirebaseService} from '../../shared/shoutoutplay/index';
+import {ShoutoutModel, FIREBASE_ACTIONS, IFirebaseState, ShoutoutService, FirebaseService, TrackControlService} from '../../shared/shoutoutplay/index';
 import {TrackChooserComponent} from '../record/track-chooser.component';
 
 declare var zonedCallback: Function;
@@ -41,7 +41,7 @@ export class ShoutOutListComponent implements OnDestroy {
   private _currentShoutOut: any;
   private _sub: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone, private modal: ModalDialogService) {
+  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, public trackControl: TrackControlService, private fancyalert: FancyAlertService, private ngZone: NgZone, private modal: ModalDialogService) {
 
     if (isIOS) {
       this._shoutOutPlayer = new TNSAudioPlayer(true);
