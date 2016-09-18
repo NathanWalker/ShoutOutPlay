@@ -74,7 +74,6 @@ export const playerReducer: ActionReducer<IPlayerState> = (state: IPlayerState =
       if (action.payload.currentTrackId) action.payload.previewTrackId = undefined;
       return changeState();
     case PLAYER_ACTIONS.STOP:
-      console.log(`PlayerReducer - PLAYER_ACTIONS.STOP`);
       let payload:any = { playing: false, stopped: true };
       if (action.payload && action.payload.reset) {
         // reset all

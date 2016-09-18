@@ -5,14 +5,8 @@
   </ActionItem>
 </ActionBar>
 
-<!--<ActionBarExtension>
-  <NavigationButton text="Back" android.systemIcon="ic_menu_back" class="action-btn"></NavigationButton>
-  <ActionItem (tap)="toggleRecord()" ios.position="right" android.position="popup" *ngIf="showRecord">
-    <Button class="fa record-btn" [text]="(recordBtn$ | async) | fonticonPure"></Button>
-  </ActionItem>
-</ActionBarExtension>-->
-
 <AbsoluteLayout modal-dialog-host class="record-view">
+
   <!--<ios>-->
     <AudioPlot #audioplot class="audioPlot" [plotColor]="audioPlotColor" plotType="buffer"></AudioPlot>
   <!--</ios>-->
@@ -42,6 +36,5 @@
 
   <Button #bigRecordBtn [text]="(recordBtn$ | async) | fonticonPure" (tap)="toggleRecord()" class="fa big-record-btn" [ngClass]="{'android-big':isAndroidBig}"></Button>
   <Label #readyRecordLabel text="READY TO RECORD" textWrap="true" class="ready-record-label"></Label>
-  
   
 </AbsoluteLayout>
