@@ -32,7 +32,6 @@ export class HomeComponent implements AfterViewInit, OnInit {
   @ViewChild(RadSideDrawerComponent) public drawerComponent: RadSideDrawerComponent;
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
-  // private _sub: Subscription;
   
   constructor(private logger: LogService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public player: PlayerService, public authService: AuthService, public drawerService: DrawerService, public trackControl: TrackControlService, private modal: ModalDialogService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
@@ -65,12 +64,6 @@ export class HomeComponent implements AfterViewInit, OnInit {
       }
     });
 
-    // this._sub = this.player.state$.subscribe((state: IPlayerState) => {
-    //   let showControls = state.currentTrackId || state.previewTrackId ? true : false;
-    //   this.showControls$.next(showControls);
-    //   this.logger.debug(`showControls: ${showControls}`);
-    // });
-
     // if (!Config.SEEN_INTRO()) {
     //   this.router.navigate(['/intro']);
     // } else {
@@ -86,10 +79,4 @@ export class HomeComponent implements AfterViewInit, OnInit {
     this._changeDetectionRef.detectChanges();
     this.drawerService.drawer = this.drawerComponent.sideDrawer;
   }
-
-  // ngOnDestroy() {
-  //   if (this._sub) {
-  //     this._sub.unsubscribe();
-  //   }
-  // }
 }

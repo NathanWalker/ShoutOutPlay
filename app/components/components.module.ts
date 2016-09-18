@@ -26,6 +26,7 @@ import {PlayerFullComponent} from './player/player-full.component';
 import {PlaylistChooserComponent} from './playlist/playlist-chooser.component';
 import {PlaylistDetailComponent} from './playlist/playlist-detail.component';
 import {PlaylistComponent} from './playlist/playlist.component';
+import {SharedListComponent} from './shared/shared-list.component';
 import {RecordComponent} from './record/record.component';
 import {TrackChooserComponent} from './record/track-chooser.component';
 import {IntegrationsComponent} from './search/integrations.component';
@@ -50,6 +51,7 @@ export const routes: Routes = [
     children: [
       { path: "", component: SearchComponent },
       { path: "playlist", component: PlaylistComponent },
+      { path: "shared", component: SharedListComponent },
       { path: "shoutout", component: ShoutOutListComponent },
       { path: "theme", component: ThemeComponent },
       { path: "general", component: GeneralComponent },
@@ -66,6 +68,7 @@ export const ENTRY_COMPONENTS: any[] = [
   HomeComponent,
   SearchComponent,
   PlaylistComponent,
+  SharedListComponent,
   ShoutOutListComponent,
   ThemeComponent,
   GeneralComponent,

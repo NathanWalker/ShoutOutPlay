@@ -9,6 +9,10 @@
         <Label [text]="'fa-list' | fonticon" class="fa side-icon" row="0" col="0"></Label>
         <Label text="Playlists" class="side-label" row="0" col="1"></Label>
       </GridLayout>
+      <GridLayout columns="auto, *" rows="60" class="side-item" [nsRouterLink]="['/home/shared']" nsRouterLinkActive="active" pageTransition="slideLeft">
+        <Label [text]="'fa-microphone' | fonticon" class="fa side-icon" row="0" col="0"></Label>
+        <Label text="Shared" class="side-label" row="0" col="1"></Label>
+      </GridLayout>
       <GridLayout columns="auto, *" rows="60" class="side-item" [nsRouterLink]="['/home/shoutout']" nsRouterLinkActive="active" pageTransition="slideLeft">
         <Label [text]="'fa-microphone' | fonticon" class="fa side-icon" row="0" col="0"></Label>
         <Label text="ShoutOuts" class="side-label" row="0" col="1"></Label>
