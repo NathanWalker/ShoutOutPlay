@@ -1,10 +1,8 @@
 // angular
 import {NgZone, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import * as dialogs from 'ui/dialogs';
 import {topmost} from 'ui/frame';
 import * as utils from 'utils/utils';
@@ -15,57 +13,32 @@ import {Subscription} from 'rxjs/Subscription';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} from '../../shared/core/index';
-import {PlaylistService, IPlaylistState, PlaylistModel, SharedModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, SharedlistService, ShoutoutService} from '../../shared/shoutoutplay/index';
+import {SharedModel, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, SharedlistService, ShoutoutService} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 @BaseComponent({
   // moduleId: module.id,
   selector: 'shared-list',
-  templateUrl: './components/shared-list/shared-list.component.html',
-  providers: [ModalDialogService]
+  templateUrl: './components/shared-list/shared-list.component.html'
 })
 export class SharedListComponent implements OnInit {
-  public playlistIndex: number;
-  private _playlist: PlaylistModel;
-  private _swipedView: any;
   private _currentIndex: number;
   private _sub: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, public sharedlistService: SharedlistService, private location: Location) {
+  constructor(private store: Store<any>, private logger: LogService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone, public sharedlistService: SharedlistService, private location: Location) {
     logger.debug(`SharedListComponent constructor`);
   } 
 
-  public viewShoutout(track: TrackModel) {
-    this.ngZone.run(() => {
-      if (track.shoutoutId) {
-        let options: ModalDialogOptions = {
-          context: { id: track.shoutoutId },
-          fullscreen: true
-        };
-        this.modal.showModal(ShoutOutDetailComponent, options).then(() => {
-          
+  public remove(e: any) {
+    this.store.take(1).subscribe((s: any) => {
+      let shared = <SharedModel>s.firebase.sharedlist[this._currentIndex];
+      if (shared) {
+        this.fancyalert.confirm(`Are you sure you want to remove this shared ShoutOut from ${shared.sharedBy}?`, 'warning', () => {
+          this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE, payload: shared });
         });
-      } else {
-        Config.SELECTED_PLAYLIST_ID = this._playlist.id;
-        this.shoutoutService.quickRecordTrack = track;
-        this.router.navigate(['/record']);
       }
     });
   }
-
-  public remove(e: any) {
-    this.fancyalert.confirm('Are you sure you want to remove this shared ShoutOut?', 'warning', () => {
-      this.store.take(1).subscribe((s: any) => {
-        let shared = s.firebase.sharedlist[this._currentIndex];
-        this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE, payload: shared });
-      });
-      // AnimateService.SWIPE_RESET(this._swipedView);
-    });
-  }
-
-  // public swipeReveal(e: any) {
-  //   this._swipedView = AnimateService.SWIPE_REVEAL(e);
-  // }
 
   public onSwipeCellStarted(args: any) {
     let density = utils.layout.getDisplayDensity();

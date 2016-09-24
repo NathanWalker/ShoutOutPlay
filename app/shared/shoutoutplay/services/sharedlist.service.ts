@@ -1,8 +1,8 @@
 // angular
 import {Injectable, NgZone, forwardRef, Inject, Injector} from '@angular/core';
-import {Router} from '@angular/router';
 
 // nativescript
+import {RouterExtensions} from "nativescript-angular/router";
 import {isIOS} from 'platform';
 import * as dialogs from 'ui/dialogs';
 import * as fs from 'file-system';
@@ -117,13 +117,13 @@ export class SharedlistService extends Analytics {
   } 
 
   public goToAndPlay(shared: SharedModel) {
+    // shared-list.component picks up the shared track from this observable
     Config.PLAY_SHARED$.next(shared);
-    let router = this.injector.get(Router);
-    this.logger.debug(router.navigate);
-    for (let key in router) {
-      this.logger.debug(`key: ${key}, ${router[key]}`);
-    }
-    router.navigate(['/home/shared']);
+    // using injector here due to some injection issue
+    // similar: https://github.com/angular/angular/issues/10770
+    // may be able to inject once above is solved
+    let nav = this.injector.get(RouterExtensions);
+    nav.navigate(['/home/shared'], { clearHistory: true });
   }
 
   public skipNextPrev(direction: number) {

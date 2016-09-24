@@ -16,7 +16,7 @@
           <Image row="0" col="0" [src]="(item.playing ? 'res://logo-160-pause.png' : 'res://logo-160.png')" class="play-btn-img" (tap)="sharedlistService.togglePlay(item)" stretch="aspectFit"></Image>
         <!--</ios>-->
         <!--<android>-->
-          <!--<Image row="0" col="0" [src]="(item.playing ? 'res://logo_pause' : 'res://logo')" class="play-btn-img" (tap)="playlistService.togglePlay(item.playlistId, item)" *ngIf="item.shoutoutId"></Image>-->
+          <!--<Image row="0" col="0" [src]="(item.playing ? 'res://logo_pause' : 'res://logo')" class="play-btn-img" (tap)="sharedlistService.togglePlay(item)" *ngIf="item.shoutoutId"></Image>-->
         <!--</android>-->
         <StackLayout row="0" col="1" class="row-center">
           <Label [text]="item.name" textWrap="true" class="title"></Label> 

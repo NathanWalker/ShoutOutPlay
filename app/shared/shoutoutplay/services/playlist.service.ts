@@ -107,6 +107,7 @@ export class PlaylistService extends Analytics {
     this.store.take(1).subscribe((s: any) => {
       this.logger.debug('PlaylistService.togglePlay: this.store.take(1).subscribe, should update playlist state');
       let playlists = [...s.firebase.playlists];
+      let sharedlist = [...s.firebase.sharedlist];
       let currentTrackId = s.player.currentTrackId;
       let playing = !s.player.playing; // new playing state is always assumed the opposite unless the following...
       if (track) {
@@ -199,10 +200,16 @@ export class PlaylistService extends Analytics {
           }
         }
         this.logger.debug(`playlists[playlistIndex].playing: ${playlists[playlistIndex].playing}`);
+        // TODO: refactor - keep sharedlist state in sync here
+        for (let t of sharedlist) {
+          if (t.trackId == currentTrackId) {
+            t.playing = playing;
+          }
+        }
       
         this.ngZone.run(() => {
           this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId, playing } });
-          this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists } });
+          this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists, sharedlist } });
         });
       }  
     });

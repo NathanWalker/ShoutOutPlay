@@ -111,7 +111,11 @@ export const firebaseReducer: ActionReducer<IFirebaseState> = (state: IFirebaseS
           t.playing = false;
         }
       }
-      action.payload = { playlists };
+      var sharedlist = [...state.sharedlist];
+      for (let t of sharedlist) {
+        t.playing = false;
+      }
+      action.payload = { playlists, sharedlist };
       return changeState();
     default:
       return state;
@@ -464,7 +468,7 @@ export class FirebaseService extends Analytics {
   private addNewShared(shared: SharedModel) {
     if (Config.USER_KEY) {
       this.toggleLoader(true, 'Oh nice! The shared ShoutOut is about to play, one moment...');
-      this._ignoreUpdate = true;
+      this._ignoreUpdate = false;
       this.stripFunctions(shared);
       firebase.push(
         `/users/${Config.USER_KEY}/shared`,
