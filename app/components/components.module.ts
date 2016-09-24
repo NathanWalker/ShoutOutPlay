@@ -3,8 +3,8 @@ import { NativeScriptModule } from 'nativescript-angular/platform';
 import { NativeScriptFormsModule } from 'nativescript-angular/forms';
 import { NativeScriptHttpModule } from 'nativescript-angular/http';
 import { NativeScriptRouterModule } from 'nativescript-angular/router';
-import { SIDEDRAWER_PROVIDERS, SIDEDRAWER_DIRECTIVES } from "nativescript-telerik-ui-pro/sidedrawer/angular";
-import { LISTVIEW_PROVIDERS, LISTVIEW_DIRECTIVES } from 'nativescript-telerik-ui-pro/listview/angular';
+import { SIDEDRAWER_DIRECTIVES } from "nativescript-telerik-ui-pro/sidedrawer/angular";
+import { LISTVIEW_DIRECTIVES } from 'nativescript-telerik-ui-pro/listview/angular';
 
 // angular
 import { NgModule } from '@angular/core';
@@ -16,6 +16,7 @@ import { TNSFontIconService, TNSFontIconPipe, TNSFontIconPurePipe } from 'native
 // feature module components
 import {MainActionBarComponent} from '../shared/shoutoutplay/components/actionbar.component';
 import {PlaylistActionBarComponent} from '../shared/shoutoutplay/components/playlist-actionbar.component';
+import {SharedlistActionBarComponent} from '../shared/shoutoutplay/components/sharedlist-actionbar.component';
 import {EmptyComponent} from '../shared/shoutoutplay/components/empty.component';
 
 // app
@@ -26,7 +27,7 @@ import {PlayerFullComponent} from './player/player-full.component';
 import {PlaylistChooserComponent} from './playlist/playlist-chooser.component';
 import {PlaylistDetailComponent} from './playlist/playlist-detail.component';
 import {PlaylistComponent} from './playlist/playlist.component';
-import {SharedListComponent} from './shared/shared-list.component';
+import {SharedListComponent} from './shared-list/shared-list.component';
 import {RecordComponent} from './record/record.component';
 import {TrackChooserComponent} from './record/track-chooser.component';
 import {IntegrationsComponent} from './search/integrations.component';
@@ -64,6 +65,7 @@ export const routes: Routes = [
   { path: "playlist/:id", component: PlaylistDetailComponent }
 ];
 
+// components used as routes
 export const ENTRY_COMPONENTS: any[] = [
   HomeComponent,
   SearchComponent,
@@ -79,13 +81,16 @@ export const ENTRY_COMPONENTS: any[] = [
   PlaylistDetailComponent
 ];
 
+// components used by other components
 export const AUX_COMPONENTS: any[] = [
   PlayerControlsComponent,
   MainActionBarComponent,
   PlaylistActionBarComponent,
+  SharedlistActionBarComponent,
   EmptyComponent
 ];
 
+// components dynamically created (modals)
 export const FACTORY_COMPONENTS: any[] = [
   PlayerFullComponent,
   PlaylistChooserComponent,
@@ -130,8 +135,6 @@ export const FACTORY_COMPONENTS: any[] = [
     NativeScriptRouterModule
   ],
   providers: [
-    SIDEDRAWER_PROVIDERS,
-    LISTVIEW_PROVIDERS,
     { provide: TNSFontIconService, useFactory: () => {
         return new TNSFontIconService({
           'fa': 'font-awesome.css'

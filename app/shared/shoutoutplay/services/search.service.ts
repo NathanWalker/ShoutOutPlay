@@ -12,7 +12,7 @@ import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {ProgressService, LogService, FancyAlertService, TextService} from '../../core/index';
+import {LogService, FancyAlertService, TextService, PROGRESS_ACTIONS} from '../../core/index';
 import {IPlayerState, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
 // analytics
@@ -56,12 +56,13 @@ export const searchReducer: ActionReducer<ISearchState> = (state: ISearchState =
 @Injectable()
 export class SearchService extends Analytics {
   public state$: Observable<any>;
+  public quickRecordTrack: TrackModel;
   private _currentQuery: string;
   private _currentOffset: number = 0;
   private _hasMore: boolean = true;
   private _searchSpinnerTimeout: any;
 
-  constructor(public analytics: AnalyticsService, private logger: LogService, private store: Store<any>, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
+  constructor(public analytics: AnalyticsService, private logger: LogService, private store: Store<any>, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -112,13 +113,13 @@ export class SearchService extends Analytics {
       this._currentOffset = offset = 0;
     }
     
-    this.loader.show({ message: this._currentOffset > 0 ? 'Loading more results...' : 'Searching...' });
+    this.toggleLoader(true, this._currentOffset > 0 ? 'Loading more results...' : 'Searching...');
     this.logger.debug(`loading offset: ${this._currentOffset}`);
 
     this._searchSpinnerTimeout = setTimeout(() => {
       // prevent infinite load on search
       this.fancyalert.show(TextService.SPOTIFY_SEARCH_DELAY_NOTICE);
-      this.loader.hide();
+      this.toggleLoader(false);
     }, 6000);
     
     TNSSpotifySearch.QUERY(query, queryType, offset).then((result) => {
@@ -145,7 +146,7 @@ export class SearchService extends Analytics {
           }
         } else {
           // no more results
-          this.loader.hide();
+          this.toggleLoader(false);
         }
       } else {
         this.searchError();
@@ -170,13 +171,13 @@ export class SearchService extends Analytics {
   }
 
   private searchError() {
-    this.loader.hide();
+    this.toggleLoader(false);
     this.resetTimeout();
     Utils.alert('No tracks found. Try using only 2 words of the track name.');
   }
 
   private resultChange(tracks: Array<TNSTrack>, term: string) {
-    this.loader.hide();
+    this.toggleLoader(false);
     // convert to TrackModel
     let results: Array<TrackModel> = [];
     for (let track of tracks) {
@@ -201,5 +202,11 @@ export class SearchService extends Analytics {
         this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results } });
       });
     });
+  }
+
+  private toggleLoader(enable: boolean, msg?: string) {
+    let options: any = { type: enable ? PROGRESS_ACTIONS.SHOW : PROGRESS_ACTIONS.HIDE };
+    if (msg) options.payload = msg;
+    this.store.dispatch(options);
   }
 }

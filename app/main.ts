@@ -32,7 +32,13 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
 
 // app
-import {ConsoleService, SpotifyAppDelegate, ColorService} from './shared/core/index';
+import {
+  ConsoleService,
+  SpotifyAppDelegate,
+  ColorService,
+  progressReducer,
+  ProgressEffects
+} from './shared/core/index';
 import {CoreModule} from './shared/core/core.module';
 import {AnalyticsModule} from './shared/analytics/analytics.module';
 import {ShoutOutPlayModule} from './shared/shoutoutplay/shoutoutplay.module';
@@ -45,7 +51,9 @@ import {
   PlaylistEffects,
   searchReducer,
   shoutoutReducer,
-  ShoutoutEffects
+  ShoutoutEffects,
+  sharedlistReducer,
+  SharedlistEffects
 } from './shared/shoutoutplay/index';
 import {ComponentsModule, routes, ENTRY_COMPONENTS} from './components/components.module';
 import {AppComponent} from './app.component';
@@ -84,13 +92,17 @@ enableProdMode();
       firebase: firebaseReducer,
       player: playerReducer,
       playlist: playlistReducer,
+      progress: progressReducer,
       search: searchReducer,
+      sharedlist: sharedlistReducer,
       shoutout: shoutoutReducer
     }),
     ShoutOutPlayModule,
     EffectsModule.run(FirebaseEffects),
     EffectsModule.run(PlaylistEffects),
-    EffectsModule.run(ShoutoutEffects), 
+    EffectsModule.run(ProgressEffects),
+    EffectsModule.run(SharedlistEffects),
+    EffectsModule.run(ShoutoutEffects),
     ComponentsModule,
     NativeScriptRouterModule.forRoot(routes)
   ],

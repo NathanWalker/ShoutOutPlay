@@ -19,11 +19,11 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlayer} from 'nativescript-spotify';
-import {isString, isObject} from 'lodash';
+import {isString, isObject, throttle} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {Config, LogService, ProgressService, FancyAlertService, TextService, Utils} from '../../core/index';
+import {Config, LogService, FancyAlertService, TextService, Utils, PROGRESS_ACTIONS} from '../../core/index';
 import {AUTH_ACTIONS, ISearchState, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 import {CommandCenterHandler} from './command-center';
 
@@ -111,8 +111,9 @@ export class PlayerService extends Analytics {
   private _playConnectingTimeout: any;
   private _cmdCenterHandler: any;
   private _currentTrack: any;
+  private _throttledLoginSuccess: Function;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -171,14 +172,17 @@ export class PlayerService extends Analytics {
       }
     });
 
+    // throttle loginSuccess since spotify can trigger 2 in quick succession sometimes
+    this._throttledLoginSuccess = throttle(this.loginSuccess.bind(this), 800);
+
     if (isIOS) {
       this.initCommandCenter();
     }    
   }
 
-  public togglePlay(trackId: string, isPreview?: boolean, playing?: boolean) {
+  public togglePlay(trackId: string, isPreview?: boolean, playing?: boolean, sharedShoutoutFilename?: string) {
     if (playing) {
-      this.loader.show();
+      this.toggleLoader(true);
       this.resetConnectionTimeout();
       // helps prevent infinte spins in case of non-responsive Spotify service
       this._playConnectingTimeout = setTimeout(() => {
@@ -213,7 +217,7 @@ export class PlayerService extends Analytics {
       // could rely on isPlaying return value for consistency, using static values here
       if (!PlayerService.isPreview && PlayerService.isPlaying) {
         // when playing playlist tracks, queue shoutouts
-        this.queueShoutOut(trackId);
+        this.queueShoutOut(trackId, sharedShoutoutFilename);
       }
     }, (error) => {
       this.logger.debug(`togglePlay error:`);
@@ -286,45 +290,54 @@ export class PlayerService extends Analytics {
   }
 
   private playerUIStateReset() {
-    this.loader.hide();
+    this.toggleLoader(false);
     this.resetConnectionTimeout();
   }
   
-  private queueShoutOut(trackId: string) {
+  private queueShoutOut(trackId: string, sharedShoutoutFilename?: string) {
     // always ensure spotify volume is up to start
     this.setSpotifyVolume(1);
     if (trackId !== this._currentTrackId) {
       this._currentTrackId = trackId;
-      this.store.take(1).subscribe((s: any) => {
-        let playlists = [...s.firebase.playlists];
-        let shoutouts = [...s.firebase.shoutouts];
-        // find track and shoutout (if available)
-        for (let playlist of playlists) {
-          for (let track of playlist.tracks) {
-            if (track.id === trackId) {
-              if (track.shoutoutId) {
-                for (let shoutout of shoutouts) {
-                  if (shoutout.id === track.shoutoutId) {
-                    this._currentShoutOutPath = Utils.documentsPath(shoutout.filename);
-                    if (!File.exists(this._currentShoutOutPath)) {
-                      // alert user
-                      setTimeout(() => {
-                        this.fancyalert.show(TextService.SHOUTOUT_NOT_FOUND);
-                      }, 1000);
-                    } else {
-                      this._shoutoutTimeout = setTimeout(() => {
-                        this.logger.debug(`queueShoutOut toggleShoutOutPlay(true)`);
-                        this.toggleShoutOutPlay(true);
-                      }, PlayerService.SHOUTOUT_START);     
+
+      let setupShoutout = (filename: string) => {
+        this._currentShoutOutPath = Utils.documentsPath(filename);
+        if (!File.exists(this._currentShoutOutPath)) {
+          // alert user
+          setTimeout(() => {
+            this.fancyalert.show(TextService.SHOUTOUT_NOT_FOUND);
+          }, 1000);
+        } else {
+          this._shoutoutTimeout = setTimeout(() => {
+            this.logger.debug(`queueShoutOut toggleShoutOutPlay(true)`);
+            this.toggleShoutOutPlay(true);
+          }, PlayerService.SHOUTOUT_START);
+        }
+      };
+      
+      if (sharedShoutoutFilename) {
+        setupShoutout(sharedShoutoutFilename);
+      } else {
+        this.store.take(1).subscribe((s: any) => {
+          let playlists = [...s.firebase.playlists];
+          let shoutouts = [...s.firebase.shoutouts];
+          // find track and shoutout (if available)
+          for (let playlist of playlists) {
+            for (let track of playlist.tracks) {
+              if (track.id === trackId) {
+                if (track.shoutoutId) {
+                  for (let shoutout of shoutouts) {
+                    if (shoutout.id === track.shoutoutId) {
+                      setupShoutout(shoutout.filename);
                     }
                   }
                 }
+                return;
               }
-              return;
             }
           }
-        }
-      });
+        });
+      }
     }
   }
 
@@ -480,7 +493,8 @@ export class PlayerService extends Analytics {
   }
 
   private updateLogin(loggedIn: boolean) {
-    this.loader.hide();
+    this.toggleLoader(false);
+    this.logger.debug(`player.service updateLogin: ${loggedIn}`);
     setTimeout(() => {
       this.store.dispatch({ type: AUTH_ACTIONS.LOGGED_IN_CHANGE, payload: { loggedIn } });
       if (!loggedIn) {
@@ -606,6 +620,10 @@ export class PlayerService extends Analytics {
     }
   }
 
+  private toggleLoader(enable: boolean) {
+    this.store.dispatch({type: enable ? PROGRESS_ACTIONS.SHOW : PROGRESS_ACTIONS.HIDE});
+  }
+
   private setupEvents() {
     this._spotify.events.on('albumArtChange', (eventData: any) => {
       this.ngZone.run(() => {
@@ -617,7 +635,7 @@ export class PlayerService extends Analytics {
     });
     this._spotify.events.on('playerReady', (eventData: any) => {
       this.ngZone.run(() => {
-        this.loader.hide();
+        this.toggleLoader(false);
       });
     });
     // this._spotify.events.on('stoppedPlayingTrack', (eventData: any) => {
@@ -656,12 +674,13 @@ export class PlayerService extends Analytics {
     // may want to implement later doing something else, but showing loader here is bad idea
     // this._spotify.auth.events.on('authLoginCheck', (eventData: any) => {
     //   this.ngZone.run(() => {
-    //     this.loader.show();
+    //     this.toggleLoader(true);
     //   });
     // });
     this._spotify.auth.events.on('authLoginSuccess', (eventData: any) => {
       this.ngZone.run(() => {
-        this.loginSuccess();
+        this._throttledLoginSuccess();
+        // this.loginSuccess();
       });
     });
     this._spotify.auth.events.on('authLoginError', (eventData: any) => {

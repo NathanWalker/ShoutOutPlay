@@ -31,10 +31,6 @@
       </template>
     </ListView>
 
-    <!--<StackLayout class="full-page-message" [visibility]="(searchService.state$ | async)?.results.length ? 'collapsed': 'visible'">
-      <Label [text]="'fa-long-arrow-up' | fonticonPure" class="fa full-page-icon-label"></Label>
-      <Label text="Search by artist or track name." textWrap="true" class="full-page-message-label"></Label>
-    </StackLayout>-->
     <EmptyView class="full-page-bar-match" [visibility]="(searchService.state$ | async)?.results.length ? 'collapsed': 'visible'" [icon]="'fa-long-arrow-up'" [text]="'Search by artist or track name.'"></EmptyView>
 
   </StackLayout>

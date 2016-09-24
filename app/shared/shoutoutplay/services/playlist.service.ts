@@ -1,5 +1,5 @@
 // angular
-import {Injectable, NgZone, forwardRef, Inject} from '@angular/core';
+import {Injectable, NgZone, forwardRef} from '@angular/core';
 import {Router} from '@angular/router';
 
 // nativescript
@@ -37,8 +37,8 @@ import {isString, includes} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {LogService, ProgressService, DialogsService, FancyAlertService} from '../../core/index';
-import {PlaylistModel, TrackModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, ShoutoutService, SHOUTOUT_ACTIONS} from '../index';
+import {LogService, FancyAlertService, PROGRESS_ACTIONS} from '../../core/index';
+import {PlaylistModel, TrackModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, SHOUTOUT_ACTIONS} from '../index';
 
 declare var zonedCallback: Function;
 
@@ -93,10 +93,10 @@ export const playlistReducer: ActionReducer<IPlaylistState> = (state: IPlaylistS
 @Injectable()
 export class PlaylistService extends Analytics {
   public state$: Observable<any>;
-  public showRecord$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public showRecord$: BehaviorSubject<any> = new BehaviorSubject(null);
   private selectedTrack: TrackModel;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private ngZone: NgZone, private fancyalert: FancyAlertService, @Inject(forwardRef(() => ShoutoutService)) private shoutoutService) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -249,7 +249,7 @@ export class PlaylistService extends Analytics {
         if (item.id === playlistId) {
           if (item.addTrack(this.selectedTrack)) {
             this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: item });
-            this.dialogsService.success('Added!');
+            this.store.dispatch({ type: PROGRESS_ACTIONS.SUCCESS, payload: 'Added!' });
             this.selectedTrack.playlistId = playlistId;
             this.promptToRecord(this.selectedTrack);
             break;
@@ -278,7 +278,7 @@ export class PlaylistService extends Analytics {
       if (shoutoutIds.length) {
         this.store.take(1).subscribe((s: any) => {
           let filenames = s.firebase.shoutouts.filter(s => includes(shoutoutIds, s.id)).map(s => s.filename);
-          this.shoutoutService.removeRecordings(filenames, true);
+          this.store.dispatch({type: SHOUTOUT_ACTIONS.REMOVE_LOCAL, payload: {filenames, removeRemote: true}});
         });
       }
     }
@@ -339,14 +339,12 @@ export class PlaylistService extends Analytics {
         new TNSFancyAlertButton({
           label: 'Yes!',
           action: () => {
-            this.shoutoutService.quickRecordTrack = track;
-
             // This funkiness is because `Router` cannot be injected directly!
             // due to some cyclic dependency issue with ngrx/effects :(
-            this.showRecord$.next(true);
+            this.showRecord$.next(track);
             setTimeout(() => {
               // reset value back
-              this.showRecord$.next(false);
+              this.showRecord$.next(null);
             });
           }
         })
@@ -355,7 +353,7 @@ export class PlaylistService extends Analytics {
   }
 
   private create(name: string, track: TrackModel) {
-    this.loader.show();
+    this.store.dispatch({ type: PROGRESS_ACTIONS.SHOW });
     this.logger.debug(`Creating playlist named '${name}', and adding track: ${track.name}`);
     this.getRawPlaylists().then((playlists: Array<PlaylistModel>) => {
       let newPlaylist = new PlaylistModel({ name });

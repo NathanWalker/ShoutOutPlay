@@ -70,6 +70,7 @@ export class AuthService extends Analytics {
     TNSSpotifyAuth.VERIFY_SESSION().then(() => {
       this.setLoggedIn(true);
     }, () => {
+      this.logger.debug(`TNSSpotifyAuth.VERIFY_SESSION failed...`);
       this.setLoggedIn(false);
     });
   }
@@ -107,6 +108,7 @@ export class AuthService extends Analytics {
   }
 
   private setLoggedIn(loggedIn: boolean) {
+    this.logger.debug(`setLoggedIn: ${loggedIn}`);
     setTimeout(() => {
       this.store.dispatch({ type: AUTH_ACTIONS.LOGGED_IN_CHANGE, payload: { loggedIn } });
     }, 500);

@@ -1,14 +1,10 @@
 <ActionBar [title]="(firebaseService.state$ | async)?.playlists[playlistIndex].name">
   <NavigationButton text="Playlists" android.systemIcon="ic_menu_back" class="action-btn" (tap)="androidBack()"></NavigationButton>
-  <ActionItem (tap)="edit()" ios.position="right" android.position="popup">
+  <ActionItem (tap)="editPlaylist()" ios.position="right" android.position="popup">
     <Button class="fa action-btn" [text]="'fa-pencil' | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
 <StackLayout modal-dialog-host class="full-page-bar-match">  
-  <!--<StackLayout class="full-page-message" *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0">
-    <Label [text]="'fa-frown-o' | fonticonPure" class="fa full-page-icon-label"></Label>
-    <Label text="There are no tracks here." textWrap="true" class="full-page-message-label"></Label>
-  </StackLayout> -->
   <EmptyView class="full-page-bar-match" *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0" [icon]="'fa-frown-o'" [text]="'There are no tracks here.'"></EmptyView>
   
   <RadListView id="listview" [items]="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks" row="1" colSpan="2" class="full-page pad-bottom"
@@ -31,11 +27,12 @@
           <Label [text]="item.name" textWrap="true" class="title"></Label> 
           <Label [text]="item.artist.name" textWrap="true" class="title-sub"></Label> 
         </StackLayout>
-        <Button row="0" col="2" [text]="'fa-microphone' | fonticonPure" class="shoutout-mic fa" (tap)="viewShoutout(item)" [ngClass]="{active: item.shoutoutId}"></Button>
+        <Button row="0" col="2" [text]="(item.shoutoutId ? 'fa-share-alt' : 'fa-microphone') | fonticon" class="shoutout-mic fa" (tap)="viewShoutout(item)" [ngClass]="{active: item.shoutoutId}"></Button><!-- 'fa-microphone' | fonticonPure   -->
       </GridLayout>
     </template>
-    <GridLayout *tkListItemSwipeTemplate rows="auto" columns="*,100">
-        <Button row="0" col="1" text="Delete" class="btn delete-btn" (tap)="remove($event)"></Button>
+    <GridLayout *tkListItemSwipeTemplate rows="auto" columns="100,*,100">
+      <Button row="0" col="0" text="Edit" class="btn edit-btn" (tap)="edit($event)"></Button>
+      <Button row="0" col="2" text="Delete" class="btn delete-btn" (tap)="remove($event)"></Button>
     </GridLayout>
   </RadListView>
 </StackLayout>

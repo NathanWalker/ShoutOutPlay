@@ -112,8 +112,9 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
       }
     });
 
-    this._sub2 = this.playlistService.showRecord$.subscribe((recordNow: boolean) => {
-      if (recordNow) {
+    this._sub2 = this.playlistService.showRecord$.subscribe((track: TrackModel) => {
+      if (track) {
+        this.searchService.quickRecordTrack = track;
         this.router.navigate(['/record']);
       }   
     })

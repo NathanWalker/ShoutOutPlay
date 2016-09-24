@@ -14,7 +14,7 @@ import {Store} from '@ngrx/store';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} from '../../shared/core/index';
-import {PlaylistService, IPlaylistState, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, ShoutoutModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService, TrackControlService} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 @BaseComponent({
@@ -29,19 +29,15 @@ export class PlaylistDetailComponent implements OnInit {
   private _swipedView: any;
   private _currentIndex: number;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location, private trackControl: TrackControlService) {
     logger.debug(`PlaylistDetailComponent constructor`);
-  } 
+  }  
 
   public viewShoutout(track: TrackModel) {
     this.ngZone.run(() => {
       if (track.shoutoutId) {
-        let options: ModalDialogOptions = {
-          context: { id: track.shoutoutId },
-          fullscreen: true
-        };
-        this.modal.showModal(ShoutOutDetailComponent, options).then(() => {
-          
+        this.getShoutout(track.shoutoutId).then((shoutout) => {
+          this.trackControl.openShareOptions(shoutout, track);
         });
       } else {
         Config.SELECTED_PLAYLIST_ID = this._playlist.id;
@@ -51,12 +47,25 @@ export class PlaylistDetailComponent implements OnInit {
     });
   }
 
-  public edit() {
+  public editPlaylist() {
     this.playlistService.edit(this._playlist).then((p) => {
       this._playlist.name = p.name;
       var actionBar = topmost().currentPage.actionBar;
       actionBar.title = p.name;
     });
+  }
+
+  public edit() {
+    let track = this._playlist.tracks[this._currentIndex];
+    if (track.shoutoutId) {
+      let options: ModalDialogOptions = {
+        context: { track },
+        fullscreen: true
+      };
+      this.modal.showModal(ShoutOutDetailComponent, options).then(() => {
+        
+      });
+    }
   }
 
   public remove(e: any) {
@@ -88,7 +97,7 @@ export class PlaylistDetailComponent implements OnInit {
     var swipeLimits = args.data.swipeLimits;  
     swipeLimits.top = 0;
     swipeLimits.bottom = 0;
-    swipeLimits.left = 0;//Math.round(density * 100);
+    swipeLimits.left = Math.round(density * 100);
     swipeLimits.right = Math.round(density * 100);
     swipeLimits.threshold = Math.round(density * 50);
   }
@@ -100,6 +109,17 @@ export class PlaylistDetailComponent implements OnInit {
   public onItemReordered(args: any) {
     this.logger.debug("Item reordered. Old index: " + args.itemIndex + " " + "new index: " + args.data.targetIndex);
     this.store.dispatch({ type: FIREBASE_ACTIONS.REORDER, payload: { type: 'track', itemIndex: args.itemIndex, targetIndex: args.data.targetIndex, playlist: this._playlist } });
+  }
+
+  private getShoutout(shoutoutId: any): Promise<ShoutoutModel> {
+    return new Promise((resolve, reject) => {
+      this.store.take(1).subscribe((state: any) => {
+        let results = state.firebase.shoutouts.filter(s => s.id == shoutoutId);
+        if (results.length) {
+          resolve(results[0]);
+        }
+      });
+    });
   }
 
   ngOnInit() {

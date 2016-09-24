@@ -7,13 +7,11 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "noImplicitUseStrict": true,
-        "noEmitHelpers": true
+        "noEmitHelpers": true,
+        "noLib": true
     },
     "files": [
         "node_modules/tns-core-modules/tns-core-modules.d.ts",
-        "node_modules/tns-platform-declarations/tns-core-modules/android17.d.ts",
-        "node_modules/tns-platform-declarations/tns-core-modules/ios.d.ts",
-        "node_modules/tns-platform-declarations/tns-core-modules/org.nativescript.widgets.d.ts",
         "node_modules/nativescript-plugin-firebase/firebase.d.ts",
         "node_modules/nativescript-splashscreen/SplashScreen.ios.d.ts",
         "node_modules/nativescript-spotify/spotify.d.ts",

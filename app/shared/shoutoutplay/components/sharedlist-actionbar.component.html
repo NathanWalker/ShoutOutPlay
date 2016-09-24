@@ -1,0 +1,22 @@
+<ActionBar title="Shared">
+
+  <!-- Android -->
+  <!--<GridLayout rows="auto" columns="auto,*,auto" class="android-action-bar">
+    <Button class="fa android-btn" [text]="'fa-bars' | fonticonPure" row="0" col="0" (tap)="drawerService.toggle()"></Button>
+    <Label text="Playlists" row="0" col="1" class="action-title"></Label>
+    <Button class="fa action-btn" [text]="'fa-plus' | fonticonPure" (tap)="add()" row="0" col="2"></Button>
+  </GridLayout>-->
+  <!--<Image src="res://logo" class="action-image" row="0" col="1" height="30"></Image>-->
+
+  <!-- iOS -->
+  <StackLayout orientation="horizontal" horizontalAlignment="center" verticalAlignment="center" padding="5">
+    <Label text="Shared" class="action-title"></Label>
+  </StackLayout>
+
+  <ActionItem (tap)="drawerService.toggle()">
+    <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
+  </ActionItem>
+  <!--<ActionItem (tap)="add()" ios.position="right" android.position="popup">
+    <Button class="fa action-btn" [text]="'fa-plus' | fonticonPure"></Button>
+  </ActionItem>-->
+</ActionBar>

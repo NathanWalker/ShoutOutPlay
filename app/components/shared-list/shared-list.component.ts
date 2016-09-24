@@ -11,16 +11,17 @@ import * as utils from 'utils/utils';
 
 // libs
 import {Store} from '@ngrx/store';
+import {Subscription} from 'rxjs/Subscription';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} from '../../shared/core/index';
-import {PlaylistService, IPlaylistState, PlaylistModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, SharedModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, SharedlistService, ShoutoutService} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 @BaseComponent({
   // moduleId: module.id,
-  selector: 'playlist-detail',
-  templateUrl: './components/playlist/playlist-detail.component.html',
+  selector: 'shared-list',
+  templateUrl: './components/shared-list/shared-list.component.html',
   providers: [ModalDialogService]
 })
 export class SharedListComponent implements OnInit {
@@ -28,8 +29,9 @@ export class SharedListComponent implements OnInit {
   private _playlist: PlaylistModel;
   private _swipedView: any;
   private _currentIndex: number;
+  private _sub: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, public sharedlistService: SharedlistService, private location: Location) {
     logger.debug(`SharedListComponent constructor`);
   } 
 
@@ -52,14 +54,11 @@ export class SharedListComponent implements OnInit {
   }
 
   public remove(e: any) {
-    this.fancyalert.confirm('Are you sure you want to remove this track?', 'warning', () => {
-      let playlistId = this._playlist.id;
-      let track = this._playlist.tracks[this._currentIndex];
-      if (track.shoutoutId) {
-        // TODO: remove shoutout here via shoutoutService
-        // Or change these to PROCESS_UPDATES for both (playlist/shoutouts)
-      }
-      this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE_TRACK, payload: { track, playlistId } });
+    this.fancyalert.confirm('Are you sure you want to remove this shared ShoutOut?', 'warning', () => {
+      this.store.take(1).subscribe((s: any) => {
+        let shared = s.firebase.sharedlist[this._currentIndex];
+        this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE, payload: shared });
+      });
       // AnimateService.SWIPE_RESET(this._swipedView);
     });
   }
@@ -85,6 +84,20 @@ export class SharedListComponent implements OnInit {
 
   public onItemReordered(args: any) {
     this.logger.debug("Item reordered. Old index: " + args.itemIndex + " " + "new index: " + args.data.targetIndex);
-    this.store.dispatch({ type: FIREBASE_ACTIONS.REORDER, payload: { type: 'track', itemIndex: args.itemIndex, targetIndex: args.data.targetIndex, playlist: this._playlist } });
+    this.store.dispatch({ type: FIREBASE_ACTIONS.REORDER, payload: { type: 'shared', itemIndex: args.itemIndex, targetIndex: args.data.targetIndex } });
+  }
+
+  ngOnInit() {
+    this._sub = Config.PLAY_SHARED$.subscribe((shared: SharedModel) => {
+      // TODO: play shared item
+      if (shared) {
+        this.sharedlistService.togglePlay(shared);
+        Config.PLAY_SHARED$.next(null);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this._sub) this._sub.unsubscribe();
   }
 }

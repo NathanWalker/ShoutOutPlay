@@ -1,0 +1,33 @@
+<SharedListActionBar></SharedListActionBar>
+
+<StackLayout modal-dialog-host class="full-page-bar-match">  
+  <EmptyView class="full-page-bar-match" *ngIf="(firebaseService.state$ | async)?.sharedlist.length==0" [icon]="'fa-frown-o'" [text]="'You have not received any shared ShoutOuts yet.'"></EmptyView>
+  
+  <RadListView id="listview" [items]="(firebaseService.state$ | async)?.sharedlist" row="1" colSpan="2" class="full-page pad-bottom"
+  itemSwipe="true" itemReorder="true"
+  (itemReordered)="onItemReordered($event)"
+  (itemSwipeProgressStarted)="onSwipeCellStarted($event)"
+  (itemSwipeProgressEnded)="onSwipeCellFinished($event)"
+  itemInsertAnimation="Scale" itemDeleteAnimation="Scale"
+  *ngIf="(firebaseService.state$ | async)?.sharedlist.length">
+    <template tkListItemTemplate let-item="item" let-odd="odd" let-even="even">
+      <GridLayout columns="auto, *" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
+        <!--<ios>-->
+          <Image row="0" col="0" [src]="(item.playing ? 'res://logo-160-pause.png' : 'res://logo-160.png')" class="play-btn-img" (tap)="sharedlistService.togglePlay(item)" stretch="aspectFit"></Image>
+        <!--</ios>-->
+        <!--<android>-->
+          <!--<Image row="0" col="0" [src]="(item.playing ? 'res://logo_pause' : 'res://logo')" class="play-btn-img" (tap)="playlistService.togglePlay(item.playlistId, item)" *ngIf="item.shoutoutId"></Image>-->
+        <!--</android>-->
+        <StackLayout row="0" col="1" class="row-center">
+          <Label [text]="item.name" textWrap="true" class="title"></Label> 
+          <Label [text]="item.artist" textWrap="true" class="title-sub"></Label> 
+          <Label [text]="'From: ' + item.sharedBy" textWrap="true" class="title-sub"></Label> 
+        </StackLayout>
+        <!--<Button row="0" col="2" [text]="'fa-microphone' | fonticonPure" class="shoutout-mic fa" (tap)="viewShoutout(item)" [ngClass]="{active: item.shoutoutId}"></Button>-->
+      </GridLayout>
+    </template>
+    <GridLayout *tkListItemSwipeTemplate rows="auto" columns="*,100">
+        <Button row="0" col="1" text="Delete" class="btn delete-btn" (tap)="remove($event)"></Button>
+    </GridLayout>
+  </RadListView>
+</StackLayout>
