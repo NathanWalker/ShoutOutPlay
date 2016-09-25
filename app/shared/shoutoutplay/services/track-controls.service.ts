@@ -7,6 +7,7 @@ import {TNSSpotifyAuth} from 'nativescript-spotify';
 import * as socialShare from "nativescript-social-share";
 
 // libs
+import {Store} from '@ngrx/store';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/take';
@@ -15,7 +16,7 @@ import 'rxjs/add/operator/take';
 import {LogService, Config} from '../../core/index';
 import {ShoutoutModel} from '../models/shoutout.model';
 import {TrackModel} from '../models/track.model';
-import {PlayerService, IPlayerState} from './player.service';
+import {PlayerService, IPlayerState, PLAYER_ACTIONS} from './player.service';
 import {PlaylistService} from './playlist.service';
 import {SearchService} from './search.service';
 
@@ -27,10 +28,10 @@ export class TrackControlService {
   private _currentTrackId: string;
   private _sub: Subscription;
 
-  constructor(private logger: LogService, public player: PlayerService, public playlistService: PlaylistService, public searchService: SearchService) {
+  constructor(private store: Store<any>, private logger: LogService, public player: PlayerService, public playlistService: PlaylistService, public searchService: SearchService) {
     player.state$.subscribe((state: IPlayerState) => {
-      this._currentTrackId = state.currentTrackId || state.previewTrackId;
-      this.isPreview$.next(state.previewTrackId ? true : false);
+      this._currentTrackId = state.currentTrackId;
+      this.isPreview$.next(state.activeList == 'search');
       this.playingIcon$.next(state.playing ? 'fa-pause-circle' : 'fa-play-circle');
       let showControls = this._currentTrackId ? true : false;
       this.showControls$.next(showControls);
@@ -46,7 +47,16 @@ export class TrackControlService {
     if (PlayerService.isPreview) {
       this.searchService.togglePreview({ id: this._currentTrackId, playing: PlayerService.isPlaying });
     } else {
-      this.playlistService.togglePlay(null, { id: this._currentTrackId });
+      this.store.take(1).subscribe((state: any) => {
+        this.store.dispatch({
+          type: PLAYER_ACTIONS.LIST_TOGGLE_PLAY,
+          payload: {
+            activeList: state.player.activeList,
+            trackId: this._currentTrackId,
+            activeShoutOutPath: state.player.activeShoutOutPath
+          }
+        });
+      });
     }
   }
 
@@ -88,7 +98,7 @@ export class TrackControlService {
     }
     let url = `https://shoutoutplay.com/?n=${displayName}&u=${Config.USER_KEY}&ti=${timestamp}&t=${trackId}`;
     let msg = `
-  Yo, here's a ShoutOut for ya' :)\n
+  Yo, here's a ShoutOut for ya :)\n
   ${url}`;
     this.shareText(msg, `Yo, this ShoutOut is for you!`);
   }

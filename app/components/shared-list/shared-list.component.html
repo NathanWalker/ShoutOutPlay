@@ -13,10 +13,10 @@
     <template tkListItemTemplate let-item="item" let-odd="odd" let-even="even">
       <GridLayout columns="auto, *" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
         <!--<ios>-->
-          <Image row="0" col="0" [src]="(item.playing ? 'res://logo-160-pause.png' : 'res://logo-160.png')" class="play-btn-img" (tap)="sharedlistService.togglePlay(item)" stretch="aspectFit"></Image>
+          <Image row="0" col="0" [src]="(item.playing ? 'res://logo-160-pause.png' : 'res://logo-160.png')" class="play-btn-img" (tap)="togglePlay(item)" stretch="aspectFit"></Image>
         <!--</ios>-->
         <!--<android>-->
-          <!--<Image row="0" col="0" [src]="(item.playing ? 'res://logo_pause' : 'res://logo')" class="play-btn-img" (tap)="sharedlistService.togglePlay(item)" *ngIf="item.shoutoutId"></Image>-->
+          <!--<Image row="0" col="0" [src]="(item.playing ? 'res://logo_pause' : 'res://logo')" class="play-btn-img" (tap)="togglePlay(item)" *ngIf="item.shoutoutId"></Image>-->
         <!--</android>-->
         <StackLayout row="0" col="1" class="row-center">
           <Label [text]="item.name" textWrap="true" class="title"></Label> 

@@ -82,40 +82,6 @@ export class SharedlistService extends Analytics {
     }
   }
 
-  public togglePlay(shared: SharedModel) {
-    this.store.take(1).subscribe((s: any) => {
-      this.logger.debug('SharedlistService.togglePlay: this.store.take(1).subscribe, should update sharedlist state');
-      let sharedlist = [...s.firebase.sharedlist];
-      let currentTrackId = s.player.currentTrackId;
-      let playing = !s.player.playing; // new playing state is always assumed the opposite unless the following...
-      if (shared) {
-        if (shared.remoteFilePath !== this._remoteFilePath) {
-          this._remoteFilePath = shared.remoteFilePath;
-          // changing shared, always play new shared track
-          playing = true;
-        }
-        // IMP: must come after above
-        // always ensure currentTrackId is set to incoming track
-        currentTrackId = shared.trackId;
-      } 
-
-      for (let t of sharedlist) {
-        if (t.trackId === shared.trackId) {
-          t.playing = playing;
-        } else {
-          t.playing = false;
-        }
-      }
-      
-      this.logger.debug(`sharedlist playing: ${playing}`);
-      
-      this.ngZone.run(() => {
-        this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId, playing } });
-        this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { sharedlist } });
-      });      
-    });
-  } 
-
   public goToAndPlay(shared: SharedModel) {
     // shared-list.component picks up the shared track from this observable
     Config.PLAY_SHARED$.next(shared);
@@ -128,38 +94,51 @@ export class SharedlistService extends Analytics {
 
   public skipNextPrev(direction: number) {
     let sharedlist = [];
-    let trackIndex = -1;
-    let track;
+    let sharedIndex = -1;
+    let shared: SharedModel;
 
     this.store.take(1).subscribe((s: any) => {
-      let currentTrackId = s.player.currentTrackId;
-      if (currentTrackId) {
+      let activeShoutOutPath = s.player.activeShoutOutPath;
+      if (activeShoutOutPath) {
         sharedlist = [...s.firebase.sharedlist];
         for (let i = 0; i < sharedlist.length; i++) {
-          if (sharedlist[i].id === currentTrackId) {
-            trackIndex = i;
-            this.logger.debug(`skipNextPrev, found indices, trackIndex: ${trackIndex}`);
+          if (sharedlist[i].remoteFilePath === activeShoutOutPath) {
+            sharedIndex = i;
+            this.logger.debug(`skipNextPrev, found indices, sharedIndex: ${sharedIndex}`);
             break;
           }
         }
 
-        if (sharedlist.length && trackIndex > -1) {
+        if (sharedlist.length && sharedIndex > -1) {
           if (direction) {
             // next track
-            trackIndex++;       
+            sharedIndex++;       
           } else {
             // prev track
-            trackIndex--;
+            sharedIndex--;
           }
 
           let trackId;
-          if (trackIndex > -1 && trackIndex < sharedlist.length) {
-            track = sharedlist[trackIndex];
+          if (sharedIndex > -1 && sharedIndex < sharedlist.length) {
+            shared = sharedlist[sharedIndex];
           } else {
             // start over from start
-            track = sharedlist[0];
+            shared = sharedlist[0];
           }
-          this.togglePlay(track);
+          
+          let activeShoutOutPath: string = shared.remoteFilePath;
+          
+          this.ngZone.run(() => {
+            this.store.dispatch({
+              type: PLAYER_ACTIONS.LIST_TOGGLE_PLAY,
+              payload: {
+                trackId: shared.trackId,
+                activeList: 'shared',
+                playing: true,
+                activeShoutOutPath
+              }
+            });
+          });
         }
       }
     });  

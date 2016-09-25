@@ -15,6 +15,7 @@ if (isIOS) {
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';
+import {Effect, Actions} from '@ngrx/effects';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
@@ -25,6 +26,7 @@ import {isString, isObject, throttle} from 'lodash';
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {Config, LogService, FancyAlertService, TextService, Utils, PROGRESS_ACTIONS} from '../../core/index';
 import {AUTH_ACTIONS, ISearchState, PLAYLIST_ACTIONS, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
+import {IListViewResult, ListViewHelper} from './list-view-helper';
 import {CommandCenterHandler} from './command-center';
 
 declare var zonedCallback: Function, MPNowPlayingInfoCenter, interop;
@@ -37,7 +39,8 @@ const CATEGORY: string = 'Player';
  */
 export interface IPlayerState {
   currentTrackId?: string;
-  previewTrackId?: string;
+  activeList?: string;
+  activeShoutOutPath?: string;
   playing?: boolean;
   stopped?: boolean;
 }
@@ -48,11 +51,13 @@ const initialState: IPlayerState = {
 
 interface IPLAYER_ACTIONS {
   TOGGLE_PLAY: string;
+  LIST_TOGGLE_PLAY: string; // handles list view state updates
   STOP: string;
 }
 
 export const PLAYER_ACTIONS: IPLAYER_ACTIONS = {
   TOGGLE_PLAY: `${CATEGORY}_TOGGLE_PLAY`,
+  LIST_TOGGLE_PLAY: `${CATEGORY}_LIST_TOGGLE_PLAY`,
   STOP: `${CATEGORY}_STOP`
 };
 
@@ -69,16 +74,15 @@ export const playerReducer: ActionReducer<IPlayerState> = (state: IPlayerState =
   };
   switch (action.type) {
     case PLAYER_ACTIONS.TOGGLE_PLAY:
-      // always reset the other (only 1 track can be played at a time, preview from search or playlist)
-      if (action.payload.previewTrackId) action.payload.currentTrackId = undefined;
-      if (action.payload.currentTrackId) action.payload.previewTrackId = undefined;
+      if (!action.payload.activeShoutOutPath) action.payload.activeShoutOutPath = undefined; // reset
       return changeState();
     case PLAYER_ACTIONS.STOP:
       let payload:any = { playing: false, stopped: true };
       if (action.payload && action.payload.reset) {
         // reset all
         payload.currentTrackId = undefined;
-        payload.previewTrackId = undefined;
+        payload.activeList = undefined;
+        payload.activeShoutOutPath = undefined;
       }
       // reset all
       action.payload = payload;
@@ -156,9 +160,9 @@ export class PlayerService extends Analytics {
     }
 
     this.state$.subscribe((player: IPlayerState) => {
-      if (player.previewTrackId || player.currentTrackId) {
+      if (player.currentTrackId) {
         // only if tracks are defined
-        this.togglePlay(player.previewTrackId || player.currentTrackId, player.previewTrackId !== undefined, player.playing);
+        this.togglePlay(player.currentTrackId, player.activeList, player.playing, player.activeShoutOutPath);
       } else {
         // reset when tracks are cleared
         // normally used in conjunction with STOP (recording component clears them)
@@ -166,8 +170,8 @@ export class PlayerService extends Analytics {
         PlayerService.isPlaying = false;
         // ensure playback is stopped
         if (this._spotify) {
-          this._spotify.togglePlay(null, false); // force stop playback
-          this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
+          this._spotify.togglePlay(null); // force stop playback
+          this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_LISTS });
         }      
       }
     });
@@ -180,7 +184,7 @@ export class PlayerService extends Analytics {
     }    
   }
 
-  public togglePlay(trackId: string, isPreview?: boolean, playing?: boolean, sharedShoutoutFilename?: string) {
+  public togglePlay(trackId: string, activeList?: string, playing?: boolean, activeShoutOutPath?: string) {
     if (playing) {
       this.toggleLoader(true);
       this.resetConnectionTimeout();
@@ -198,13 +202,11 @@ export class PlayerService extends Analytics {
 
     let trackUri: string = `spotify:track:${trackId}`;
     PlayerService.currentTrackId = trackId;
-    PlayerService.isPreview = isPreview;
+    PlayerService.isPreview = activeList == 'search';
     PlayerService.isPlaying = playing;
 
-    if (!isPreview) {
-      // ensure queued shoutouts are turned off
-      this.cancelShoutOutQueue();
-    }
+    // ensure queued shoutouts are turned off
+    this.cancelShoutOutQueue();
 
     // ensure spotify volume is up to normal
     this.setSpotifyVolume(1);
@@ -217,7 +219,7 @@ export class PlayerService extends Analytics {
       // could rely on isPlaying return value for consistency, using static values here
       if (!PlayerService.isPreview && PlayerService.isPlaying) {
         // when playing playlist tracks, queue shoutouts
-        this.queueShoutOut(trackId, sharedShoutoutFilename);
+        this.queueShoutOut(trackId, activeShoutOutPath);
       }
     }, (error) => {
       this.logger.debug(`togglePlay error:`);
@@ -282,6 +284,10 @@ export class PlayerService extends Analytics {
     });
   }
 
+  public showAlert(msg: string) {
+    this.fancyalert.show(msg);
+  }
+
   private resetConnectionTimeout() {
     if (this._playConnectingTimeout) {
       clearTimeout(this._playConnectingTimeout);
@@ -294,13 +300,15 @@ export class PlayerService extends Analytics {
     this.resetConnectionTimeout();
   }
   
-  private queueShoutOut(trackId: string, sharedShoutoutFilename?: string) {
-    // always ensure spotify volume is up to start
-    this.setSpotifyVolume(1);
+  private queueShoutOut(trackId: string, activeShoutOutPath?: string) {
     if (trackId !== this._currentTrackId) {
       this._currentTrackId = trackId;
-
-      let setupShoutout = (filename: string) => {
+      
+      if (activeShoutOutPath) {
+        let filename = activeShoutOutPath;
+        if (activeShoutOutPath.indexOf('/') > -1) {
+          filename = Utils.getFilename(activeShoutOutPath);
+        }
         this._currentShoutOutPath = Utils.documentsPath(filename);
         if (!File.exists(this._currentShoutOutPath)) {
           // alert user
@@ -313,31 +321,7 @@ export class PlayerService extends Analytics {
             this.toggleShoutOutPlay(true);
           }, PlayerService.SHOUTOUT_START);
         }
-      };
-      
-      if (sharedShoutoutFilename) {
-        setupShoutout(sharedShoutoutFilename);
-      } else {
-        this.store.take(1).subscribe((s: any) => {
-          let playlists = [...s.firebase.playlists];
-          let shoutouts = [...s.firebase.shoutouts];
-          // find track and shoutout (if available)
-          for (let playlist of playlists) {
-            for (let track of playlist.tracks) {
-              if (track.id === trackId) {
-                if (track.shoutoutId) {
-                  for (let shoutout of shoutouts) {
-                    if (shoutout.id === track.shoutoutId) {
-                      setupShoutout(shoutout.filename);
-                    }
-                  }
-                }
-                return;
-              }
-            }
-          }
-        });
-      }
+      } 
     }
   }
 
@@ -382,8 +366,6 @@ export class PlayerService extends Analytics {
       clearTimeout(this._shoutoutTimeout);
       this._shoutoutTimeout = undefined;
     }
-    // always reset spotify playback volume
-    this.setSpotifyVolume(1);
   }
 
   private setSpotifyVolume(volume: number) {
@@ -689,5 +671,44 @@ export class PlayerService extends Analytics {
       });
     });
   }
+}
+
+@Injectable()
+export class PlayerEffects {
+  constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private player: PlayerService) { }
+  
+  @Effect() listTogglePlay$ = this.actions$
+    .ofType(PLAYER_ACTIONS.LIST_TOGGLE_PLAY)
+    .do((action) => {
+      this.logger.debug(`PlayerEffects.LIST_TOGGLE_PLAY`);
+      this.store.take(1).subscribe((state: any) => {
+        // update list view state
+        let result: IListViewResult = ListViewHelper.update(state, action.payload.trackId, action.payload.activeList, action.payload.activeShoutOutPath, action.payload.playlistId);
+        if (result.ready) {
+          // toggle playback
+          this.store.dispatch({
+            type: PLAYER_ACTIONS.TOGGLE_PLAY,
+            payload: {
+              currentTrackId: result.trackId,
+              playing: result.playing,
+              activeShoutOutPath: result.activeShoutOutPath,
+              activeList: action.payload.activeList
+            }
+          });
+          // update list view state
+          this.store.dispatch({
+            type: FIREBASE_ACTIONS.UPDATE,
+            payload: {
+              playlists: result.state.playlists, 
+              sharedlist: result.state.sharedlist
+            }
+          });
+        } else {
+          // issue with state (likely an empty playlist)
+          this.player.showAlert(result.msg);
+        }
+      });
+    })
+    .filter(() => false);
 }
 

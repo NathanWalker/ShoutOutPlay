@@ -19,16 +19,6 @@ export const SHOUTOUTPLAY_PROVIDERS: any[] = [
   ShoutoutService,
   TrackControlService
 ];
-AuthService
-CoachmarksService
-FirebaseService
-ShoutoutService
-FirebaseService
-PlayerService
-PlaylistService
-SearchService
-SharedlistService
-TrackControlService
 
 // models
 export * from './models/playlist.model';
@@ -41,11 +31,13 @@ export * from './models/user.model';
 export * from './services/auth.service';
 export * from './services/coachmarks.service';
 export * from './services/firebase.service';
+export * from './services/list-view-helper';
 export * from './services/player.service';
 export * from './services/playlist.service';
 export * from './services/search.service';
 export * from './services/sharedlist.service';
 export * from './services/shoutout.service';
+export * from './services/sop-utils';
 export * from './services/track-controls.service';
 
 // components

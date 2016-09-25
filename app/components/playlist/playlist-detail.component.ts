@@ -14,7 +14,7 @@ import {Store} from '@ngrx/store';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} from '../../shared/core/index';
-import {PlaylistService, IPlaylistState, PlaylistModel, ShoutoutModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService, TrackControlService} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, ShoutoutModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService, TrackControlService, SOPUtils} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 @BaseComponent({
@@ -32,6 +32,21 @@ export class PlaylistDetailComponent implements OnInit {
   constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location, private trackControl: TrackControlService) {
     logger.debug(`PlaylistDetailComponent constructor`);
   }  
+
+  public togglePlay(playlistId: string, track: TrackModel) {
+    this.getShoutout(track.shoutoutId).then((shoutout) => {
+      let activeShoutOutPath: string = shoutout ? shoutout.filename : null;
+      this.store.dispatch({
+        type: PLAYER_ACTIONS.LIST_TOGGLE_PLAY,
+        payload: {
+          activeList: 'playlists',
+          trackId: track.id,
+          playlistId,
+          activeShoutOutPath
+        }
+      });
+    });
+  }
 
   public viewShoutout(track: TrackModel) {
     this.ngZone.run(() => {
@@ -111,12 +126,14 @@ export class PlaylistDetailComponent implements OnInit {
     this.store.dispatch({ type: FIREBASE_ACTIONS.REORDER, payload: { type: 'track', itemIndex: args.itemIndex, targetIndex: args.data.targetIndex, playlist: this._playlist } });
   }
 
-  private getShoutout(shoutoutId: any): Promise<ShoutoutModel> {
+  private getShoutout(shoutoutId: string): Promise<ShoutoutModel> {
     return new Promise((resolve, reject) => {
       this.store.take(1).subscribe((state: any) => {
         let results = state.firebase.shoutouts.filter(s => s.id == shoutoutId);
         if (results.length) {
           resolve(results[0]);
+        } else {
+          resolve(null);
         }
       });
     });

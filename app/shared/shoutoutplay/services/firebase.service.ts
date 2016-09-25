@@ -59,7 +59,7 @@ interface IFIREBASE_ACTIONS {
   PLAYLIST_DELETED: string;
   SHOUTOUT_DELETED: string;
   SHARED_DELETED: string;
-  RESET_PLAYLISTS: string;
+  RESET_LISTS: string;
   REORDER: string;
   RESET_ACCOUNT: string;
 }
@@ -77,7 +77,7 @@ export const FIREBASE_ACTIONS: IFIREBASE_ACTIONS = {
   PLAYLIST_DELETED: `${CATEGORY}_PLAYLIST_DELETED`,
   SHOUTOUT_DELETED: `${CATEGORY}_SHOUTOUT_DELETED`,
   SHARED_DELETED: `${CATEGORY}_SHARED_DELETED`,
-  RESET_PLAYLISTS: `${CATEGORY}_RESET_PLAYLISTS`,
+  RESET_LISTS: `${CATEGORY}_RESET_LISTS`,
   REORDER: `${CATEGORY}_REORDER`,
   RESET_ACCOUNT: `${CATEGORY}_RESET_ACCOUNT`
 };
@@ -102,8 +102,8 @@ export const firebaseReducer: ActionReducer<IFirebaseState> = (state: IFirebaseS
       }
       action.payload = { playlists };
       return changeState();
-    case FIREBASE_ACTIONS.RESET_PLAYLISTS:
-      // resets playing state of all playlists and tracks
+    case FIREBASE_ACTIONS.RESET_LISTS:
+      // resets playing state of all lists
       var playlists = [...state.playlists];
       for (let p of playlists) {
         p.playing = false;

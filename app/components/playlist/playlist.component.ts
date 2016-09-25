@@ -17,7 +17,7 @@ import {isString, includes} from 'lodash';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService, DrawerService, PROGRESS_ACTIONS} from '../../shared/core/index';
-import {PlaylistService, IPlaylistState, PlaylistModel, PLAYLIST_ACTIONS, IPlayerState, FirebaseService, FIREBASE_ACTIONS, IFirebaseState, IAuthState, ShoutoutService, SearchService, TrackControlService} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, PLAYER_ACTIONS, IPlayerState, FirebaseService, FIREBASE_ACTIONS, IFirebaseState, IAuthState, ShoutoutService, TrackControlService} from '../../shared/shoutoutplay/index';
 
 declare var zonedCallback: Function;
 
@@ -31,9 +31,18 @@ export class PlaylistComponent {
   private _currentIndex: number;
   private _sub: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, public firebaseService: FirebaseService, public drawerService: DrawerService, public trackControl: TrackControlService, private shoutoutService: ShoutoutService, private router: Router, private searchService: SearchService, private fancyalert: FancyAlertService, private ngZone: NgZone) {
-    // always stop all tracks playing from search results
-    searchService.stopAll();
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, public firebaseService: FirebaseService, public drawerService: DrawerService, public trackControl: TrackControlService, private shoutoutService: ShoutoutService, private router: Router, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+
+  }
+
+  public togglePlay(playlistId: string) {
+    this.store.dispatch({
+      type: PLAYER_ACTIONS.LIST_TOGGLE_PLAY,
+      payload: {
+        activeList: 'playlists',
+        playlistId
+      }
+    });
   }
 
   public viewDetail(e: any) {

@@ -70,33 +70,18 @@ export class SearchService extends Analytics {
 
     // listen to player state changes to update `playing` state of tracks in results
     store.select('player').subscribe((player: IPlayerState) => {
-      if (player.previewTrackId && !player.stopped) {
+      if (!player.stopped) {
         this.logger.debug(`SearchService player state changed, updating result list state...`);
         this.logger.debug(`playerState.playing: ${player.playing}`);
-        this.updateTracks(player);
-      }
+        this.updateTracks(player, player.activeList !== 'search');
+      }  
     });
   }
 
   public togglePreview(track: any) {
     this.logger.debug(`togglePreview -- track is currently playing: ${track.playing}`);
-    this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { previewTrackId: track.id, playing: !track.playing } });
-    this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
-  }
-
-  public stopAll() {
-    this.store.take(1).subscribe((s: any) => {
-      let previewTrackId;
-      for (let track of s.search.results) {
-        if (track.playing) {
-          previewTrackId = track.id;
-        } 
-      }
-      if (previewTrackId) {
-        // stop that playing track
-        this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { previewTrackId, playing: false } });
-      }
-    });
+    this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: track.id, playing: !track.playing, activeList: 'search' } });
+    this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_LISTS });
   }
 
   public search(query: string, queryType?: string, offset?: number) {
@@ -186,12 +171,11 @@ export class SearchService extends Analytics {
     this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results, term } });
   }
 
-  private updateTracks(player: IPlayerState) {
-    let id = player.previewTrackId;
+  private updateTracks(player: IPlayerState, forceReset?: boolean) {
     this.store.take(1).subscribe((s: any) => {
       let results = [...s.search.results];
       for (let item of results) {
-        if (item.id === id) {
+        if (!forceReset && item.id === player.currentTrackId) {
           item.playing = player.playing;
         } else {
           // this ensures when track changes, all other item playing state is turned off

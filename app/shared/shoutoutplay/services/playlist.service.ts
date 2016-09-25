@@ -38,7 +38,7 @@ import {isString, includes} from 'lodash';
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {LogService, FancyAlertService, PROGRESS_ACTIONS} from '../../core/index';
-import {PlaylistModel, TrackModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, SHOUTOUT_ACTIONS} from '../index';
+import {PlaylistModel, TrackModel, ShoutoutModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, SHOUTOUT_ACTIONS, SOPUtils} from '../index';
 
 declare var zonedCallback: Function;
 
@@ -101,118 +101,6 @@ export class PlaylistService extends Analytics {
     this.category = CATEGORY;
 
     this.state$ = store.select('playlist');
-  }
-
-  public togglePlay(playlistId: string, track?: any) {
-    this.store.take(1).subscribe((s: any) => {
-      this.logger.debug('PlaylistService.togglePlay: this.store.take(1).subscribe, should update playlist state');
-      let playlists = [...s.firebase.playlists];
-      let sharedlist = [...s.firebase.sharedlist];
-      let currentTrackId = s.player.currentTrackId;
-      let playing = !s.player.playing; // new playing state is always assumed the opposite unless the following...
-      if (track) {
-        if (track.id !== currentTrackId) {
-          // changing track, always play new track
-          playing = true;
-        }
-        // IMP: must come after above
-        // always ensure currentTrackId is set to incoming track
-        currentTrackId = track.id;
-      } 
-      this.logger.debug(`playlistId: ${playlistId}`);
-      
-      // find playlist
-      let playlistIndex = -1;
-      for (let i = 0; i < playlists.length; i++) {
-        if (playlistId) {
-          if (playlistId === playlists[i].id) {
-            playlistIndex = i;
-            break;
-          }
-        } else if (track) {
-          // find from playlist
-          // TODO: Potential error here if the same track exists on 2 of more different playlists
-          for (let t of playlists[i].tracks) {
-            if (t.id === track.id) {
-              playlistId = playlists[i].id;
-              playlistIndex = i;
-              break;
-            }
-          }
-        }
-        
-      }
-      this.logger.debug(`playlistIndex: ${playlistIndex}`);
-      // determine playlist state first
-      if (playlistIndex > -1) {
-        if (playlists[playlistIndex].tracks.length === 0) {
-          // dialogs.alert(`Playlist is empty! Add some tracks to play.`);
-          this.fancyalert.show(`Playlist is empty! Add some tracks to play.`);
-          return;
-        } else {
-          // update current playlist state
-          let playFirst = true;
-          for (let t of playlists[playlistIndex].tracks) {
-            if (track) {
-              // when track is used, playlist state is determined by the track
-              playFirst = false;
-              // explicit track
-              if (track.id === t.id) {
-                t.playing = playing; 
-                playlists[playlistIndex].playing = playing;
-                this.logger.debug(`setting track playing: ${t.playing}`);
-              } else {
-                // reset all others to off
-                t.playing = false;
-              }
-            } else {
-              // no track specified (play from playlist view)
-              // find if any are currently playing
-              if (t.playing) {
-                currentTrackId = t.id;
-                // toggle off
-                playing = false;
-                t.playing = playing;
-                playlists[playlistIndex].playing = playing;
-                playFirst = false;
-              }
-            }
-          }
-
-          if (playFirst) {
-            if (playlists[playlistIndex].tracks[0].id !== currentTrackId) {
-              // changing track, always play new track
-              playing = true;
-            }
-            playlists[playlistIndex].tracks[0].playing = playing;
-            playlists[playlistIndex].playing = playing;
-            currentTrackId = playlists[playlistIndex].tracks[0].id;
-          }
-
-          // always reset others to be clean
-          for (let p of playlists) {
-            if (p.id !== playlistId) {
-              p.playing = false;
-              for (let t of p.tracks) {
-                t.playing = false;
-              }
-            }
-          }
-        }
-        this.logger.debug(`playlists[playlistIndex].playing: ${playlists[playlistIndex].playing}`);
-        // TODO: refactor - keep sharedlist state in sync here
-        for (let t of sharedlist) {
-          if (t.trackId == currentTrackId) {
-            t.playing = playing;
-          }
-        }
-      
-        this.ngZone.run(() => {
-          this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId, playing } });
-          this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists, sharedlist } });
-        });
-      }  
-    });
   }
 
   public addPrompt(track: TrackModel) {
@@ -296,11 +184,12 @@ export class PlaylistService extends Analytics {
     let playlistIndex = -1;
     let trackIndex = -1;
     let playlistId;
-    let track;
+    let track: TrackModel;
 
     this.store.take(1).subscribe((s: any) => {
       let currentTrackId = s.player.currentTrackId;
       if (currentTrackId) {
+        let shoutouts = [...s.firebase.shoutouts];
         playlists = [...s.firebase.playlists];
         for (let i = 0; i < playlists.length; i++) {
           for (let a = 0; a < playlists[i].tracks.length; a++) {
@@ -333,11 +222,24 @@ export class PlaylistService extends Analytics {
             trackId = playlists[playlistIndex].tracks[0].id;
             track = playlists[playlistIndex].tracks[0];
           }
-          this.togglePlay(playlistId, track);
+
+          let activeShoutOutPath: string = SOPUtils.getShoutOutPath(track, shoutouts);
+          
+          this.ngZone.run(() => {
+            this.store.dispatch({
+              type: PLAYER_ACTIONS.LIST_TOGGLE_PLAY,
+              payload: {
+                trackId: track.id,
+                activeList: 'playlists',
+                playlistId,
+                playing: true,
+                activeShoutOutPath
+              }
+            });
+          });
         }
       }
-    });
-    
+    }); 
   }
 
   private promptToRecord(track: TrackModel) {

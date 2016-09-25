@@ -104,8 +104,6 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       this.androidEQ$ = new BehaviorSubject(0);
     }
 
-    // always stop all tracks playing from search results
-    searchService.stopAll();
     // always reset player to clear internal state (like shoutouts in queue, etc.)
     store.dispatch({ type: PLAYER_ACTIONS.STOP, payload: { reset: true } });
     logger.debug(`RecordComponent constructor()`);

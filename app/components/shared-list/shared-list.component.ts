@@ -29,6 +29,17 @@ export class SharedListComponent implements OnInit {
     logger.debug(`SharedListComponent constructor`);
   } 
 
+  public togglePlay(shared: SharedModel) {
+    this.store.dispatch({
+      type: PLAYER_ACTIONS.LIST_TOGGLE_PLAY,
+      payload: {
+        activeList: 'shared',
+        trackId: shared.trackId,
+        activeShoutOutPath: shared.remoteFilePath
+      }
+    });
+  }
+
   public remove(e: any) {
     this.store.take(1).subscribe((s: any) => {
       let shared = <SharedModel>s.firebase.sharedlist[this._currentIndex];
