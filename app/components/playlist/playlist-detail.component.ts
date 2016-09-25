@@ -80,6 +80,8 @@ export class PlaylistDetailComponent implements OnInit {
       this.modal.showModal(ShoutOutDetailComponent, options).then(() => {
         
       });
+    } else {
+      this.fancyalert.show('If a ShoutOut were on this track, you would be able to remove it to re-record a different one using this button.');
     }
   }
 

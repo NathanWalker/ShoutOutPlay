@@ -166,13 +166,13 @@ export class PlayerService extends Analytics {
       } else {
         // reset when tracks are cleared
         // normally used in conjunction with STOP (recording component clears them)
-        this._currentShoutOutPath = undefined;
-        PlayerService.isPlaying = false;
+        this._currentShoutOutPath = undefined;  
         // ensure playback is stopped
-        if (this._spotify) {
+        if (this._spotify && PlayerService.isPlaying) {
           this._spotify.togglePlay(null); // force stop playback
-          this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_LISTS });
-        }      
+        }  
+        PlayerService.isPlaying = false;
+        this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_LISTS });
       }
     });
 

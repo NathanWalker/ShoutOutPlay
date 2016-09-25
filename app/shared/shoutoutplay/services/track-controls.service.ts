@@ -97,18 +97,16 @@ export class TrackControlService {
       displayName = 'Anonymous';
     }
     let url = `https://shoutoutplay.com/?n=${displayName}&u=${Config.USER_KEY}&ti=${timestamp}&t=${trackId}`;
-    let msg = `
-  Yo, here's a ShoutOut for ya :)\n
-  ${url}`;
+    let msg = `Yo, here's a ShoutOut for ya :)\n
+${url}`;
     this.shareText(msg, `Yo, this ShoutOut is for you!`);
   }
 
   private shareTrack(trackId: string) {
-    let msg = `
-  Check out this track:\n
-  https://open.spotify.com/track/${trackId}\n
-  Enjoyed with ShoutOutPlay, download here:\n
-  ${this.appLink()}`;
+    let msg = `Check out this track:\n
+https://open.spotify.com/track/${trackId}\n
+Enjoyed with ShoutOutPlay, download here:\n
+${this.appLink()}`;
     this.shareText(msg, 'Check out this track I enjoyed with ShoutOutPlay!');
   }
 

@@ -104,6 +104,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       this.androidEQ$ = new BehaviorSubject(0);
     }
 
+    searchService.stopAll();    
     // always reset player to clear internal state (like shoutouts in queue, etc.)
     store.dispatch({ type: PLAYER_ACTIONS.STOP, payload: { reset: true } });
     logger.debug(`RecordComponent constructor()`);
@@ -303,29 +304,31 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
   private initRecorder() {
     if (isIOS) {
-      this._recorder = new TNSEZRecorder();
-      this._recorder.delegate().audioEvents.on('audioBuffer', (eventData) => {
-        this._audioplot.bufferData = {
-          buffer: eventData.data.buffer,
-          bufferSize: eventData.data.bufferSize
-        };
-      });
-      this._recorder.delegate().audioEvents.on('recordTime', (eventData) => {
-        this.recordTime = eventData.data.time;
-      });
+      AVAudioSession.sharedInstance().requestRecordPermission((granted) => {
+        this._recorder = new TNSEZRecorder();
+        this._recorder.delegate().audioEvents.on('audioBuffer', (eventData) => {
+          this._audioplot.bufferData = {
+            buffer: eventData.data.buffer,
+            bufferSize: eventData.data.bufferSize
+          };
+        });
+        this._recorder.delegate().audioEvents.on('recordTime', (eventData) => {
+          this.recordTime = eventData.data.time;
+        });
 
-      // player
-      this._player = new TNSEZAudioPlayer(true);
-      this._player.delegate().audioEvents.on('audioBuffer', (eventData) => {
-        this._audioplot.bufferData = {
-          buffer: eventData.data.buffer,
-          bufferSize: eventData.data.bufferSize
-        };
+        // player
+        this._player = new TNSEZAudioPlayer(true);
+        this._player.delegate().audioEvents.on('audioBuffer', (eventData) => {
+          this._audioplot.bufferData = {
+            buffer: eventData.data.buffer,
+            bufferSize: eventData.data.bufferSize
+          };
+        });
+        this._player.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
+          this.logger.debug(`RecordComponent: audioEvents.on('reachedEnd'), calling this.togglePlay()`);
+          this.togglePlay();
+        }));
       });
-      this._player.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
-        this.logger.debug(`RecordComponent: audioEvents.on('reachedEnd'), calling this.togglePlay()`);
-        this.togglePlay();
-      }));
 
     } else {
  

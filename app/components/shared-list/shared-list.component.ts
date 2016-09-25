@@ -75,7 +75,7 @@ export class SharedListComponent implements OnInit {
     this._sub = Config.PLAY_SHARED$.subscribe((shared: SharedModel) => {
       // TODO: play shared item
       if (shared) {
-        this.sharedlistService.togglePlay(shared);
+        this.togglePlay(shared);
         Config.PLAY_SHARED$.next(null);
       }
     });

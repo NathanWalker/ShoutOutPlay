@@ -14,19 +14,19 @@ export class SpotifyAppDelegate extends UIResponder {
   
   public applicationOpenURLSourceApplicationAnnotation(application, url, sourceApplication, annotation) { 
     console.log('applicationOpenURLSourceApplicationAnnotation:');
-    let scheme = url.scheme;
-    let path = url.path;
-    let query = url.query;
-    console.log(`scheme: ${scheme}, path: ${path}, query: ${query}`);
-    url = url.absoluteString;
-    console.log(url);
     if (url) {
-      if (url.indexOf('spotifylogin') > -1) {
-        TNSSpotifyAuth.HANDLE_AUTH_CALLBACK(url);
+      let scheme = url.scheme;
+      let path = url.path;
+      let query = url.query;
+      console.log(`scheme: ${scheme}, path: ${path}, query: ${query}`);
+      let urlString = url.absoluteString;
+      console.log(urlString);
+      if (urlString.indexOf('spotifylogin') > -1) {
+        return TNSSpotifyAuth.HANDLE_AUTH_CALLBACK(url);
       } else if (query && query.indexOf('n=') > -1 && query.indexOf('ti=') > -1) {
         // sample query: n=Nathan&u=user_id&ti=timestamp&t=trackId
         // emit share url value for observers to react to
-        Config.SHARE_URL$.next(url);
+        Config.SHARE_URL$.next(urlString);
       }
     }
     return true;

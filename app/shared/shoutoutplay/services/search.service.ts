@@ -84,6 +84,21 @@ export class SearchService extends Analytics {
     this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_LISTS });
   }
 
+  public stopAll() {
+    this.store.take(1).subscribe((s: any) => {
+      let currentTrackId;
+      for (let track of s.search.results) {
+        if (track.playing) {
+          currentTrackId = track.id;
+        } 
+      }
+      if (currentTrackId) {
+        // stop that playing track
+        this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId, playing: false, activeList:'search' } });
+      }
+    });
+  }
+
   public search(query: string, queryType?: string, offset?: number) {
     queryType = queryType || 'track';
     // if (!isIOS) {
