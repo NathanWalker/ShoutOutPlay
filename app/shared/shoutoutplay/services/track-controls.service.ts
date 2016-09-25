@@ -62,49 +62,49 @@ export class TrackControlService {
 
   public openShareOptions(shoutout?: ShoutoutModel, track?: TrackModel) {
 
-    let prepareShare = (trackId: string) => {
+    let prepareShare = (t: any) => {
       let msg = '';
       if (shoutout) {
         if (TNSSpotifyAuth.SESSION) {
           TNSSpotifyAuth.CURRENT_USER().then((user: any) => {
             let displayName = isIOS ? user.displayName : user.display_name;
-            this.shareShoutOut(shoutout, trackId, displayName);
+            this.shareShoutOut(shoutout, t, displayName);
           });
         } else {
-          this.shareShoutOut(shoutout, trackId);
+          this.shareShoutOut(shoutout, t);
         }
       } else {
-        this.shareTrack(trackId);
+        this.shareTrack(t);
       }
     };
 
     if (track) {
-      prepareShare(track.id);
+      prepareShare(track);
     } else {
       this.player.currentTrack$.take(1).subscribe((t: any) => {
         let uriParts = t.uri.split(':');
         let trackId = uriParts[uriParts.length - 1];
-        prepareShare(trackId);
+        prepareShare({ id: trackId, name: t.trackName });
       });
     }
   }
 
-  private shareShoutOut(shoutout: ShoutoutModel, trackId: string, displayName?: string) {
+  private shareShoutOut(shoutout: ShoutoutModel, track: any, displayName?: string) {
     let timestamp = shoutout.filename.split('-').slice(-1)[0].replace('.m4a','');
     if (displayName) {
       displayName = displayName.split(' ')[0];
     } else {
       displayName = 'Anonymous';
     }
-    let url = `https://shoutoutplay.com/?n=${displayName}&u=${Config.USER_KEY}&ti=${timestamp}&t=${trackId}`;
-    let msg = `Yo, here's a ShoutOut for ya :)\n
+    let url = `https://shoutoutplay.com/?n=${displayName}&u=${Config.USER_KEY}&ti=${timestamp}&t=${track.id}`;
+    let msg = `Yo, here's a ShoutOut for ya, '${track.name}' :)\n
 ${url}`;
     this.shareText(msg, `Yo, this ShoutOut is for you!`);
   }
 
-  private shareTrack(trackId: string) {
-    let msg = `Check out this track:\n
-https://open.spotify.com/track/${trackId}\n
+  private shareTrack(track: any) {
+    let msg = `Check out this track '${track.name}':\n
+https://open.spotify.com/track/${track.id}\n
 Enjoyed with ShoutOutPlay, download here:\n
 ${this.appLink()}`;
     this.shareText(msg, 'Check out this track I enjoyed with ShoutOutPlay!');
