@@ -12,7 +12,7 @@ import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {ProgressService, LogService, FancyAlertService, TextService} from '../../core/index';
+import {LogService, FancyAlertService, TextService, PROGRESS_ACTIONS} from '../../core/index';
 import {IPlayerState, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS} from '../../shoutoutplay/index';
 
 // analytics
@@ -56,12 +56,13 @@ export const searchReducer: ActionReducer<ISearchState> = (state: ISearchState =
 @Injectable()
 export class SearchService extends Analytics {
   public state$: Observable<any>;
+  public quickRecordTrack: TrackModel;
   private _currentQuery: string;
   private _currentOffset: number = 0;
   private _hasMore: boolean = true;
   private _searchSpinnerTimeout: any;
 
-  constructor(public analytics: AnalyticsService, private logger: LogService, private store: Store<any>, private loader: ProgressService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
+  constructor(public analytics: AnalyticsService, private logger: LogService, private store: Store<any>, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
 
@@ -69,31 +70,31 @@ export class SearchService extends Analytics {
 
     // listen to player state changes to update `playing` state of tracks in results
     store.select('player').subscribe((player: IPlayerState) => {
-      if (player.previewTrackId && !player.stopped) {
+      if (!player.stopped) {
         this.logger.debug(`SearchService player state changed, updating result list state...`);
         this.logger.debug(`playerState.playing: ${player.playing}`);
-        this.updateTracks(player);
-      }
+        this.updateTracks(player, player.activeList !== 'search');
+      }  
     });
   }
 
   public togglePreview(track: any) {
     this.logger.debug(`togglePreview -- track is currently playing: ${track.playing}`);
-    this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { previewTrackId: track.id, playing: !track.playing } });
-    this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_PLAYLISTS });
+    this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId: track.id, playing: !track.playing, activeList: 'search' } });
+    this.store.dispatch({ type: FIREBASE_ACTIONS.RESET_LISTS });
   }
 
   public stopAll() {
     this.store.take(1).subscribe((s: any) => {
-      let previewTrackId;
+      let currentTrackId;
       for (let track of s.search.results) {
         if (track.playing) {
-          previewTrackId = track.id;
+          currentTrackId = track.id;
         } 
       }
-      if (previewTrackId) {
+      if (currentTrackId) {
         // stop that playing track
-        this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { previewTrackId, playing: false } });
+        this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId, playing: false, activeList:'search' } });
       }
     });
   }
@@ -112,13 +113,13 @@ export class SearchService extends Analytics {
       this._currentOffset = offset = 0;
     }
     
-    this.loader.show({ message: this._currentOffset > 0 ? 'Loading more results...' : 'Searching...' });
+    this.toggleLoader(true, this._currentOffset > 0 ? 'Loading more results...' : 'Searching...');
     this.logger.debug(`loading offset: ${this._currentOffset}`);
 
     this._searchSpinnerTimeout = setTimeout(() => {
       // prevent infinite load on search
       this.fancyalert.show(TextService.SPOTIFY_SEARCH_DELAY_NOTICE);
-      this.loader.hide();
+      this.toggleLoader(false);
     }, 6000);
     
     TNSSpotifySearch.QUERY(query, queryType, offset).then((result) => {
@@ -145,7 +146,7 @@ export class SearchService extends Analytics {
           }
         } else {
           // no more results
-          this.loader.hide();
+          this.toggleLoader(false);
         }
       } else {
         this.searchError();
@@ -170,13 +171,13 @@ export class SearchService extends Analytics {
   }
 
   private searchError() {
-    this.loader.hide();
+    this.toggleLoader(false);
     this.resetTimeout();
     Utils.alert('No tracks found. Try using only 2 words of the track name.');
   }
 
   private resultChange(tracks: Array<TNSTrack>, term: string) {
-    this.loader.hide();
+    this.toggleLoader(false);
     // convert to TrackModel
     let results: Array<TrackModel> = [];
     for (let track of tracks) {
@@ -185,12 +186,11 @@ export class SearchService extends Analytics {
     this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results, term } });
   }
 
-  private updateTracks(player: IPlayerState) {
-    let id = player.previewTrackId;
+  private updateTracks(player: IPlayerState, forceReset?: boolean) {
     this.store.take(1).subscribe((s: any) => {
       let results = [...s.search.results];
       for (let item of results) {
-        if (item.id === id) {
+        if (!forceReset && item.id === player.currentTrackId) {
           item.playing = player.playing;
         } else {
           // this ensures when track changes, all other item playing state is turned off
@@ -201,5 +201,11 @@ export class SearchService extends Analytics {
         this.store.dispatch({ type: SEARCH_ACTIONS.RESULTS_CHANGE, payload: { results } });
       });
     });
+  }
+
+  private toggleLoader(enable: boolean, msg?: string) {
+    let options: any = { type: enable ? PROGRESS_ACTIONS.SHOW : PROGRESS_ACTIONS.HIDE };
+    if (msg) options.payload = msg;
+    this.store.dispatch(options);
   }
 }

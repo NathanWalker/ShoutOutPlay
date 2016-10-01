@@ -52,23 +52,6 @@ export class ShoutOutListComponent implements OnDestroy {
     } else {
       this._shoutOutPlayer = new TNSAudioPlayer();
     }
-
-    this._sub = this.store.select('firebase').subscribe((s: any) => {
-      let playlists = [...s.playlists];
-      let shoutouts = [...s.shoutouts];
-      for (let shoutout of shoutouts) {
-        // find track names
-        for (let p of playlists) {
-          for (let t of p.tracks) {
-            if (t.shoutoutId === shoutout.id) {
-              shoutout.track = t.name;
-              break;
-            }
-          }
-        }
-      }
-      this.shoutouts$.next(shoutouts);
-    });
   } 
 
   public togglePlay(shoutout: any) {
@@ -179,6 +162,25 @@ export class ShoutOutListComponent implements OnDestroy {
     this._currentIndex = args.itemIndex;
   }
 
+  ngOnInit() {
+    this._sub = this.store.select('firebase').subscribe((s: any) => {
+      let playlists = [...s.playlists];
+      let shoutouts = [...s.shoutouts];
+      for (let shoutout of shoutouts) {
+        // find track names
+        for (let p of playlists) {
+          for (let t of p.tracks) {
+            if (t.shoutoutId === shoutout.id) {
+              shoutout.track = t.name;
+              break;
+            }
+          }
+        }
+      }
+      this.shoutouts$.next(shoutouts);
+    });
+  }
+
   ngOnDestroy() {
     if (this._shoutOutPlayer) {
       if (isIOS) {
@@ -193,8 +195,6 @@ export class ShoutOutListComponent implements OnDestroy {
         });
       }
     }
-    if (this._sub) {
-      this._sub.unsubscribe();
-    }
+    if (this._sub) this._sub.unsubscribe();
   }
 }

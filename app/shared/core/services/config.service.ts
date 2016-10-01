@@ -1,3 +1,6 @@
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
+// nativescript
 import * as appSettings from 'application-settings';
 
 interface IAPP_SETTING_KEYS {
@@ -13,6 +16,10 @@ export class Config {
   public static USER_KEY: string;
   // fallback when playlistId is not defined on tracks (from bulk spotify playlist creation)
   public static SELECTED_PLAYLIST_ID: string;
+  // shared urls on launch
+  public static SHARE_URL$:BehaviorSubject<string> = new BehaviorSubject(null);
+  // playing shared urls when ready
+  public static PLAY_SHARED$:BehaviorSubject<any> = new BehaviorSubject(null);
   
   public static APP_SETTING_KEYS: IAPP_SETTING_KEYS = {
     INTRO: `viewed-intro`,

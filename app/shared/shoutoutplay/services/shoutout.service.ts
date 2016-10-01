@@ -12,8 +12,8 @@ import {includes} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {Config, LogService, ProgressService, Utils} from '../../core/index';
-import {ShoutoutModel, TrackModel, FIREBASE_ACTIONS} from '../index';
+import {Config, LogService, Utils, PROGRESS_ACTIONS} from '../../core/index';
+import {ShoutoutModel, TrackModel, FIREBASE_ACTIONS, SHAREDLIST_ACTIONS} from '../index';
 import {FirebaseService} from './firebase.service';
 
 // analytics
@@ -35,6 +35,7 @@ interface ISHOUTOUT_ACTIONS {
   SHOW_PICKER: string;
   CLOSE_PICKER: string;
   DOWNLOAD_SHOUTOUTS: string;
+  REMOVE_LOCAL: string;
   REMOVE_REMOTE: string;
 }
 
@@ -42,6 +43,7 @@ export const SHOUTOUT_ACTIONS: ISHOUTOUT_ACTIONS = {
   SHOW_PICKER: `${CATEGORY}_SHOW_PICKER`,
   CLOSE_PICKER: `${CATEGORY}_CLOSE_PICKER`,
   DOWNLOAD_SHOUTOUTS: `${CATEGORY}_DOWNLOAD_SHOUTOUTS`,
+  REMOVE_LOCAL: `${CATEGORY}_REMOVE_LOCAL`,
   REMOVE_REMOTE: `${CATEGORY}_REMOVE_REMOTE`
 };
 
@@ -66,11 +68,10 @@ export const shoutoutReducer: ActionReducer<IShoutoutState> = (state: IShoutoutS
 
 @Injectable()
 export class ShoutoutService extends Analytics {
-  public quickRecordTrack: TrackModel;
   public savedName: string;
   private _downloadQueue: Array<string>;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private firebaseService: FirebaseService, private ngZone: NgZone) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private firebaseService: FirebaseService, private ngZone: NgZone) {
     super(analytics);
     this.category = CATEGORY;
   }
@@ -83,9 +84,9 @@ export class ShoutoutService extends Analytics {
     }
   }
 
-  public downloadShoutouts(shoutouts: Array<ShoutoutModel>) {
+  public downloadShoutouts(data: any) {
     this._downloadQueue = [];
-    for (let shoutout of shoutouts) {
+    for (let shoutout of data.shoutouts) {
       if (!fs.File.exists(Utils.documentsPath(shoutout.filename))) {
         this._downloadQueue.push(shoutout.filename);
       }
@@ -97,6 +98,9 @@ export class ShoutoutService extends Analytics {
         download();
       } else {
         this._downloadQueue = undefined;
+        // all downloads complete for shoutouts attached to tracks in playlists
+        // now kick off sharedlist shoutout downloads
+        this.store.dispatch({ type: SHAREDLIST_ACTIONS.DOWNLOAD_SHOUTOUTS, payload: data.sharedlist });
       }
     };
     let download = () => {
@@ -116,14 +120,14 @@ export class ShoutoutService extends Analytics {
 
   public removeRemoteComplete() {
     this.ngZone.run(() => {
-      this.loader.hide();
+      this.store.dispatch({type: PROGRESS_ACTIONS.HIDE});
       this.store.dispatch({type: FIREBASE_ACTIONS.UPDATE});
     });
   }
 
   public removeShoutout(shoutout: ShoutoutModel): Promise<any> {
     return new Promise((resolve) => {
-      this.loader.show();
+      this.store.dispatch({type: PROGRESS_ACTIONS.SHOW});
       this.removeRecordings([shoutout.filename]);
       this.store.dispatch({ type: FIREBASE_ACTIONS.DELETE, payload: shoutout });
       setTimeout(() => {
@@ -133,9 +137,6 @@ export class ShoutoutService extends Analytics {
   }
 
   public removeRecordings(filenames: Array<string>, shouldDeleteRemote?: boolean) {
-    // reset quick record
-    this.quickRecordTrack = undefined;
-    
     console.log('removeRecordings');
     console.log(filenames.length);
     let cnt = 0;
@@ -188,15 +189,21 @@ export class ShoutoutService extends Analytics {
 export class ShoutoutEffects {
   constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private shoutoutService: ShoutoutService) { }
   
-  @Effect() downloadShoutouts$ = this.actions$
+  @Effect({ dispatch: false }) downloadShoutouts$ = this.actions$
     .ofType(SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS)
     .do((action) => {
       this.logger.debug(`ShoutoutEffects.DOWNLOAD_SHOUTOUTS`);
       this.shoutoutService.downloadShoutouts(action.payload);
-    })
-    .filter(() => false);
+    });
+
+  @Effect({ dispatch: false }) removeLocal$ = this.actions$
+    .ofType(SHOUTOUT_ACTIONS.REMOVE_LOCAL)
+    .do((action) => {
+      this.logger.debug(`ShoutoutEffects.REMOVE_LOCAL`);
+      this.shoutoutService.removeRecordings(action.payload.filenames, action.payload.removeRemote);
+    });
   
-  @Effect() removeRemote$ = this.actions$
+  @Effect({ dispatch: false }) removeRemote$ = this.actions$
     .ofType(SHOUTOUT_ACTIONS.REMOVE_REMOTE)
     .do((action) => {
       this.logger.debug(`ShoutoutEffects.REMOVE_REMOTE`);
@@ -204,6 +211,5 @@ export class ShoutoutEffects {
         this.shoutoutService.removeRemoteComplete();
       };
       this.shoutoutService.removeRemote(action.payload).then(handler, handler);
-    })
-    .filter(() => false);
+    });
 }

@@ -4,6 +4,7 @@ import {Location} from '@angular/common';
 
 // nativescript
 import * as app from 'application';
+import * as http from 'http';
 import {isIOS} from 'platform';
 import {knownFolders} from 'file-system';
 import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlaylist} from 'nativescript-spotify';
@@ -17,8 +18,8 @@ import {isString, isObject, keys, orderBy, includes, find} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {PlaylistModel, ShoutoutModel, ShoutOutPlayUser, IAuthState, SHOUTOUT_ACTIONS} from '../index';
-import {Config, LogService, DialogsService, FancyAlertService, Utils, TextService} from '../../core/index';
+import {PlaylistModel, ShoutoutModel, TrackModel, SharedModel, ShoutOutPlayUser, IAuthState, SHOUTOUT_ACTIONS, SHAREDLIST_ACTIONS} from '../index';
+import {Config, LogService, FancyAlertService, PROGRESS_ACTIONS, Utils, TextService} from '../../core/index';
 
 // analytics
 const CATEGORY: string = 'Firebase';
@@ -31,29 +32,34 @@ declare var zonedCallback: Function;
 export interface IFirebaseChanges {
   playlists?: Array<PlaylistModel>;
   shoutouts?: Array<ShoutoutModel>;
+  sharedlist?: Array<SharedModel>;
 }
 export interface IFirebaseState {
   playlists?: Array<PlaylistModel>;
   shoutouts?: Array<ShoutoutModel>;
-  selectedPlaylistId?: string;
+  sharedlist?: Array<SharedModel>;
 }
 
 const initialState: IFirebaseState = {
   playlists: [],
-  shoutouts: []
+  shoutouts: [],
+  sharedlist: []
 };
 
 interface IFIREBASE_ACTIONS {
   CREATE: string;
   CREATE_SHOUTOUT: string;
+  CREATE_SHARED: string;
   UPDATE: string;
   UPDATE_PLAYLIST: string;
   PROCESS_UPDATES: string;
   DELETE: string;
   DELETE_TRACK: string;
+  DELETE_SHARED: string;
   PLAYLIST_DELETED: string;
   SHOUTOUT_DELETED: string;
-  RESET_PLAYLISTS: string;
+  SHARED_DELETED: string;
+  RESET_LISTS: string;
   REORDER: string;
   RESET_ACCOUNT: string;
 }
@@ -61,14 +67,17 @@ interface IFIREBASE_ACTIONS {
 export const FIREBASE_ACTIONS: IFIREBASE_ACTIONS = {
   CREATE: `${CATEGORY}_CREATE`,
   CREATE_SHOUTOUT: `${CATEGORY}_CREATE_SHOUTOUT`,
+  CREATE_SHARED: `${CATEGORY}_CREATE_SHARED`,
   UPDATE: `${CATEGORY}_UPDATE`,
   UPDATE_PLAYLIST: `${CATEGORY}_UPDATE_PLAYLIST`,
   PROCESS_UPDATES: `${CATEGORY}_PROCESS_UPDATES`,
   DELETE: `${CATEGORY}_DELETE`,
   DELETE_TRACK: `${CATEGORY}_DELETE_TRACK`,
+  DELETE_SHARED: `${CATEGORY}_DELETE_SHARED`,
   PLAYLIST_DELETED: `${CATEGORY}_PLAYLIST_DELETED`,
   SHOUTOUT_DELETED: `${CATEGORY}_SHOUTOUT_DELETED`,
-  RESET_PLAYLISTS: `${CATEGORY}_RESET_PLAYLISTS`,
+  SHARED_DELETED: `${CATEGORY}_SHARED_DELETED`,
+  RESET_LISTS: `${CATEGORY}_RESET_LISTS`,
   REORDER: `${CATEGORY}_REORDER`,
   RESET_ACCOUNT: `${CATEGORY}_RESET_ACCOUNT`
 };
@@ -93,8 +102,8 @@ export const firebaseReducer: ActionReducer<IFirebaseState> = (state: IFirebaseS
       }
       action.payload = { playlists };
       return changeState();
-    case FIREBASE_ACTIONS.RESET_PLAYLISTS:
-      // resets playing state of all playlists and tracks
+    case FIREBASE_ACTIONS.RESET_LISTS:
+      // resets playing state of all lists
       var playlists = [...state.playlists];
       for (let p of playlists) {
         p.playing = false;
@@ -102,7 +111,11 @@ export const firebaseReducer: ActionReducer<IFirebaseState> = (state: IFirebaseS
           t.playing = false;
         }
       }
-      action.payload = { playlists };
+      var sharedlist = [...state.sharedlist];
+      for (let t of sharedlist) {
+        t.playing = false;
+      }
+      action.payload = { playlists, sharedlist };
       return changeState();
     default:
       return state;
@@ -130,8 +143,9 @@ export class FirebaseService extends Analytics {
   private _fetchedSpotifyPlaylists: boolean = false;
   private _passSuffix: string = 'A814~'; // make passwords strong
   private _ignoreUpdate: boolean = false;
+  private _sharedUrl: string;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private dialogs: DialogsService, private fancyalert: FancyAlertService, private ngZone: NgZone, private location: Location) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private location: Location) {
     super(analytics);
     this.category = CATEGORY;
     this.init();   
@@ -156,6 +170,9 @@ export class FirebaseService extends Analytics {
         case 'shoutout':
           this.addNewShoutout(data);
           break;
+        case 'shared':
+          this.addNewShared(data);
+          break;
       }
     }
   }
@@ -169,6 +186,9 @@ export class FirebaseService extends Analytics {
         case 'shoutout':
           this.deleteShoutout(data);
           break;
+        case 'shared':
+          this.deleteShared(data);
+          break;
       }
     }
   }
@@ -181,6 +201,9 @@ export class FirebaseService extends Analytics {
           break;
         case 'track':
           this.reorderTracks(data);
+          break;
+        case 'shared':
+          this.reorderShared(data);
           break;
       }
     }
@@ -208,8 +231,20 @@ export class FirebaseService extends Analytics {
     });
   }
 
-  public downloadFile(filename: string): Promise<any> {
+  public downloadFile(filename: string, isFullPath?: boolean): Promise<any> {
     let remotePath = `${Config.USER_KEY}/${filename}`;
+    if (isFullPath) {
+      // WARNING: Shared Shoutouts
+      // TODO: Potentially in the future using naming convention of `recording_[timestamp].m4a`
+      // could overwrite a locally saved shoutout
+      // If a user recorded a shoutout at the exact time you did, then shared theres with you
+      // it would overwrite your file since the filename would be the same
+      // In future, may need to add some randomization to end of filename to prevent
+      // Rare case at the moment
+      remotePath = filename;
+      filename = Utils.getFilename(remotePath);
+    }
+    
     this.logger.debug(`downloading remote file: ${remotePath}`);
     let localPath = Utils.documentsPath(filename);
     this.logger.debug(`to: ${localPath}`);
@@ -340,6 +375,7 @@ export class FirebaseService extends Analytics {
   private addNewPlaylist(playlist: PlaylistModel): Promise<any> {
     return new Promise((resolve, reject) => {
       if (Config.USER_KEY) {
+        this.toggleLoader(true);
         this.stripFunctions(playlist);
         firebase.push(
           `/users/${Config.USER_KEY}/playlists`,
@@ -347,7 +383,7 @@ export class FirebaseService extends Analytics {
         ).then((result: any) => {
           this.logger.debug(`New Playlist created: ${result.key}`);
           this.track(FIREBASE_ACTIONS.CREATE, { label: `New Playlist` });
-          this.dialogs.hide();
+          this.toggleLoader(false);
           resolve();
         })
       }
@@ -356,6 +392,7 @@ export class FirebaseService extends Analytics {
 
   private addNewShoutout(shoutout: ShoutoutModel) {
     if (Config.USER_KEY) {
+      this.toggleLoader(true);
       this._ignoreUpdate = true;
       this.stripFunctions(shoutout);
       firebase.push(
@@ -428,6 +465,33 @@ export class FirebaseService extends Analytics {
     }
   }
 
+  private addNewShared(shared: SharedModel) {
+    if (Config.USER_KEY) {
+      this.toggleLoader(true, 'Oh nice! The shared ShoutOut is about to play, one moment...');
+      this._ignoreUpdate = false;
+      this.stripFunctions(shared);
+      firebase.push(
+        `/users/${Config.USER_KEY}/shared`,
+        shared
+      ).then((result: any) => {
+        this.logger.debug(`New Shared created: ${result.key}`);
+        this.track(FIREBASE_ACTIONS.CREATE_SHARED, { label: `New Shared` });
+        this.downloadFile(shared.remoteFilePath, true).then(() => {
+          // play shared
+          this.toggleLoader(false);
+          this.ngZone.run(() => {
+            this.store.dispatch({type: SHAREDLIST_ACTIONS.PLAY, payload: shared });
+          });
+        });
+      }, (err) => {
+        this.logger.debug(`shared create error:`);
+        this.logger.debug(err);
+        this.toggleLoader(false);
+        this.fancyalert.show('An error occurred while trying to play your shared ShoutOut, you may try again.');
+      })
+    }
+  }
+
   private updatePlaylist(playlist: PlaylistModel) {
     if (Config.USER_KEY && playlist) {
       if (!playlist.id) {
@@ -485,6 +549,28 @@ export class FirebaseService extends Analytics {
     }
   }
 
+  private updateShared(shared: Array<SharedModel>) {
+    if (Config.USER_KEY) {
+      this._ignoreUpdate = false;
+      let sharedObject = {};
+      let sharedIds = []; // just for logging ids below
+      for (let s of shared) {
+        let id = s.id;
+        sharedIds.push(id);
+        delete s.id; // firebase uses id as collection identifier so no need to store with object
+        delete s.playing // never store playing state
+        sharedObject[id] = s;
+      }   
+      this.logger.debug(`Updating all shared: ${sharedIds.join(',')}`);
+      firebase.update(
+        `/users/${Config.USER_KEY}/shared`,
+        sharedObject
+      ).then((result: any) => {
+        this.logger.debug(`All shared updated.`);
+      });
+    }
+  }
+
   private deletePlaylist(playlist: PlaylistModel) {
     // this._ignoreUpdate = false;
     this.logger.debug(`Deleting playlist with id: ${playlist.id}`);
@@ -512,6 +598,16 @@ export class FirebaseService extends Analytics {
       this.track(FIREBASE_ACTIONS.SHOUTOUT_DELETED, { label: Config.USER_KEY });
     });
   }  
+
+  private deleteShared(shared: SharedModel) {
+    // this._ignoreUpdate = true;
+    firebase.remove(
+      `/users/${Config.USER_KEY}/shared/${shared.id}`
+    ).then((result: any) => {
+      this.logger.debug(`Shared deleted.`);
+      this.track(FIREBASE_ACTIONS.SHARED_DELETED, { label: Config.USER_KEY });
+    });
+  } 
 
   private deleteRemoteFile(filename: string) {
     this.store.dispatch({ type: SHOUTOUT_ACTIONS.REMOVE_REMOTE, payload: filename });
@@ -551,8 +647,41 @@ export class FirebaseService extends Analytics {
     }
   }
 
+  private reorderShared(data: any) {
+    this.store.take(1).subscribe((s: any) => {
+      let sharedlist = [...s.firebase.sharedlist];
+      let targetItem = sharedlist[data.itemIndex];
+      targetItem.order = data.targetIndex;
+      this.logger.debug(`Reordering sharedlist, setting order: ${targetItem.order} of ${sharedlist.length} sharedlist.`);
+      for (var i = 0; i < sharedlist.length; i++) {
+        // if (targetItem.id !== playlists[i].id) {
+          this.logger.debug(`${sharedlist[i].name} - setting order: ${i}`);
+          sharedlist[i].order = i;
+        // }
+      }
+      this.updateShared(sharedlist);
+      this.track(FIREBASE_ACTIONS.REORDER, { label: 'Shared' });
+    });
+  }
+
   private init() {
     this.state$ = this.store.select('firebase');
+
+    // handle share urls
+    Config.SHARE_URL$.subscribe((url: string) => {
+      if (url) {
+        this.logger.debug(`share url ready: ${url}`);
+        this._sharedUrl = url;
+        if (this._firebaseUser && this._initialized && this._spotifyUserProduct) {
+          // process url
+          this.logger.debug(`process share url`);
+          this.logger.debug(`firebase email: ${this._firebaseUser.email}`);
+          this.handleSharedUrl();
+        }
+      }
+    });
+
+    // auth state handling
     this.store.select('auth').subscribe((s: IAuthState) => {
       if (s.loggedIn) {
         // try to log user in or create an account based on their spotify account
@@ -578,6 +707,7 @@ export class FirebaseService extends Analytics {
             } else if (this._firebaseUser.email !== emailAddress) {
               // log previously logged in user out, and login new user
               firebase.logout().then(() => {
+                this.logger.debug(`firebase.logout(), now calling resetInitializers`);
                 this.resetInitializers();
                 login();
               });
@@ -596,6 +726,7 @@ export class FirebaseService extends Analytics {
           }
         });
       } else if (this._firebaseUser) {
+        this.logger.debug(`auth subscribe loggedIn==false, calling firebase.logout() and reset`);
         this.track('SPOTIFY_LOGOUT', { label: this._firebaseUser.email });
         firebase.logout().then(() => {
           this.resetInitializers();
@@ -622,10 +753,10 @@ export class FirebaseService extends Analytics {
             this._firebaseUser = <any>data.user;
             this.listenToUser(this._firebaseUser.uid);
             this.track('FIREBASE_LOGIN', { label: email });
-          } 
-        } else {
-          this.resetInitializers();
-        }
+          } else if (this._sharedUrl) {
+            this.logger.debug('TODO: handle shared url');
+          }
+        } 
       }
     }).then((instance) => {
       this.logger.debug("firebase.init done");
@@ -664,8 +795,12 @@ export class FirebaseService extends Analytics {
     this.logger.debug(`checkIfUserExists...`);
     if (result) {
       if (result.value) {
-        this.logger.debug(`----- User exists, listenToUser ------`);
-        this.listenToUser(this._firebaseUser.uid, false);
+        if (this._firebaseUser) {
+          // this callback can fire *after* auth service logs out due to Spotify
+          // when that happens, this._firebaseUser will have been reset, therefore ignore this
+          this.logger.debug(`----- User exists, listenToUser ------`);
+          this.listenToUser(this._firebaseUser.uid, false);
+        }
       } else {
         // add new user
         this.addNewUser();
@@ -701,10 +836,12 @@ export class FirebaseService extends Analytics {
       this.store.take(1).subscribe((s: any) => {
         let startingCnt = {
           playlists: s.firebase.playlists.length,
-          shoutouts: s.firebase.shoutouts.length
+          shoutouts: s.firebase.shoutouts.length,
+          sharedlist: s.firebase.sharedlist.length,
         };
         let playlists = [];
         let shoutouts = [];
+        let sharedlist = [];
 
         // used to maintain playing state when syncing with remote changes        
         let currentTrackId = s.player.currentTrackId;
@@ -747,25 +884,34 @@ export class FirebaseService extends Analytics {
             shoutouts.push(new ShoutoutModel(Object.assign({ id: id }, user.shoutouts[id])));
           }
         }
+        if (user.shared) {
+          for (let id in user.shared) {
+            sharedlist.push(new SharedModel(Object.assign({ id: id }, user.shared[id])));
+          }
+        }
         // order arrays by order property
         playlists = orderBy(playlists, ['order'], ['asc']);
         shoutouts = orderBy(shoutouts, ['order'], ['asc']);
+        sharedlist = orderBy(sharedlist, ['order'], ['asc']);
 
         if (this._initialized) {
           // only if state has been initialized
-          let msg = '';
-          if (playlists.length < startingCnt.playlists || shoutouts.length < startingCnt.shoutouts) {
-            msg = 'Deleted';
-          } else if (playlists.length > startingCnt.playlists || shoutouts.length > startingCnt.shoutouts) {
-            msg = 'Saved';
-          }
-          if (msg && this._spotifyUserProduct) {
-            // only ever display msg if valid spotify user is logged in
-            this.dialogs.success(msg);
+          if (this._spotifyUserProduct) {
+            // only display msg if valid spotify user is logged in
+            let msg = '';
+            if (playlists.length < startingCnt.playlists || shoutouts.length < startingCnt.shoutouts || sharedlist.length < startingCnt.sharedlist) {
+              msg = 'Deleted';
+            } else if (playlists.length > startingCnt.playlists || shoutouts.length > startingCnt.shoutouts || sharedlist.length > startingCnt.sharedlist) {
+              msg = 'Saved';
+            }
+            if (msg) {
+              this.store.dispatch({type: PROGRESS_ACTIONS.SUCCESS, payload: msg });
+            }
           }
         } else {
           this._initialized = true;
-          this.store.dispatch({ type: SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS, payload: shoutouts });
+          this.store.dispatch({ type: SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS, payload: { shoutouts, sharedlist } });
+          this.handleSharedUrl();
         }
 
         this.handleSpotifyPlaylists(playlists);
@@ -774,9 +920,79 @@ export class FirebaseService extends Analytics {
           this.logger.debug(`ngZone State Updates...`);
           this.logger.debug(`playlists.length: ${playlists.length}`);
           this.logger.debug(`shoutouts.length: ${shoutouts.length}`);
-          this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts } });
+          this.logger.debug(`sharedlist.length: ${sharedlist.length}`);
+          this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists, shoutouts, sharedlist } });
         });
       });
+    }
+  }
+
+  private handleSharedUrl() {
+    if (this._sharedUrl) {
+      this.logger.debug(`handling shared url:`);
+      // https://shoutoutplay.com/?n=Nathan&u=user_id&ti=recording_timestamp&t=spotify_track_id
+      let params = this._sharedUrl.split('?').slice(-1)[0];
+
+      let paramsLog = params;
+      if (paramsLog && paramsLog.length > 35) {
+        paramsLog = paramsLog.substring(0, 35);
+      }
+      this.track('SHARE_URL', {label: paramsLog});
+
+      let parts = params.split('&');
+      if (parts.length===4) {
+        let name = parts[0].split('=')[1];
+        let userId = parts[1].split('=')[1];
+        let timestamp = parts[2].split('=')[1];
+        let trackId = parts[3].split('=')[1];
+        this.logger.debug(`name: ${name}, userId: ${userId}, timestamp: ${timestamp}, trackId: ${trackId}`);
+
+        this.store.take(1).subscribe((s: any) => {
+          let sharedlist = s.firebase.sharedlist;
+          let newShared = new SharedModel({
+            trackId: trackId,
+            sharedBy: name,
+            remoteFilePath: `${userId}/recording-${timestamp}.m4a`
+          });
+
+          // first make sure not a duplicate
+          let isDupe = false;
+          for (let shared of sharedlist) {
+            if (shared.trackId === newShared.trackId && shared.remoteFilePath === newShared.remoteFilePath) {
+              isDupe = true;
+              break;
+            }
+          }
+
+          let readyAndSave = (name?: string, artist?: string) => {
+            newShared.name = name || 'n/a';
+            newShared.artist = artist || 'n/a';
+
+            this.ngZone.run(() => {
+              this.store.dispatch({type: FIREBASE_ACTIONS.CREATE_SHARED, payload: newShared });
+            });
+          };
+
+          if (isDupe) {
+            // go straight to shared list and play it
+            this.store.dispatch({type: SHAREDLIST_ACTIONS.PLAY, payload: newShared });
+          } else {
+            // create it
+            // fetch artist info first
+            Utils.fetchSpotifyRest(`https://api.spotify.com/v1/tracks/${newShared.trackId}`).then((trackInfo:any) => {
+              readyAndSave(trackInfo.name, trackInfo.artist);
+            }, (err) => {
+              // just save without details if rest api fails
+              readyAndSave();
+            });
+          }
+        });
+      } else {
+        this.fancyalert.show('The shared link you received appears to be invalid, please check with the sender.');
+      }
+
+      this._sharedUrl = undefined;
+      Config.SHARE_URL$.next(null);
     }
   }
 
@@ -886,6 +1102,7 @@ export class FirebaseService extends Analytics {
   }
 
   private resetInitializers() {
+    this.logger.debug(`resetInitializers`);
     this._firebaseUser = undefined;
     this._spotifyUserProduct = undefined;
     this._fetchedSpotifyPlaylists = false;
@@ -899,6 +1116,12 @@ export class FirebaseService extends Analytics {
     // this.ngZone.run(() => {
     //   this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists:[], shoutouts:[] } });
     // });
+  }
+
+  private toggleLoader(enable: boolean, msg?: string) {
+    let options: any = { type: enable ? PROGRESS_ACTIONS.SHOW : PROGRESS_ACTIONS.HIDE };
+    if (msg) options.payload = msg;
+    this.store.dispatch(options);
   }
 
   private stripFunctions(model: any) {
@@ -916,54 +1139,57 @@ export class FirebaseService extends Analytics {
 @Injectable()
 export class FirebaseEffects {
   constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private firebaseService: FirebaseService) { }
+
+  private addDocument(type: string, action: any) {
+    this.logger.debug(type);
+    this.firebaseService.addDocument(action.payload);
+  }
       
-  @Effect() processUpdates$ = this.actions$
+  @Effect({ dispatch: false }) processUpdates$ = this.actions$
     .ofType(FIREBASE_ACTIONS.PROCESS_UPDATES)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.PROCESS_UPDATES`);
       this.firebaseService.processUpdates(action.payload);
-    })
-    .filter(() => false);
+    });
 
-  @Effect() create$ = this.actions$
+  @Effect({ dispatch: false }) create$ = this.actions$
     .ofType(FIREBASE_ACTIONS.CREATE)
     .do((action) => {
-      this.logger.debug(`FirebaseEffects.CREATE`);
-      this.firebaseService.addDocument(action.payload);
-    })
-    .filter(() => false);
+      this.addDocument(`FirebaseEffects.CREATE`, action);
+    });
   
-  @Effect() createShoutout$ = this.actions$
+  @Effect({ dispatch: false }) createShoutout$ = this.actions$
     .ofType(FIREBASE_ACTIONS.CREATE_SHOUTOUT)
     .do((action) => {
-      this.logger.debug(`FirebaseEffects.CREATE_SHOUTOUT`);
-      this.firebaseService.addDocument(action.payload);
-    })
-    .filter(() => false);
+      this.addDocument(`FirebaseEffects.CREATE_SHOUTOUT`, action);
+    });
   
-  @Effect() delete$ = this.actions$
+  @Effect({ dispatch: false }) createShared$ = this.actions$
+    .ofType(FIREBASE_ACTIONS.CREATE_SHARED)
+    .do((action) => {
+      this.addDocument(`FirebaseEffects.CREATE_SHARED`, action);
+    });
+  
+  @Effect({ dispatch: false }) delete$ = this.actions$
     .ofType(FIREBASE_ACTIONS.DELETE)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.DELETE`);
       this.firebaseService.deleteDocument(action.payload);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() shoutoutDeleted$ = this.actions$
+  @Effect({ dispatch: false }) shoutoutDeleted$ = this.actions$
     .ofType(FIREBASE_ACTIONS.SHOUTOUT_DELETED)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.SHOUTOUT_DELETED`);
       this.firebaseService.removeShoutoutFromTrack(action.payload);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() reorder$ = this.actions$
+  @Effect({ dispatch: false }) reorder$ = this.actions$
     .ofType(FIREBASE_ACTIONS.REORDER)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.REORDER`);
       this.firebaseService.reorder(action.payload);
-    })
-    .filter(() => false);
+    });
   
   @Effect() deleteTrack$ = this.actions$
     .ofType(FIREBASE_ACTIONS.DELETE_TRACK)
@@ -989,11 +1215,10 @@ export class FirebaseEffects {
       });
     });
   
-  @Effect() resetAccount$ = this.actions$
+  @Effect({ dispatch: false }) resetAccount$ = this.actions$
     .ofType(FIREBASE_ACTIONS.RESET_ACCOUNT)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.RESET_ACCOUNT`);
       this.firebaseService.resetAccount();
-    })
-    .filter(() => false);
+    });
 }

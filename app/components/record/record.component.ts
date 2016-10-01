@@ -36,7 +36,7 @@ import {Subscription} from "rxjs/Subscription";
 import * as _ from 'lodash';
 
 // app
-import {BaseComponent, LogService, ProgressService, FancyAlertService, Utils, Config, ColorService} from '../../shared/core/index';
+import {BaseComponent, LogService, FancyAlertService, Utils, Config, ColorService, PROGRESS_ACTIONS} from '../../shared/core/index';
 import {IShoutoutState, SHOUTOUT_ACTIONS, ShoutoutService, TrackModel, ShoutoutModel, PLAYER_ACTIONS, PlaylistModel, FIREBASE_ACTIONS, SearchService} from '../../shared/shoutoutplay/index';
 import {TrackChooserComponent} from './track-chooser.component';
 
@@ -93,7 +93,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _glowiOSView;  
   private _sub: Subscription;
 
-  constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private progress: ProgressService, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService, private ngZone: NgZone) {
 
     // set audio plot color based on active theme
     this.audioPlotColor = ColorService.Active.BRIGHT;
@@ -104,15 +104,14 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
       this.androidEQ$ = new BehaviorSubject(0);
     }
 
-    // always stop all tracks playing from search results
-    searchService.stopAll();
+    searchService.stopAll();    
     // always reset player to clear internal state (like shoutouts in queue, etc.)
     store.dispatch({ type: PLAYER_ACTIONS.STOP, payload: { reset: true } });
     logger.debug(`RecordComponent constructor()`);
     this.isAndroidBig = !isIOS && screen.mainScreen.heightDIPs >= 640;
     this.isSmallerScreen = screen.mainScreen.heightDIPs <= 568 || (!isIOS && screen.mainScreen.heightDIPs <= 640);
 
-    if (this.shoutoutService.quickRecordTrack) {
+    if (this.searchService.quickRecordTrack) {
       this.saveTxt = 'Save';
       this.saveBtnWidth = '70%';
       this.saveBtnTxtWidth = '30%';
@@ -290,8 +289,8 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   }
 
   public saveToTrack() {
-    if (this.shoutoutService.quickRecordTrack) {
-      this.addToTrack(this.shoutoutService.quickRecordTrack);
+    if (this.searchService.quickRecordTrack) {
+      this.addToTrack(this.searchService.quickRecordTrack);
     } else {
       this.store.dispatch({ type: SHOUTOUT_ACTIONS.SHOW_PICKER });
     }
@@ -305,29 +304,31 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
   private initRecorder() {
     if (isIOS) {
-      this._recorder = new TNSEZRecorder();
-      this._recorder.delegate().audioEvents.on('audioBuffer', (eventData) => {
-        this._audioplot.bufferData = {
-          buffer: eventData.data.buffer,
-          bufferSize: eventData.data.bufferSize
-        };
-      });
-      this._recorder.delegate().audioEvents.on('recordTime', (eventData) => {
-        this.recordTime = eventData.data.time;
-      });
+      AVAudioSession.sharedInstance().requestRecordPermission((granted) => {
+        this._recorder = new TNSEZRecorder();
+        this._recorder.delegate().audioEvents.on('audioBuffer', (eventData) => {
+          this._audioplot.bufferData = {
+            buffer: eventData.data.buffer,
+            bufferSize: eventData.data.bufferSize
+          };
+        });
+        this._recorder.delegate().audioEvents.on('recordTime', (eventData) => {
+          this.recordTime = eventData.data.time;
+        });
 
-      // player
-      this._player = new TNSEZAudioPlayer(true);
-      this._player.delegate().audioEvents.on('audioBuffer', (eventData) => {
-        this._audioplot.bufferData = {
-          buffer: eventData.data.buffer,
-          bufferSize: eventData.data.bufferSize
-        };
+        // player
+        this._player = new TNSEZAudioPlayer(true);
+        this._player.delegate().audioEvents.on('audioBuffer', (eventData) => {
+          this._audioplot.bufferData = {
+            buffer: eventData.data.buffer,
+            bufferSize: eventData.data.bufferSize
+          };
+        });
+        this._player.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
+          this.logger.debug(`RecordComponent: audioEvents.on('reachedEnd'), calling this.togglePlay()`);
+          this.togglePlay();
+        }));
       });
-      this._player.delegate().audioEvents.on('reachedEnd', zonedCallback((eventData) => {
-        this.logger.debug(`RecordComponent: audioEvents.on('reachedEnd'), calling this.togglePlay()`);
-        this.togglePlay();
-      }));
 
     } else {
  
@@ -363,10 +364,11 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     if (track) {
       this.logger.debug(`Chose Track!`);
       this._chosenTrack = track;
+      this.searchService.quickRecordTrack = null;
     } 
-    this.progress.show();
+    this.store.dispatch({type: PROGRESS_ACTIONS.SHOW });
     setTimeout(() => {
-      this.progress.hide();
+      this.store.dispatch({type: PROGRESS_ACTIONS.HIDE });
 
       if (!this.shoutoutService.savedName || Config.SHOUTOUT_ASK_NAME()) {
         // prompt user for their name
@@ -735,6 +737,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.logger.debug(`RecordComponent ngOnDestroy`);
+    this.searchService.quickRecordTrack = null; // reset
     this.shoutoutService.removeRecordings(this._sessionRecordings.filter(r => !r.saved).map(r => r.path));
     // remove events and free up resources
     

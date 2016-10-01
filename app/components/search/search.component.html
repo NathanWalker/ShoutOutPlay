@@ -13,10 +13,10 @@
   <!-- auth -->
   <StackLayout class="full-page-bar-match" [visibility]="(authService.state$ | async)?.loggedIn ? 'visible': 'collapsed'">
     <!--<ios>-->
-      <SearchBar #searchbar hint="Search" textFieldHintColor="#777" (submit)="search($event)" (clear)="clear()"></SearchBar>
+      <!--<SearchBar #searchbar hint="Search" textFieldHintColor="#777" (submit)="search($event)" (clear)="clear()"></SearchBar>-->
     <!--</ios>-->
     <!--<android>-->
-      <!--<SearchBar #searchbar hint="Search" textFieldHintColor="#fff" (submit)="search($event)" (clear)="clear()"></SearchBar>-->
+      <SearchBar #searchbar hint="Search" textFieldHintColor="#fff" (submit)="search($event)" (clear)="clear()"></SearchBar>
     <!--</android>-->
     <ListView [items]="(searchService.state$ | async)?.results" row="1" separatorColor="#333" (itemLoading)="itemLoading($event)" (loadMoreItems)="loadMore($event)" [visibility]="(searchService.state$ | async)?.results.length ? 'visible' : 'collapsed'" class="list-view"><!--*ngIf="(searchService.state$ | async)?.results.length"-->
       <template let-item="item" let-odd="odd" let-even="even">
@@ -31,10 +31,6 @@
       </template>
     </ListView>
 
-    <!--<StackLayout class="full-page-message" [visibility]="(searchService.state$ | async)?.results.length ? 'collapsed': 'visible'">
-      <Label [text]="'fa-long-arrow-up' | fonticonPure" class="fa full-page-icon-label"></Label>
-      <Label text="Search by artist or track name." textWrap="true" class="full-page-message-label"></Label>
-    </StackLayout>-->
     <EmptyView class="full-page-bar-match" [visibility]="(searchService.state$ | async)?.results.length ? 'collapsed': 'visible'" [icon]="'fa-long-arrow-up'" [text]="'Search by artist or track name.'"></EmptyView>
 
   </StackLayout>

@@ -10,10 +10,6 @@ Error: *** -[__NSArrayI objectAtIndex:]: index 2 beyond bounds [0 .. 1]
 <PlaylistActionBar></PlaylistActionBar>
 
 <StackLayout class="full-page-bar-match" [ngClass]="(trackControl.showControls$ | async) ? 'pad-bottom' : ''">
-  <!--<StackLayout class="full-page-message" *ngIf="(firebaseService.state$ | async)?.playlists.length==0">
-    <Label [text]="'fa-frown-o' | fonticonPure" textWrap="true" class="fa full-page-icon-label"></Label>
-    <Label text="There are no playlists yet." textWrap="true" class="full-page-message-label"></Label>
-  </StackLayout>-->
   <EmptyView class="full-page-bar-match" *ngIf="(firebaseService.state$ | async)?.playlists.length==0" [icon]="'fa-frown-o'" [text]="'There are no playlists yet.'"></EmptyView>
 
   <!-- iOS -->
@@ -36,7 +32,7 @@ Error: *** -[__NSArrayI objectAtIndex:]: index 2 beyond bounds [0 .. 1]
 
     <template tkListItemTemplate let-item="item" let-odd="odd" let-even="even">
       <GridLayout columns="auto, *, auto" rows="auto" [class.odd]="odd" [class.even]="even" [class.playing]="item.playing" class="list-item">
-        <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="playlistService.togglePlay(item.id)"></Button>
+        <Button row="0" col="0" [text]="(item.playing ? 'fa-pause-circle' : 'fa-play-circle') | fonticon" class="play-btn fa" (tap)="togglePlay(item.id)"></Button>
         <StackLayout row="0" col="1" class="row-center">
           <Label [text]="item.name" textWrap="true" class="title"></Label> 
           <Label [text]="item.tracks.length + ' Tracks'" textWrap="true" class="title-sub"></Label> 

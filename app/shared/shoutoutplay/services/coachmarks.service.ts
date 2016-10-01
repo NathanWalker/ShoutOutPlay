@@ -156,8 +156,17 @@ export class CoachmarksService {
       // data.instance.arrowImage.layer.addAnimationForKey(transition, null);
       data.instance.arrowImage.image = UIImage.imageNamed('arrow-top-flip.png');
 
-      let record = topmost().ios.controller.visibleViewController.navigationItem.rightBarButtonItems[0].valueForKey('view').frame; 
-      data.instance.arrowImage.frame = CGRectMake(record.origin.x - 12, data.instance.arrowImage.frame.origin.y, data.instance.arrowImage.frame.size.width, data.instance.arrowImage.frame.size.height);
+      try {
+        if (topmost().ios.controller.visibleViewController.navigationItem.rightBarButtonItems.count) {
+          let record = topmost().ios.controller.visibleViewController.navigationItem.rightBarButtonItems[0].valueForKey('view').frame; 
+          data.instance.arrowImage.frame = CGRectMake(record.origin.x - 12, data.instance.arrowImage.frame.origin.y, data.instance.arrowImage.frame.size.width, data.instance.arrowImage.frame.size.height);
+        } else {
+          data.instance.end();
+        }
+      } catch (err) {
+        // likely navigated to diff screen with no rightBarButtonItems
+        data.instance.end();
+      }
     } else if (data.index == 3) {
       data.instance.arrowImage.image = UIImage.imageNamed('arrow-left.png');
     }

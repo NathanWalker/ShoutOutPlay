@@ -1,5 +1,5 @@
 // angular
-import {ChangeDetectionStrategy, ChangeDetectorRef, Inject, ViewChild, AfterViewInit, ElementRef, OnInit, NgZone} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, AfterViewInit, ElementRef, OnInit, NgZone} from '@angular/core';
 import {Router} from '@angular/router';
 
 // nativescript
@@ -20,8 +20,8 @@ import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fon
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 // app
-import {ActionBarUtil, BaseComponent, LogService, DrawerService} from './shared/core/index';
-import {AuthService, PlayerService, FirebaseService, PlaylistService} from './shared/shoutoutplay/index';
+import {ActionBarUtil, BaseComponent} from './shared/core/index';//LogService, DrawerService
+// import {AuthService, PlayerService, FirebaseService, PlaylistService} from './shared/shoutoutplay/index';
  
 @BaseComponent({
   // moduleId: module.id,
@@ -31,7 +31,11 @@ import {AuthService, PlayerService, FirebaseService, PlaylistService} from './sh
 }) 
 export class AppComponent {
   
-  constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService, private ngZone: NgZone) {
+  // constructor(private logger: LogService, private pluginService: TNSFontIconService, private player: PlayerService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public authService: AuthService, public drawerService: DrawerService, private ngZone: NgZone) {
+  //   ActionBarUtil.STATUSBAR_STYLE(1);
+  // }
+
+  constructor(private pluginService: TNSFontIconService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
   }
 }

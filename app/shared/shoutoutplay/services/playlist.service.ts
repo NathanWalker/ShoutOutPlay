@@ -1,5 +1,5 @@
 // angular
-import {Injectable, NgZone, forwardRef, Inject} from '@angular/core';
+import {Injectable, NgZone, forwardRef} from '@angular/core';
 import {Router} from '@angular/router';
 
 // nativescript
@@ -37,8 +37,8 @@ import {isString, includes} from 'lodash';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
-import {LogService, ProgressService, DialogsService, FancyAlertService} from '../../core/index';
-import {PlaylistModel, TrackModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, ShoutoutService, SHOUTOUT_ACTIONS} from '../index';
+import {LogService, FancyAlertService, PROGRESS_ACTIONS} from '../../core/index';
+import {PlaylistModel, TrackModel, ShoutoutModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, SHOUTOUT_ACTIONS, SOPUtils} from '../index';
 
 declare var zonedCallback: Function;
 
@@ -93,119 +93,14 @@ export const playlistReducer: ActionReducer<IPlaylistState> = (state: IPlaylistS
 @Injectable()
 export class PlaylistService extends Analytics {
   public state$: Observable<any>;
-  public showRecord$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public showRecord$: BehaviorSubject<any> = new BehaviorSubject(null);
   private selectedTrack: TrackModel;
 
-  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private loader: ProgressService, private dialogsService: DialogsService, private ngZone: NgZone, private fancyalert: FancyAlertService, @Inject(forwardRef(() => ShoutoutService)) private shoutoutService) {
+  constructor(public analytics: AnalyticsService, private store: Store<any>, private logger: LogService, private ngZone: NgZone, private fancyalert: FancyAlertService) {
     super(analytics);
     this.category = CATEGORY;
 
     this.state$ = store.select('playlist');
-  }
-
-  public togglePlay(playlistId: string, track?: any) {
-    this.store.take(1).subscribe((s: any) => {
-      this.logger.debug('PlaylistService.togglePlay: this.store.take(1).subscribe, should update playlist state');
-      let playlists = [...s.firebase.playlists];
-      let currentTrackId = s.player.currentTrackId;
-      let playing = !s.player.playing; // new playing state is always assumed the opposite unless the following...
-      if (track) {
-        if (track.id !== currentTrackId) {
-          // changing track, always play new track
-          playing = true;
-        }
-        // IMP: must come after above
-        // always ensure currentTrackId is set to incoming track
-        currentTrackId = track.id;
-      } 
-      this.logger.debug(`playlistId: ${playlistId}`);
-      
-      // find playlist
-      let playlistIndex = -1;
-      for (let i = 0; i < playlists.length; i++) {
-        if (playlistId) {
-          if (playlistId === playlists[i].id) {
-            playlistIndex = i;
-            break;
-          }
-        } else if (track) {
-          // find from playlist
-          // TODO: Potential error here if the same track exists on 2 of more different playlists
-          for (let t of playlists[i].tracks) {
-            if (t.id === track.id) {
-              playlistId = playlists[i].id;
-              playlistIndex = i;
-              break;
-            }
-          }
-        }
-        
-      }
-      this.logger.debug(`playlistIndex: ${playlistIndex}`);
-      // determine playlist state first
-      if (playlistIndex > -1) {
-        if (playlists[playlistIndex].tracks.length === 0) {
-          // dialogs.alert(`Playlist is empty! Add some tracks to play.`);
-          this.fancyalert.show(`Playlist is empty! Add some tracks to play.`);
-          return;
-        } else {
-          // update current playlist state
-          let playFirst = true;
-          for (let t of playlists[playlistIndex].tracks) {
-            if (track) {
-              // when track is used, playlist state is determined by the track
-              playFirst = false;
-              // explicit track
-              if (track.id === t.id) {
-                t.playing = playing; 
-                playlists[playlistIndex].playing = playing;
-                this.logger.debug(`setting track playing: ${t.playing}`);
-              } else {
-                // reset all others to off
-                t.playing = false;
-              }
-            } else {
-              // no track specified (play from playlist view)
-              // find if any are currently playing
-              if (t.playing) {
-                currentTrackId = t.id;
-                // toggle off
-                playing = false;
-                t.playing = playing;
-                playlists[playlistIndex].playing = playing;
-                playFirst = false;
-              }
-            }
-          }
-
-          if (playFirst) {
-            if (playlists[playlistIndex].tracks[0].id !== currentTrackId) {
-              // changing track, always play new track
-              playing = true;
-            }
-            playlists[playlistIndex].tracks[0].playing = playing;
-            playlists[playlistIndex].playing = playing;
-            currentTrackId = playlists[playlistIndex].tracks[0].id;
-          }
-
-          // always reset others to be clean
-          for (let p of playlists) {
-            if (p.id !== playlistId) {
-              p.playing = false;
-              for (let t of p.tracks) {
-                t.playing = false;
-              }
-            }
-          }
-        }
-        this.logger.debug(`playlists[playlistIndex].playing: ${playlists[playlistIndex].playing}`);
-      
-        this.ngZone.run(() => {
-          this.store.dispatch({ type: PLAYER_ACTIONS.TOGGLE_PLAY, payload: { currentTrackId, playing } });
-          this.store.dispatch({ type: FIREBASE_ACTIONS.UPDATE, payload: { playlists } });
-        });
-      }  
-    });
   }
 
   public addPrompt(track: TrackModel) {
@@ -249,7 +144,7 @@ export class PlaylistService extends Analytics {
         if (item.id === playlistId) {
           if (item.addTrack(this.selectedTrack)) {
             this.store.dispatch({ type: FIREBASE_ACTIONS.PROCESS_UPDATES, payload: item });
-            this.dialogsService.success('Added!');
+            this.store.dispatch({ type: PROGRESS_ACTIONS.SUCCESS, payload: 'Added!' });
             this.selectedTrack.playlistId = playlistId;
             this.promptToRecord(this.selectedTrack);
             break;
@@ -278,7 +173,7 @@ export class PlaylistService extends Analytics {
       if (shoutoutIds.length) {
         this.store.take(1).subscribe((s: any) => {
           let filenames = s.firebase.shoutouts.filter(s => includes(shoutoutIds, s.id)).map(s => s.filename);
-          this.shoutoutService.removeRecordings(filenames, true);
+          this.store.dispatch({type: SHOUTOUT_ACTIONS.REMOVE_LOCAL, payload: {filenames, removeRemote: true}});
         });
       }
     }
@@ -289,11 +184,12 @@ export class PlaylistService extends Analytics {
     let playlistIndex = -1;
     let trackIndex = -1;
     let playlistId;
-    let track;
+    let track: TrackModel;
 
     this.store.take(1).subscribe((s: any) => {
       let currentTrackId = s.player.currentTrackId;
       if (currentTrackId) {
+        let shoutouts = [...s.firebase.shoutouts];
         playlists = [...s.firebase.playlists];
         for (let i = 0; i < playlists.length; i++) {
           for (let a = 0; a < playlists[i].tracks.length; a++) {
@@ -326,11 +222,24 @@ export class PlaylistService extends Analytics {
             trackId = playlists[playlistIndex].tracks[0].id;
             track = playlists[playlistIndex].tracks[0];
           }
-          this.togglePlay(playlistId, track);
+
+          let activeShoutOutPath: string = SOPUtils.getShoutOutPath(track, shoutouts);
+          
+          this.ngZone.run(() => {
+            this.store.dispatch({
+              type: PLAYER_ACTIONS.LIST_TOGGLE_PLAY,
+              payload: {
+                trackId: track.id,
+                activeList: 'playlists',
+                playlistId,
+                playing: true,
+                activeShoutOutPath
+              }
+            });
+          });
         }
       }
-    });
-    
+    }); 
   }
 
   private promptToRecord(track: TrackModel) {
@@ -339,14 +248,12 @@ export class PlaylistService extends Analytics {
         new TNSFancyAlertButton({
           label: 'Yes!',
           action: () => {
-            this.shoutoutService.quickRecordTrack = track;
-
             // This funkiness is because `Router` cannot be injected directly!
             // due to some cyclic dependency issue with ngrx/effects :(
-            this.showRecord$.next(true);
+            this.showRecord$.next(track);
             setTimeout(() => {
               // reset value back
-              this.showRecord$.next(false);
+              this.showRecord$.next(null);
             });
           }
         })
@@ -355,7 +262,7 @@ export class PlaylistService extends Analytics {
   }
 
   private create(name: string, track: TrackModel) {
-    this.loader.show();
+    this.store.dispatch({ type: PROGRESS_ACTIONS.SHOW });
     this.logger.debug(`Creating playlist named '${name}', and adding track: ${track.name}`);
     this.getRawPlaylists().then((playlists: Array<PlaylistModel>) => {
       let newPlaylist = new PlaylistModel({ name });
@@ -392,35 +299,31 @@ export class PlaylistService extends Analytics {
 export class PlaylistEffects {
   constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private playlistService: PlaylistService) { }
   
-  @Effect() deletedPlayist$ = this.actions$
+  @Effect({ dispatch: false }) deletedPlayist$ = this.actions$
     .ofType(FIREBASE_ACTIONS.PLAYLIST_DELETED)
     .do((action) => {
       this.logger.debug(`PlaylistEffects.PLAYLIST_DELETED`);
       this.playlistService.clearTrackShoutouts(action.payload);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() skipNext$ = this.actions$
+  @Effect({ dispatch: false }) skipNext$ = this.actions$
     .ofType(PLAYLIST_ACTIONS.SKIP_NEXT)
     .do((action) => {
       this.logger.debug(`PlaylistEffects.SKIP_NEXT`);
       this.playlistService.skipNextPrev(1);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() skipBack$ = this.actions$
+  @Effect({ dispatch: false }) skipBack$ = this.actions$
     .ofType(PLAYLIST_ACTIONS.SKIP_BACK)
     .do((action) => {
       this.logger.debug(`PlaylistEffects.SKIP_BACK`);
       this.playlistService.skipNextPrev(0);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() loopNext$ = this.actions$
+  @Effect({ dispatch: false }) loopNext$ = this.actions$
     .ofType(PLAYLIST_ACTIONS.LOOP_NEXT)
     .do((action) => {
       this.logger.debug(`PlaylistEffects.LOOP_NEXT`);
       this.playlistService.skipNextPrev(1);
-    })
-    .filter(() => false);
+    });
 }

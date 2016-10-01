@@ -1,6 +1,9 @@
 // angular
 import {Injectable, NgZone} from '@angular/core';
 
+// libs
+import {Store} from '@ngrx/store';
+
 // nativescript
 import {Color} from 'color';
 import {isIOS} from 'platform';
@@ -27,8 +30,7 @@ if (isIOS) {
 
 // app
 import {ColorService} from './color.service';
-import {LogService} from './log.service';
-import {ProgressService} from './progress.service';
+import {PROGRESS_ACTIONS} from './progress.service';
 
 declare var zonedCallback: Function, UIBezierPath, SCLAlertViewStyleKit, CGPointMake;
 
@@ -38,7 +40,7 @@ export class FancyAlertService {
   private _micImage: any;
   private _androidTimeout: number = 800;
 
-  constructor(private logger: LogService, private progress: ProgressService, private _ngZone: NgZone) {
+  constructor(private store: Store<any>, private ngZone: NgZone) {
 
     if (isIOS) {
       TNSFancyAlert.titleColor = ColorService.Active.WHITE;
@@ -72,7 +74,7 @@ export class FancyAlertService {
   }
 
   public prompt(placeholder: string, initialValue: string, title: string, image: string, action: Function) {
-    this.logger.debug('fancyalert.prompt...'); 
+    console.log('fancyalert.prompt...'); 
 
     if (isIOS) {
       this.setColors(ColorService.ActiveId == 0 ? ColorService.Active.PRIMARY : ColorService.Active.BRIGHT_ALT);
@@ -85,8 +87,8 @@ export class FancyAlertService {
           label: 'Save',
           action: (value: any) => {
             if (value) {
-              this.logger.debug(`User entered ${value}`);
-              this._ngZone.run(() => {
+              console.log(`User entered ${value}`);
+              this.ngZone.run(() => {
                 action(value);
               });
             }
@@ -107,15 +109,15 @@ export class FancyAlertService {
           okButtonText: 'Save',
           cancelButtonText: 'Cancel'
         };
-        // this._ngZone.run(() => {
-          this.logger.debug('calling dialogs.prompt with options:');
-          this.logger.debug(options);
-          // this.logger.debug('dialogs.prompt:');
-          // this.logger.debug(dialogs.prompt);
+        // this.ngZone.run(() => {
+          console.log('calling dialogs.prompt with options:');
+          console.log(options);
+          // console.log('dialogs.prompt:');
+          // console.log(dialogs.prompt);
           dialogs.prompt(options).then((result: any) => {
             if (result && result.text) {
-              this.logger.debug(`User entered ${result.text}`);
-              this._ngZone.run(() => {
+              console.log(`User entered ${result.text}`);
+              this.ngZone.run(() => {
                 action(result.text);
               });
             }
@@ -139,7 +141,7 @@ export class FancyAlertService {
         new TNSFancyAlertButton({
           label: 'Yes',
           action: () => {
-            this._ngZone.run(() => {
+            this.ngZone.run(() => {
               action();
             });
           }
@@ -153,10 +155,10 @@ export class FancyAlertService {
 
       this.closeProgress();      
       setTimeout(() => {
-        this._ngZone.run(() => {
+        this.ngZone.run(() => {
           dialogs.confirm(subTitle).then((result: boolean) => {
             if (result) {
-              this._ngZone.run(() => {
+              this.ngZone.run(() => {
                 action();
               });
             }
@@ -169,7 +171,7 @@ export class FancyAlertService {
   } 
 
   public action(title: string, subTitle: string, image: string, buttons: Array<any>) {
-    this.logger.debug('fancyalert.action...'); 
+    console.log('fancyalert.action...'); 
     if (isIOS) {
       this.setColors(ColorService.ActiveId == 0 ? ColorService.Active.PRIMARY : ColorService.Active.BRIGHT_ALT);
       TNSFancyAlert.showAnimationType = TNSFancyAlert.SHOW_ANIMATION_TYPES.SlideInFromRight;
@@ -180,8 +182,8 @@ export class FancyAlertService {
         btns.push(new TNSFancyAlertButton({
           label: b.label,
           action: () => {
-            this.logger.debug(`User chose ${b.label}`);
-            this._ngZone.run(() => {
+            console.log(`User chose ${b.label}`);
+            this.ngZone.run(() => {
               b.action();
             });
           }
@@ -195,21 +197,21 @@ export class FancyAlertService {
         subTitle
       );
     } else {
-      this.logger.debug(dialogs); 
+      console.log(dialogs); 
 
       this.closeProgress();
       setTimeout(() => {
-        this._ngZone.run(() => {
+        this.ngZone.run(() => {
           dialogs.action({
             message: title,
             cancelButtonText: "Cancel",
             actions: buttons.map(b => b.label)
           }).then((result: any) => {
-            this.logger.debug(`User chose ${result}`);
+            console.log(`User chose ${result}`);
             setTimeout(() => {
               for (let b of buttons) {
                 if (b.label === result) {
-                  this._ngZone.run(() => {
+                  this.ngZone.run(() => {
                     b.action();
                   });
                   break;
@@ -225,7 +227,7 @@ export class FancyAlertService {
   } 
 
   private closeProgress() {
-    this.progress.hide();
+    this.store.dispatch({type: PROGRESS_ACTIONS.HIDE });
   }
 
   private setColors(highlight: string) {
