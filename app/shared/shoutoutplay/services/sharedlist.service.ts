@@ -178,43 +178,38 @@ export class SharedlistService extends Analytics {
 export class SharedlistEffects {
   constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private sharedlist: SharedlistService) { }
   
-  @Effect() downloadShoutouts$ = this.actions$
+  @Effect({ dispatch: false }) downloadShoutouts$ = this.actions$
     .ofType(SHAREDLIST_ACTIONS.DOWNLOAD_SHOUTOUTS)
     .do((action) => {
       this.logger.debug(`SharedlistEffects.DOWNLOAD_SHOUTOUTS`);
       this.sharedlist.downloadSharedShoutouts(action.payload);
-    })
-    .filter(() => false);
+    });
 
-  @Effect() play$ = this.actions$
+  @Effect({ dispatch: false }) play$ = this.actions$
     .ofType(SHAREDLIST_ACTIONS.PLAY)
     .do((action) => {
       this.logger.debug(`SharedlistEffects.PLAY`);
       this.sharedlist.goToAndPlay(action.payload);
-    })
-    .filter(() => false);
+    });
 
-  @Effect() skipNext$ = this.actions$
+  @Effect({ dispatch: false }) skipNext$ = this.actions$
     .ofType(SHAREDLIST_ACTIONS.SKIP_NEXT)
     .do((action) => {
       this.logger.debug(`SharedlistEffects.SKIP_NEXT`);
       this.sharedlist.skipNextPrev(1);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() skipBack$ = this.actions$
+  @Effect({ dispatch: false }) skipBack$ = this.actions$
     .ofType(SHAREDLIST_ACTIONS.SKIP_BACK)
     .do((action) => {
       this.logger.debug(`SharedlistEffects.SKIP_BACK`);
       this.sharedlist.skipNextPrev(0);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() loopNext$ = this.actions$
+  @Effect({ dispatch: false }) loopNext$ = this.actions$
     .ofType(SHAREDLIST_ACTIONS.LOOP_NEXT)
     .do((action) => {
       this.logger.debug(`SharedlistEffects.LOOP_NEXT`);
       this.sharedlist.skipNextPrev(1);
-    })
-    .filter(() => false);
+    });
 }

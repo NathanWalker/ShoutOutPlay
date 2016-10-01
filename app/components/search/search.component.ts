@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions, ModalDialogHost} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
 import {screen, isIOS} from 'platform';
 import {Animation} from 'ui/animation';
 import {topmost} from 'ui/frame';

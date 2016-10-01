@@ -299,35 +299,31 @@ export class PlaylistService extends Analytics {
 export class PlaylistEffects {
   constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private playlistService: PlaylistService) { }
   
-  @Effect() deletedPlayist$ = this.actions$
+  @Effect({ dispatch: false }) deletedPlayist$ = this.actions$
     .ofType(FIREBASE_ACTIONS.PLAYLIST_DELETED)
     .do((action) => {
       this.logger.debug(`PlaylistEffects.PLAYLIST_DELETED`);
       this.playlistService.clearTrackShoutouts(action.payload);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() skipNext$ = this.actions$
+  @Effect({ dispatch: false }) skipNext$ = this.actions$
     .ofType(PLAYLIST_ACTIONS.SKIP_NEXT)
     .do((action) => {
       this.logger.debug(`PlaylistEffects.SKIP_NEXT`);
       this.playlistService.skipNextPrev(1);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() skipBack$ = this.actions$
+  @Effect({ dispatch: false }) skipBack$ = this.actions$
     .ofType(PLAYLIST_ACTIONS.SKIP_BACK)
     .do((action) => {
       this.logger.debug(`PlaylistEffects.SKIP_BACK`);
       this.playlistService.skipNextPrev(0);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() loopNext$ = this.actions$
+  @Effect({ dispatch: false }) loopNext$ = this.actions$
     .ofType(PLAYLIST_ACTIONS.LOOP_NEXT)
     .do((action) => {
       this.logger.debug(`PlaylistEffects.LOOP_NEXT`);
       this.playlistService.skipNextPrev(1);
-    })
-    .filter(() => false);
+    });
 }

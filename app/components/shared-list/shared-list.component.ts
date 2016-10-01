@@ -13,7 +13,7 @@ import {Subscription} from 'rxjs/Subscription';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} from '../../shared/core/index';
-import {SharedModel, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, SharedlistService, ShoutoutService} from '../../shared/shoutoutplay/index';
+import {SharedModel, PLAYER_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, SharedlistService, ShoutoutService, TrackControlService} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 @BaseComponent({
@@ -25,7 +25,7 @@ export class SharedListComponent implements OnInit {
   private _currentIndex: number;
   private _sub: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone, public sharedlistService: SharedlistService, private location: Location) {
+  constructor(private store: Store<any>, private logger: LogService, public firebaseService: FirebaseService, private fancyalert: FancyAlertService, private ngZone: NgZone, public sharedlistService: SharedlistService, public trackControl: TrackControlService, private location: Location) {
     logger.debug(`SharedListComponent constructor`);
   } 
 

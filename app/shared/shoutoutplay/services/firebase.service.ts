@@ -1145,58 +1145,51 @@ export class FirebaseEffects {
     this.firebaseService.addDocument(action.payload);
   }
       
-  @Effect() processUpdates$ = this.actions$
+  @Effect({ dispatch: false }) processUpdates$ = this.actions$
     .ofType(FIREBASE_ACTIONS.PROCESS_UPDATES)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.PROCESS_UPDATES`);
       this.firebaseService.processUpdates(action.payload);
-    })
-    .filter(() => false);
+    });
 
-  @Effect() create$ = this.actions$
+  @Effect({ dispatch: false }) create$ = this.actions$
     .ofType(FIREBASE_ACTIONS.CREATE)
     .do((action) => {
       this.addDocument(`FirebaseEffects.CREATE`, action);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() createShoutout$ = this.actions$
+  @Effect({ dispatch: false }) createShoutout$ = this.actions$
     .ofType(FIREBASE_ACTIONS.CREATE_SHOUTOUT)
     .do((action) => {
       this.addDocument(`FirebaseEffects.CREATE_SHOUTOUT`, action);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() createShared$ = this.actions$
+  @Effect({ dispatch: false }) createShared$ = this.actions$
     .ofType(FIREBASE_ACTIONS.CREATE_SHARED)
     .do((action) => {
       this.addDocument(`FirebaseEffects.CREATE_SHARED`, action);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() delete$ = this.actions$
+  @Effect({ dispatch: false }) delete$ = this.actions$
     .ofType(FIREBASE_ACTIONS.DELETE)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.DELETE`);
       this.firebaseService.deleteDocument(action.payload);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() shoutoutDeleted$ = this.actions$
+  @Effect({ dispatch: false }) shoutoutDeleted$ = this.actions$
     .ofType(FIREBASE_ACTIONS.SHOUTOUT_DELETED)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.SHOUTOUT_DELETED`);
       this.firebaseService.removeShoutoutFromTrack(action.payload);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() reorder$ = this.actions$
+  @Effect({ dispatch: false }) reorder$ = this.actions$
     .ofType(FIREBASE_ACTIONS.REORDER)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.REORDER`);
       this.firebaseService.reorder(action.payload);
-    })
-    .filter(() => false);
+    });
   
   @Effect() deleteTrack$ = this.actions$
     .ofType(FIREBASE_ACTIONS.DELETE_TRACK)
@@ -1222,11 +1215,10 @@ export class FirebaseEffects {
       });
     });
   
-  @Effect() resetAccount$ = this.actions$
+  @Effect({ dispatch: false }) resetAccount$ = this.actions$
     .ofType(FIREBASE_ACTIONS.RESET_ACCOUNT)
     .do((action) => {
       this.logger.debug(`FirebaseEffects.RESET_ACCOUNT`);
       this.firebaseService.resetAccount();
-    })
-    .filter(() => false);
+    });
 }

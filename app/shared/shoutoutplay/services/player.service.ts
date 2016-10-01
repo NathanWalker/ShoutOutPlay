@@ -677,7 +677,7 @@ export class PlayerService extends Analytics {
 export class PlayerEffects {
   constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private player: PlayerService) { }
   
-  @Effect() listTogglePlay$ = this.actions$
+  @Effect({ dispatch: false }) listTogglePlay$ = this.actions$
     .ofType(PLAYER_ACTIONS.LIST_TOGGLE_PLAY)
     .do((action) => {
       this.logger.debug(`PlayerEffects.LIST_TOGGLE_PLAY`);
@@ -708,7 +708,6 @@ export class PlayerEffects {
           this.player.showAlert(result.msg);
         }
       });
-    })
-    .filter(() => false);
+    });
 }
 

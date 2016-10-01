@@ -189,23 +189,21 @@ export class ShoutoutService extends Analytics {
 export class ShoutoutEffects {
   constructor(private store: Store<any>, private logger: LogService, private actions$: Actions, private shoutoutService: ShoutoutService) { }
   
-  @Effect() downloadShoutouts$ = this.actions$
+  @Effect({ dispatch: false }) downloadShoutouts$ = this.actions$
     .ofType(SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS)
     .do((action) => {
       this.logger.debug(`ShoutoutEffects.DOWNLOAD_SHOUTOUTS`);
       this.shoutoutService.downloadShoutouts(action.payload);
-    })
-    .filter(() => false);
+    });
 
-  @Effect() removeLocal$ = this.actions$
+  @Effect({ dispatch: false }) removeLocal$ = this.actions$
     .ofType(SHOUTOUT_ACTIONS.REMOVE_LOCAL)
     .do((action) => {
       this.logger.debug(`ShoutoutEffects.REMOVE_LOCAL`);
       this.shoutoutService.removeRecordings(action.payload.filenames, action.payload.removeRemote);
-    })
-    .filter(() => false);
+    });
   
-  @Effect() removeRemote$ = this.actions$
+  @Effect({ dispatch: false }) removeRemote$ = this.actions$
     .ofType(SHOUTOUT_ACTIONS.REMOVE_REMOTE)
     .do((action) => {
       this.logger.debug(`ShoutoutEffects.REMOVE_REMOTE`);
@@ -213,6 +211,5 @@ export class ShoutoutEffects {
         this.shoutoutService.removeRemoteComplete();
       };
       this.shoutoutService.removeRemote(action.payload).then(handler, handler);
-    })
-    .filter(() => false);
+    });
 }
