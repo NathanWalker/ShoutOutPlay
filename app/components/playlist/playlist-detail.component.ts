@@ -14,7 +14,7 @@ import {Store} from '@ngrx/store';
 
 // app
 import {AnimateService, LogService, BaseComponent, FancyAlertService, Config} from '../../shared/core/index';
-import {PlaylistService, IPlaylistState, PlaylistModel, ShoutoutModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService, TrackControlService, SOPUtils} from '../../shared/shoutoutplay/index';
+import {PlaylistService, IPlaylistState, PlaylistModel, ShoutoutModel, PLAYER_ACTIONS, PLAYLIST_ACTIONS, TrackModel, FIREBASE_ACTIONS, IFirebaseState, FirebaseService, ShoutoutService, TrackControlService, SearchService, SOPUtils} from '../../shared/shoutoutplay/index';
 import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 
 @BaseComponent({
@@ -29,7 +29,7 @@ export class PlaylistDetailComponent implements OnInit {
   private _swipedView: any;
   private _currentIndex: number;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location, private trackControl: TrackControlService) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location, private trackControl: TrackControlService, private searchService: SearchService) {
     logger.debug(`PlaylistDetailComponent constructor`);
   }  
 
@@ -56,7 +56,7 @@ export class PlaylistDetailComponent implements OnInit {
         });
       } else {
         Config.SELECTED_PLAYLIST_ID = this._playlist.id;
-        this.shoutoutService.quickRecordTrack = track;
+        this.searchService.quickRecordTrack = track;
         this.router.navigate(['/record']);
       }
     });

@@ -312,8 +312,7 @@ export class FirebaseService extends Analytics {
           this.createUser(email, pass);
         } else if (error.indexOf('The password is invalid') > -1) {
           this.fancyalert.show('It appears your password may be incorrect for that account. If you continue to receive this message, please send a quick email to: support@shoutoutplay.com with your account email to reset the password.');
-          TNSSpotifyAuth.CLEAR_COOKIES = true;
-          TNSSpotifyAuth.LOGOUT();
+          this.spotifyLogout();
         } else {
           this.fancyalert.show(error);
         }
@@ -717,7 +716,11 @@ export class FirebaseService extends Analytics {
                 this.handleSpotifyPlaylists(s.firebase.playlists);
               });
             }    
-          } 
+          } else if (!user.uri) {
+            // likely spotify token has expired
+            // log user out
+            this.spotifyLogout();
+          }
         }, (error: any) => {
           this.logger.debug(`spotify current_user error:`);
           this.logger.debug(error);
@@ -746,7 +749,7 @@ export class FirebaseService extends Analytics {
         // optional but useful to immediately re-logon the user when he re-visits your app
         this.logger.debug(`Logged ${data.loggedIn ? 'into' : 'out of'} firebase.`);
         if (data.loggedIn) {
-          if (!this._firebaseUser) {
+          if (!this._firebaseUser && this._spotifyUserProduct) {
             let email = data.user.email ? data.user.email : 'N/A';
             this.logger.debug(`User's email address: ${email}`);
             this.logger.debug(`User's uid: ${data.user.uid}`);
@@ -1099,6 +1102,11 @@ export class FirebaseService extends Analytics {
     }, () => {
       this.logger.debug('User had no existing Spotify playlists.');
     });
+  }
+
+  private spotifyLogout() {
+    TNSSpotifyAuth.CLEAR_COOKIES = true;
+    TNSSpotifyAuth.LOGOUT();
   }
 
   private resetInitializers() {

@@ -100,16 +100,16 @@ export class FancyAlertService {
       );
     } else {
 
-      this.closeProgress();
+      // this.closeProgress();
       setTimeout(() => {
         let options = {
           title: title,
-          defaultText: placeholder || initialValue,
+          defaultText: initialValue || '',
           inputType: dialogs.inputType.text,
           okButtonText: 'Save',
           cancelButtonText: 'Cancel'
         };
-        // this.ngZone.run(() => {
+        this.ngZone.run(() => {
           console.log('calling dialogs.prompt with options:');
           console.log(options);
           // console.log('dialogs.prompt:');
@@ -124,7 +124,7 @@ export class FancyAlertService {
           }, () => {
             // canceled
           });
-        // });
+        });
       }, this._androidTimeout);
 
     }
