@@ -1,6 +1,6 @@
 <MainActionBar></MainActionBar>
 
-<ScrollView orientation="vertical">
+<ScrollView>
   <StackLayout class="full-page settings-list theme-page pad-bottom">
     <GridLayout rows="175,auto" columns="*" class="theme-area" [ngClass]="{active:activeTheme=='app.css'}">
         <Image src="~/components/settings/img/purple.png" col="0" row="0" (tap)="changeTheme('app.css')" class="theme-img"></Image>
