@@ -570,6 +570,15 @@ export class FirebaseService extends Analytics {
     }
   }
 
+  private updateUser(user: any) {
+    firebase.update(
+      `/users/${Config.USER_KEY}`,
+      user
+    ).then((result: any) => {
+      this.logger.debug(`User updated.`);
+    });
+  }
+
   private deletePlaylist(playlist: PlaylistModel) {
     // this._ignoreUpdate = false;
     this.logger.debug(`Deleting playlist with id: ${playlist.id}`);
@@ -680,13 +689,46 @@ export class FirebaseService extends Analytics {
       }
     });
 
+    /**
+     * INIT FIREBASE PLUGIN
+     **/
+    firebase.init({
+      persist: true,
+      storageBucket: 'gs://shoutoutplay-d3392.appspot.com',// 'gs://shoutoutplay.appspot.com',
+      // iOSEmulatorFlush: true,
+      onAuthStateChanged: (data) => {
+        // optional but useful to immediately re-logon the user when he re-visits your app
+        this.logger.debug(`Logged ${data.loggedIn ? 'into' : 'out of'} firebase.`);
+        if (data.loggedIn) {
+          if (!this._firebaseUser) {
+            let email = data.user.email ? data.user.email : 'N/A';
+            this.logger.debug(`User's email address: ${email}`);
+            this.logger.debug(`User's uid: ${data.user.uid}`);
+            this._firebaseUser = <any>data.user;
+            this.track('FIREBASE_LOGIN', { label: email });
+
+            if (this._spotifyUserProduct) {
+              // spotify auth complete
+              this.startUserSync();
+            }
+          } else if (this._sharedUrl) {
+            this.logger.debug('TODO: handle shared url');
+          }
+        } 
+      }
+    }).then((instance) => {
+      this.logger.debug("firebase.init done");
+    }, (error) => {
+      this.logger.debug("firebase.init error: " + error);
+    });
+
     // auth state handling
     this.store.select('auth').subscribe((s: IAuthState) => {
       if (s.loggedIn) {
         // try to log user in or create an account based on their spotify account
         TNSSpotifyAuth.CURRENT_USER().then((user: any) => {
           this.logger.debug(`Spotify user:`);
-          let emailAddress = isIOS ? user.emailAddress : user.email;
+          let emailAddress = user.emailAddress;
           this.logger.debug(`email: ${emailAddress}`);
           this.logger.debug(`uri: ${user.uri}`);
           this.logger.debug(`product: ${user.product}`);
@@ -711,10 +753,8 @@ export class FirebaseService extends Analytics {
                 login();
               });
             } else {
-              // currently logged in via firebase, go ahead and process playlists
-              this.store.take(1).subscribe((s: any) => {
-                this.handleSpotifyPlaylists(s.firebase.playlists);
-              });
+              // currently logged in via firebase, start sync
+              this.startUserSync();
             }    
           } else if (!user.uri) {
             // likely spotify token has expired
@@ -736,36 +776,12 @@ export class FirebaseService extends Analytics {
         });
       }
     });
+  }
 
-
-    /**
-     * INIT FIREBASE PLUGIN
-     **/
-    firebase.init({
-      persist: true,
-      storageBucket: 'gs://shoutoutplay-d3392.appspot.com',// 'gs://shoutoutplay.appspot.com',
-      // iOSEmulatorFlush: true,
-      onAuthStateChanged: (data) => {
-        // optional but useful to immediately re-logon the user when he re-visits your app
-        this.logger.debug(`Logged ${data.loggedIn ? 'into' : 'out of'} firebase.`);
-        if (data.loggedIn) {
-          if (!this._firebaseUser && this._spotifyUserProduct) {
-            let email = data.user.email ? data.user.email : 'N/A';
-            this.logger.debug(`User's email address: ${email}`);
-            this.logger.debug(`User's uid: ${data.user.uid}`);
-            this._firebaseUser = <any>data.user;
-            this.listenToUser(this._firebaseUser.uid);
-            this.track('FIREBASE_LOGIN', { label: email });
-          } else if (this._sharedUrl) {
-            this.logger.debug('TODO: handle shared url');
-          }
-        } 
-      }
-    }).then((instance) => {
-      this.logger.debug("firebase.init done");
-    }, (error) => {
-      this.logger.debug("firebase.init error: " + error);
-    });
+  private startUserSync() {
+    if (!Config.USER_KEY) {
+      this.listenToUser(this._firebaseUser.uid);
+    }
   }
 
   private listenToUser(uid: string, singleEvent: boolean = true) {
@@ -915,6 +931,14 @@ export class FirebaseService extends Analytics {
           this._initialized = true;
           this.store.dispatch({ type: SHOUTOUT_ACTIONS.DOWNLOAD_SHOUTOUTS, payload: { shoutouts, sharedlist } });
           this.handleSharedUrl();
+          
+          // if (this._spotifyUserProduct !== user.product) {
+          //   // update internal firebase account to match
+          //   // for example, an account may have been created against a free spotify account
+          //   // then later was upgraded, just update user to match
+          //   user.product = this._spotifyUserProduct;
+          //   this.updateUser(user);
+          // }
         }
 
         this.handleSpotifyPlaylists(playlists);

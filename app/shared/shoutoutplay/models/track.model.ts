@@ -1,6 +1,3 @@
-// libs
-import {TNSTrack} from 'nativescript-spotify';
-
 // TODO: modify spotify plugin to return custom object for album/artist with only these properties  
 // only identifier and name are strings... others are platform specific data types like NSArray, NSURL etc.
 const supportedAnyKeys = ['identifier', 'name']; //'uri', 'playableUri', 'sharingURL', 'covers', 'smallestCover', 'largestCover', 'type'];

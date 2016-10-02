@@ -8,6 +8,7 @@
         "emitDecoratorMetadata": true,
         "noImplicitUseStrict": true,
         "noEmitHelpers": true,
+        "noEmitOnError": false,
         "noLib": true
     },
     "files": [

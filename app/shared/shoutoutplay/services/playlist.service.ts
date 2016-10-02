@@ -32,7 +32,7 @@ import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
-import {TNSTrack, Utils} from 'nativescript-spotify';
+import {Utils} from 'nativescript-spotify';
 import {isString, includes} from 'lodash';
 
 // app

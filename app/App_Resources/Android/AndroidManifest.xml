@@ -30,13 +30,21 @@
 			android:name="com.tns.NativeScriptActivity"
 			android:label="@string/title_activity_kimera"
 			android:configChanges="keyboardHidden|orientation|screenSize">
+			<intent-filter>
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				
+				<!-- Accepts URIs that begin with "shoutoutplay://shoutoutplay.com" -->
+				<data android:scheme="shoutoutplay"
+							android:host="shoutoutplay" />
+			</intent-filter>
 		</activity>
     
     <activity 
       android:name="co.fitcom.SplashScreen" android:noHistory="true">
       <intent-filter>
-      <category android:name="android.intent.category.LAUNCHER" />
-      <action android:name="android.intent.action.MAIN" />
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
       </activity>
 

@@ -8,7 +8,7 @@ import {isIOS} from 'platform';
 import {Store, ActionReducer, Action} from '@ngrx/store';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/take';
-import {TNSSpotifySearch, TNSTrack, Utils} from 'nativescript-spotify';
+import {TNSSpotifySearch, ISpotifyTrack, Utils} from 'nativescript-spotify';
 
 // app
 import {Analytics, AnalyticsService} from '../../analytics/index';
@@ -176,7 +176,7 @@ export class SearchService extends Analytics {
     Utils.alert('No tracks found. Try using only 2 words of the track name.');
   }
 
-  private resultChange(tracks: Array<TNSTrack>, term: string) {
+  private resultChange(tracks: Array<ISpotifyTrack>, term: string) {
     this.toggleLoader(false);
     // convert to TrackModel
     let results: Array<TrackModel> = [];

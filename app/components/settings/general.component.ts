@@ -35,15 +35,19 @@ export class GeneralComponent implements AfterViewInit {
     if (TNSSpotifyAuth.SESSION) {
       TNSSpotifyAuth.CURRENT_USER().then((user: any) => {
         this.ngZone.run(() => {
-          let displayName = isIOS ? user.displayName : user.display_name;
+          let displayName = user.displayName;
+          let emailAddress = user.emailAddress;
           this.logger.debug(`Current user: ${displayName}`);
           if (displayName) {
-            this.displayName$.next(displayName);
-            this.emailAddress$.next(isIOS ? user.emailAddress : user.email);
+            this.displayName$.next(displayName);       
           } else {
-            this.displayName$.next(`Non-premium user`);
-            this.emailAddress$.next('');
+            if ((isIOS && (user.product==1 || user.product==2)) || (user.product == 'premium' || user.product == 'unlimited')) {
+              this.displayName$.next(`Premium User`);
+            } else {
+              this.displayName$.next(`Non-premium user`);
+            }            
           }
+          this.emailAddress$.next(emailAddress || '');
           
         });
       }, () => {
