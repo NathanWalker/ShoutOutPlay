@@ -16,7 +16,7 @@ import {topmost} from 'ui/frame';
 import {AnimationCurve} from 'ui/enums';
 
 // audio plugins
-declare var TNSEZRecorder, TNSEZAudioPlayer, AudioPlot, TNSPlayer, TNSRecorder, permissions;
+var TNSEZRecorder, TNSEZAudioPlayer, AudioPlot, TNSPlayer, TNSRecorder, permissions;
 if (isIOS) {
   var ezAudio = require('nativescript-ezaudio');
   TNSEZRecorder = ezAudio.TNSEZRecorder;

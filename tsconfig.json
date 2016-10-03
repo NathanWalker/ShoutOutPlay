@@ -1,36 +1,32 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es5",
-        "sourceMap": true,
-        "removeComments": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "noImplicitUseStrict": true,
-        "noEmitHelpers": true,
-        "noEmitOnError": false,
-        "noLib": true
-    },
-    "files": [
-        "node_modules/typescript/lib/lib.core.d.ts",
-        "manual_typings/base.d.ts",
-        "node_modules/tns-core-modules/tns-core-modules.d.ts",
-        "node_modules/tns-platform-declarations/tns-core-modules/android17.d.ts",
-        "node_modules/tns-platform-declarations/tns-core-modules/ios/ios.d.ts",
-        "node_modules/tns-platform-declarations/tns-core-modules/org.nativescript.widgets.d.ts",
-        "node_modules/nativescript-plugin-firebase/firebase.d.ts",
-        "node_modules/nativescript-splashscreen/SplashScreen.ios.d.ts",
-        "node_modules/nativescript-spotify/spotify.d.ts",
-        "node_modules/nativescript-fancyalert/fancyalert.d.ts",
-        "typings/index.d.ts",
-        "app/main.ts",
-        "app/shared/core/delegates/app.delegate.ios.ts",
-        "app/shared/core/delegates/app.delegate.android.ts",
-        "app/shared/shoutoutplay/services/command-center.ios.ts",
-        "app/shared/shoutoutplay/services/command-center.android.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "platforms"
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": false,
+    "removeComments": true,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["es6", "dom"],
+    "sourceMap": true,
+    "pretty": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": false,
+    "noEmitHelpers": true,
+    "types": [
+      "core-js",
+      "lodash"
     ]
+  },
+  "exclude": [
+    "node_modules",
+    "platforms",
+    "**/*.spec.ts"
+  ],
+  "compileOnSave": false
 }

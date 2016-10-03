@@ -19,8 +19,6 @@ import {isString, includes} from 'lodash';
 import {AnimateService, LogService, BaseComponent, FancyAlertService, DrawerService, PROGRESS_ACTIONS} from '../../shared/core/index';
 import {PlaylistService, IPlaylistState, PlaylistModel, PLAYER_ACTIONS, IPlayerState, FirebaseService, FIREBASE_ACTIONS, IFirebaseState, IAuthState, ShoutoutService, TrackControlService} from '../../shared/shoutoutplay/index';
 
-declare var zonedCallback: Function;
-
 @BaseComponent({
   // moduleId: module.id,
   selector: 'playlist',

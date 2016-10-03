@@ -17,9 +17,6 @@ import {screen} from 'platform';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Subscription} from 'rxjs/Subscription';
 
-
-declare var zonedCallback: Function;
-
 @BaseComponent({
   // moduleId: module.id,
   selector: 'home',

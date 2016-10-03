@@ -23,8 +23,6 @@ import {Analytics, AnalyticsService} from '../../analytics/index';
 import {Config, LogService, FancyAlertService, Utils} from '../../core/index';
 import {FirebaseService, PlaylistModel, TrackModel, SharedModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, SHOUTOUT_ACTIONS} from '../index';
 
-declare var zonedCallback: Function;
-
 // analytics
 const CATEGORY: string = 'Sharedlist';
 

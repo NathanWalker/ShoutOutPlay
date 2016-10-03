@@ -5,7 +5,7 @@ import {ModalDialogService, ModalDialogOptions, ModalDialogHost} from "nativescr
 import {isIOS} from 'platform';
 import * as utils from 'utils/utils';
 import {File} from 'file-system';
-declare var TNSAudioPlayer;
+var TNSAudioPlayer;
 if (isIOS) {
   let ezAudio = require('nativescript-ezaudio');
   TNSAudioPlayer = ezAudio.TNSEZAudioPlayer;

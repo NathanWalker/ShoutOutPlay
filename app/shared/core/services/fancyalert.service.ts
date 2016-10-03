@@ -9,7 +9,7 @@ import {Color} from 'color';
 import {isIOS} from 'platform';
 import * as dialogs from 'ui/dialogs';
 
-declare var TNSFancyAlert, TNSFancyAlertButton;
+var TNSFancyAlert, TNSFancyAlertButton;
 
 if (isIOS) {
   var fAlerts = require('nativescript-fancyalert');
@@ -31,7 +31,6 @@ if (isIOS) {
 // app
 import {ColorService} from './color.service';
 import {PROGRESS_ACTIONS} from './progress.service';
-
 declare var zonedCallback: Function, UIBezierPath, SCLAlertViewStyleKit, CGPointMake;
 
 @Injectable()

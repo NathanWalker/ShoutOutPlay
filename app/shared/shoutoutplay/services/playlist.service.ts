@@ -6,7 +6,7 @@ import {Router} from '@angular/router';
 import {isIOS} from 'platform';
 import * as dialogs from 'ui/dialogs';
 
-declare var TNSFancyAlertButton;
+var TNSFancyAlertButton;
 if (isIOS) {
   var fAlerts = require('nativescript-fancyalert');
   TNSFancyAlertButton = fAlerts.TNSFancyAlertButton;
@@ -39,8 +39,6 @@ import {isString, includes} from 'lodash';
 import {Analytics, AnalyticsService} from '../../analytics/index';
 import {LogService, FancyAlertService, PROGRESS_ACTIONS} from '../../core/index';
 import {PlaylistModel, TrackModel, ShoutoutModel, PLAYER_ACTIONS, FIREBASE_ACTIONS, SHOUTOUT_ACTIONS, SOPUtils} from '../index';
-
-declare var zonedCallback: Function;
 
 // analytics
 const CATEGORY: string = 'Playlist';

@@ -24,8 +24,6 @@ import {Config, LogService, FancyAlertService, PROGRESS_ACTIONS, Utils, TextServ
 // analytics
 const CATEGORY: string = 'Firebase';
 
-declare var zonedCallback: Function;
-
 /**
  * ngrx setup start --
  */
