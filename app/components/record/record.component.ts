@@ -592,7 +592,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     if (uiButton) {
       let image;
       let color = new Color('#E42338').ios; //UIColor.colorWithRedGreenBlueAlpha(0.89, 0.14, 0.22, 1);
-      UIGraphicsBeginImageContextWithOptions(uiButton.bounds.size, false, UIScreen.mainScreen().scale);
+      UIGraphicsBeginImageContextWithOptions(uiButton.bounds.size, false, UIScreen.mainScreen.scale); // TODO: iOS may need to change back to: UIScreen.mainScreen().scale
       uiButton.layer.renderInContext(UIGraphicsGetCurrentContext());
       
       let path = UIBezierPath.bezierPathWithRect(CGRectMake(0, 0, uiButton.bounds.size.width, uiButton.bounds.size.height));

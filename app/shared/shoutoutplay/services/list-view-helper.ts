@@ -32,7 +32,7 @@ export class ListViewHelper {
     }
   }
 
-  public static updatePlaylists(trackId: any, state: any, activeShoutOutPath?: string, playlistId?: string): IListViewResult {
+  public static updatePlaylists(trackId: any, state: any, activeShoutOutPath?: string, playlistId?: string): IListViewResult | any {
     let playlists = [...state.firebase.playlists];
     let shoutouts = [...state.firebase.shoutouts];
     // always reset sharedlist (in case a shared item was playing when playlist track was played)

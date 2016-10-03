@@ -411,7 +411,7 @@ export class PlayerService extends Analytics {
     
     if (this._currentTrack) {
       if (!this._nowPlayingInfo) {
-        this._nowPlayingInfo = new NSMutableDictionary();
+        this._nowPlayingInfo = NSMutableDictionary.alloc().init();
       }
       this._nowPlayingInfo.setValueForKey(NSString.stringWithString(this._currentTrack.trackName), MPMediaItemPropertyTitle);
       this._nowPlayingInfo.setValueForKey(NSString.stringWithString(this._currentTrack.albumName), MPMediaItemPropertyAlbumTitle);

@@ -9,7 +9,7 @@ export class CommandCenterHandler extends NSObject {
 	public static initWithOwner(owner: WeakRef<any>): CommandCenterHandler {
 		let handler = <CommandCenterHandler>CommandCenterHandler.new();
     handler._owner = owner;
-    UIApplication.sharedApplication().beginReceivingRemoteControlEvents();
+    UIApplication.sharedApplication.beginReceivingRemoteControlEvents();// TODO: iOS UIApplication.sharedApplication()
 		return handler;
 	}
 

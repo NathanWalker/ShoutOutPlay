@@ -1,6 +1,3 @@
-// angular
-import {provide} from '@angular/core';
-
 // libs
 import {Store} from '@ngrx/store';
 
@@ -18,7 +15,7 @@ export function TEST_COMMON_PROVIDERS(options?: any): any[] {
   // state:        = needs Store (via ngrx/store)
   
   let providers = [
-    provide(ConsoleService, { useValue: console }),
+    {provide: ConsoleService, useValue: console },
     LogService,
     ANALYTICS_PROVIDERS
   ];

@@ -1,5 +1,5 @@
 import {TNSSpotifyAuth} from 'nativescript-spotify';
-import {SplashScreen} from 'nativescript-splashscreen';
+var SplashScreen = require('nativescript-splashscreen').SplashScreen;
 import {Config} from '../services/config.service';
 
 declare var UIApplicationDelegate: any;
@@ -8,7 +8,7 @@ var FRESH_LAUNCH: boolean = true;
 export class SpotifyAppDelegate extends UIResponder {
   public static ObjCProtocols = [UIApplicationDelegate];
   
-  public applicationDidFinishLaunchingWithOptions(application: UIApplication, launchOptions: NSDictionary): boolean {
+  public applicationDidFinishLaunchingWithOptions(application, launchOptions): boolean {
     return true;
   }
   
@@ -32,7 +32,7 @@ export class SpotifyAppDelegate extends UIResponder {
     return true;
   }
 
-  public applicationDidBecomeActive(application: UIApplication): void {
+  public applicationDidBecomeActive(application): void {
     if (FRESH_LAUNCH) {
       console.log(`FRESH_LAUNCH`);
       

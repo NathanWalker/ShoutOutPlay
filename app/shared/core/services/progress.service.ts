@@ -38,7 +38,7 @@ export const PROGRESS_ACTIONS: IPROGRESS_ACTIONS = {
   SUCCESS: `${CATEGORY}_SUCCESS`
 };
 
-export const progressReducer: ActionReducer<ISharedlistState> = (state: IProgressState = {}, action: Action) => {
+export const progressReducer: ActionReducer<IProgressState> = (state: IProgressState = {}, action: Action) => {
   let changeState = () => {
     return Object.assign({}, state, action.payload);
   };

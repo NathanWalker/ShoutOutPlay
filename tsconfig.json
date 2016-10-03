@@ -10,7 +10,7 @@
     "lib": ["es6", "dom"],
     "sourceMap": true,
     "pretty": true,
-    "allowUnreachableCode": false,
+    "allowUnreachableCode": true,
     "allowUnusedLabels": false,
     "noImplicitAny": false,
     "noImplicitReturns": true,
@@ -18,8 +18,13 @@
     "noFallthroughCasesInSwitch": true,
     "noEmitOnError": false,
     "noEmitHelpers": true,
+    "baseUrl": "./app",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules"
+    ],
     "types": [
-      "core-js",
+      "jasmine",
       "lodash"
     ]
   },
