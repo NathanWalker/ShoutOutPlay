@@ -61,8 +61,8 @@ import {AppComponent} from './app.component';
 
 // Spotify setup
 import {TNSSpotifyConstants, TNSSpotifyAuth} from 'nativescript-spotify';
-TNSSpotifyConstants.CLIENT_ID = '1acac12e7fc448e188d8d70aa14249df';
-TNSSpotifyAuth.REDIRECT_URL = 'shoutoutplay://spotifylogin';
+TNSSpotifyConstants.CLIENT_ID = 'create your own app in spotify dev console';
+TNSSpotifyAuth.REDIRECT_URL = 'you will want to create a redirect url';
 if (isIOS) {
   app.ios.delegate = SpotifyAppDelegate;
 }
