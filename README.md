@@ -12,12 +12,12 @@ https://waffle.io/NathanWalker/ShoutOutPlay/join
 
 ```
 tns install
-typings install
 
-// run it (you will see TS warnings/errors)..it's ok, proceed)
 tns emulate ios
 
-// Or you can use VS Code debugger :)
+// or...
+
+tns run android
 ```
 
 ## Video Walk-Throughs

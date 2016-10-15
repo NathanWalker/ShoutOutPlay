@@ -8,7 +8,7 @@ import * as http from 'http';
 import {isIOS} from 'platform';
 import {knownFolders} from 'file-system';
 import {TNSSpotifyConstants, TNSSpotifyAuth, TNSSpotifyPlaylist} from 'nativescript-spotify';
-import firebase = require("nativescript-plugin-firebase");
+var firebase = require("nativescript-plugin-firebase");
 
 // libs
 import {Store, ActionReducer, Action} from '@ngrx/store';

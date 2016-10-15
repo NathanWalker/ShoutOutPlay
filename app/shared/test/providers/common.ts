@@ -14,7 +14,7 @@ export function TEST_COMMON_PROVIDERS(options?: any): any[] {
   // Window: token = custom window mock (mainly for changing out language)
   // state:        = needs Store (via ngrx/store)
   
-  let providers = [
+  let providers: Array<any> = [
     {provide: ConsoleService, useValue: console },
     LogService,
     ANALYTICS_PROVIDERS
@@ -22,7 +22,7 @@ export function TEST_COMMON_PROVIDERS(options?: any): any[] {
 
   if (options) {
     if (options.state) {
-      providers.push(provide(Store, { useClass: StoreMock }));
+      providers.push({provide: Store, useClass: StoreMock });
     }
   }  
   

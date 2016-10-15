@@ -1,5 +1,5 @@
 import {TNSSpotifyAuth} from 'nativescript-spotify';
-var SplashScreen = require('nativescript-splashscreen').SplashScreen;
+// var SplashScreen = require('nativescript-splashscreen').SplashScreen;
 import {Config} from '../services/config.service';
 
 declare var UIApplicationDelegate: any;
@@ -12,7 +12,7 @@ export class SpotifyAppDelegate extends UIResponder {
     return true;
   }
   
-  public applicationOpenURLSourceApplicationAnnotation(application, url, sourceApplication, annotation) { 
+  public applicationOpenURLSourceApplicationAnnotation(application, url, sourceApplication, annotation): boolean | void { 
     console.log('applicationOpenURLSourceApplicationAnnotation:');
     if (url) {
       let scheme = url.scheme;
@@ -37,8 +37,8 @@ export class SpotifyAppDelegate extends UIResponder {
       console.log(`FRESH_LAUNCH`);
       
       FRESH_LAUNCH = false;
-      let splash = new SplashScreen('logo-800.png', '#7C3FE8');
-      application.keyWindow.addSubview(splash.start());
+      // let splash = new SplashScreen('logo-800.png', '#7C3FE8');
+      // application.keyWindow.addSubview(splash.start());
     } 
   }
 }

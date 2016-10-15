@@ -5,10 +5,12 @@ import {TNSSpotifyAuth} from 'nativescript-spotify';
 
 export class Utils {
   
-  public static getFilename(path: string) {
+  public static getFilename(path: string): string | any {
     if (path) {
       let parts = path.split('/');
       return parts[parts.length - 1];
+    } else {
+      return;
     }
   }
 

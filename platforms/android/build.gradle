@@ -193,6 +193,7 @@ dependencies {
 	
     compile "com.android.support:support-v4:$suppotVer"
     compile "com.android.support:appcompat-v7:$suppotVer"
+	debugCompile "com.android.support:design:$suppotVer"
 
     // take all jars within the libs dir
 	compile fileTree(dir: "$projectDir/libs", include: ["**/*.jar"])
@@ -213,22 +214,6 @@ dependencies {
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// CONFIGURATION PHASE //////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
-
-task pluginStructureCheck {
-	def ft = fileTree(dir: nodeModulesDir, include: ["**/platforms/android/**/*.*"], exclude: '**/.bin/**')
-	ft.files.each { f ->
-		def fileName = f.getName();
-		if(
-				!fileName.endsWith(".aar")
-				&&
-				!fileName.equals("include.gradle")
-				&&
-				!fileName.endsWith(".jar")
-			){
-			println "WARNING: The file: " + f + " is depricated, you can read more about what will be the expected plugin structure here: https://www.nativescript.org/blog/migrating-n-android-plugins-from-version-1.7-to-2.0" 
-		}
-	}
-}
 
 def updateProductFlavorsContent(flavor, dimensionName, oldContent) {
 	def endIndex = oldContent.length() - 1;
@@ -732,7 +717,9 @@ task deleteFlavors (type: Delete){
 	doLast {
 		def srcDir = new File("$projectDir/src")
 		srcDir.listFiles().each({ f ->
-			if(!f.getName().equals("main"))	{
+			if(!f.getName().equals("main") &&
+				!f.getName().equals("debug") &&
+				!f.getName().equals("release"))	{
 				delete f
 			}
 		})

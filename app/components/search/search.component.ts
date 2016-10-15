@@ -66,7 +66,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
 
   public itemLoading(e: any) {
     if (isIOS) {
-      e.ios.selectionStyle = (<any>UITableViewCellSelectionStyle).UITableViewCellSelectionStyleNone;
+      e.ios.selectionStyle = UITableViewCellSelectionStyle.None;
     }
   }
 

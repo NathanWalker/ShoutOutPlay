@@ -9,7 +9,7 @@ declare var com;
 
 // libs
 import * as _ from 'lodash';
-import firebase = require("nativescript-plugin-firebase");
+var firebase = require("nativescript-plugin-firebase");
 
 export interface IAnalyticsProperties {
   category?: string;
