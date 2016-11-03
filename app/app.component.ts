@@ -16,7 +16,7 @@ if (isIOS) {
 } 
 
 // libs
-import {TNSFontIconService} from 'nativescript-ng2-fonticon/nativescript-ng2-fonticon';
+import {TNSFontIconService} from 'nativescript-ng2-fonticon';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 // app

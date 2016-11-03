@@ -11,7 +11,7 @@ import { NgModule } from '@angular/core';
 import { Routes } from '@angular/router';
 
 // libs
-import { TNSFontIconService, TNSFontIconPipe, TNSFontIconPurePipe } from 'nativescript-ng2-fonticon';
+import { TNSFontIconModule } from 'nativescript-ng2-fonticon';
 
 // feature module components
 import {MainActionBarComponent} from '../shared/shoutoutplay/components/actionbar.component';
@@ -109,22 +109,21 @@ export const FACTORY_COMPONENTS: any[] = [
     NativeScriptModule,
     NativeScriptFormsModule,
     NativeScriptHttpModule,
-    NativeScriptRouterModule
+    NativeScriptRouterModule,
+    TNSFontIconModule.forRoot({
+      'fa': 'font-awesome.css'
+    })
   ],
   entryComponents: [
     FACTORY_COMPONENTS
   ],
   declarations: [
-    TNSFontIconPipe,
-    TNSFontIconPurePipe,
     SIDEDRAWER_DIRECTIVES,
     LISTVIEW_DIRECTIVES,
     AUX_COMPONENTS,
     FACTORY_COMPONENTS
   ],
   exports: [
-    TNSFontIconPipe,
-    TNSFontIconPurePipe,
     SIDEDRAWER_DIRECTIVES,
     LISTVIEW_DIRECTIVES,
     AUX_COMPONENTS,
@@ -132,15 +131,8 @@ export const FACTORY_COMPONENTS: any[] = [
     NativeScriptModule,
     NativeScriptFormsModule,
     NativeScriptHttpModule,
-    NativeScriptRouterModule
-  ],
-  providers: [
-    { provide: TNSFontIconService, useFactory: () => {
-        return new TNSFontIconService({
-          'fa': 'font-awesome.css'
-        });
-      }
-    }
+    NativeScriptRouterModule,
+    TNSFontIconModule
   ]
 })
 export class ComponentsModule {

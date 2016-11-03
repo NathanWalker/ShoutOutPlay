@@ -21,7 +21,7 @@ import {Config} from './shared/core/index';
 Config.DEBUG.LEVEL_4 = true;
 
 // libs
-import {TNSFontIconService, TNSFontIconPipe, TNSFontIconPurePipe} from 'nativescript-ng2-fonticon';
+import {TNSFontIconModule} from 'nativescript-ng2-fonticon';
 import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
 import 'rxjs/add/operator/do';
