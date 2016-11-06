@@ -179,7 +179,10 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
           };
 
           this.resetAndroidMeter();
-
+          if (!this._recorder) {
+            this._recorder = new TNSRecorder();
+          }
+          
           this._recorder.start(recorderOptions).then((result) => {
             this.toggleRecordState(true);  
           }, (err) => {  
