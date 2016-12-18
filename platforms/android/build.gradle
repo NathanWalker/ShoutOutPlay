@@ -33,7 +33,6 @@ buildscript {
 apply plugin: "com.android.application"
 
 def isWinOs = System.properties['os.name'].toLowerCase().contains('windows')
-def metadataParams = new LinkedList <String> ()
 def allJarPaths = new LinkedList <String> ()
 def configurationsDir = "$projectDir/configurations"
 def createPluginConfigFile = false
@@ -122,6 +121,9 @@ android {
 	defaultConfig {
 		minSdkVersion 17
 		targetSdkVersion computeTargetSdkVersion()
+		ndk {
+            		abiFilters "armeabi-v7a", "x86"
+		}
 	}
 	
 	sourceSets.main {
@@ -157,23 +159,20 @@ android {
 	
 	applicationVariants.all { variant ->
 		def variantName = variant.name.capitalize()
-		def compileSourcesTaskName = "compile${variantName}Sources"
-		def compileSourcesTask = project.tasks.findByName(compileSourcesTaskName)
-		//
+
 		if ((project.ext.selectedBuildType.equals("release") && variantName.endsWith("Release"))
 				|| (project.ext.selectedBuildType.equals("debug") && variantName.endsWith("Debug"))) {
 			dexTask = project.tasks.findByName("transformClassesWithDexFor${variantName}")
 			dexTask.finalizedBy(myMergeDex)
 		}
-		//
-		
+
 		def generateBuildConfigTask = variant.generateBuildConfig;
 		generateBuildConfigTask.finalizedBy(collectAllJars)
 		if(!dontRunSbg) {
 			collectAllJars.finalizedBy(setProperties)
 		}
 		
-		compileSourcesTask.finalizedBy(buildMetadata)
+		myMergeDex.finalizedBy(buildMetadata)
 	}
 }
 
@@ -541,11 +540,8 @@ task collectAllJars {
 			allJarPaths.add(currentJarFile.getAbsolutePath())
 		}
 		
-		metadataParams.add("metadata-generator.jar")
-		metadataParams.add("$projectDir/metadata/output/assets/metadata")
 		def jars = new LinkedList<File>()
 		for(def i = 0; i < allJarPaths.size(); i++) {
-			metadataParams.add(allJarPaths.get(i));
 			def f = new File(allJarPaths.get(i))
 			if (f.getName().endsWith(".jar")) {
 				jars.add(f)
@@ -559,37 +555,31 @@ task buildMetadata (type: JavaExec) {
 	description "builds metadata with provided jar dependencies"
 	
 	inputs.files(allJarPaths)
-	inputs.dir("$buildDir/intermediates/classes")
+	inputs.dir("$buildDir/intermediates/transforms/dex")
+	inputs.dir("$buildDir/nativescript-bindings")
 
 	outputs.files("metadata/output/assets/metadata/treeNodeStream.dat", "metadata/output/assets/metadata/treeStringsStream.dat", "metadata/output/assets/metadata/treeValueStream.dat")
 
 	doFirst {
-		workingDir "build-tools"
+		def metadataParams = new LinkedList <String> ()
+		metadataParams.add("metadata-generator.jar")
+		metadataParams.add("$projectDir/metadata/output/assets/metadata")
 
-		main "-jar"
+		def sdkPath = android.sdkDirectory.getAbsolutePath();
+		def androidJar = sdkPath + "/platforms/" + android.compileSdkVersion + "/android.jar"
+		metadataParams.add(androidJar)
 
-		// get compiled classes to pass to metadata generator
-		// these need to be called after the classes have compiled
-		def classesDir = "$buildDir/intermediates/classes"
-
-		def classesSubDirs = new File(classesDir).listFiles()
-
-		def selectedBuildType = project.ext.selectedBuildType
-
-		for (File subDir: classesSubDirs) {
-			if (!subDir.getName().equals(selectedBuildType)) {
-				def subDirBuildType = new File(subDir, selectedBuildType)
-				if (subDirBuildType.exists()) {
-					metadataParams.add(subDirBuildType.getAbsolutePath());
-				}
+		def ft = fileTree(dir: "$buildDir/intermediates/transforms/dex", include: "**/*.dex")
+		def buildDirPattern = File.separator + project.ext.selectedBuildType + File.separator
+		ft.each { currentDexFile ->
+			def dexFilepath = currentDexFile.getAbsolutePath()
+			if (dexFilepath.contains(buildDirPattern)) {
+				metadataParams.add(dexFilepath)
 			}
 		}
 
-		def classesDirBuildType = new File(classesDir, selectedBuildType)
-		if (classesDirBuildType.exists()) {
-			metadataParams.add(classesDirBuildType.getAbsolutePath())
-		}
-
+		workingDir "build-tools"
+		main "-jar"
 		args metadataParams.toArray()
 	}
 	
@@ -632,6 +622,63 @@ task buildMetadata (type: JavaExec) {
 		}
 	}
 }
+
+task generateTypescriptDefinitions (type: JavaExec) {
+	def paramz = new ArrayList<String>();
+	def includeDirs = ["com.android.support", "/platforms/" + android.compileSdkVersion]
+
+	doFirst {
+		delete "build-tools/typings"
+
+		workingDir "build-tools"
+
+		main "-jar"
+
+		paramz.add("dts-generator.jar");
+		paramz.add("-input");
+
+		for (String jarPath: project.jarFiles) {
+			// don't generate typings for runtime jars and classes
+			if (shouldIncludeDirForTypings(jarPath, includeDirs)) {
+				paramz.add(jarPath);
+			}
+		}
+
+		paramz.add("-output");
+		paramz.add("typings");
+
+		args paramz.toArray();
+	}
+}
+
+generateTypescriptDefinitions.onlyIf {
+	project.hasProperty("generateTypings") && Boolean.parseBoolean(project.generateTypings)
+}
+
+def shouldIncludeDirForTypings(path, includeDirs) {
+	for (String p: includeDirs) {
+		if (path.indexOf(p) > -1) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+task copyTypings {
+	doLast {
+		println "Copied generated typings to application root level. Make sure to import android.d.ts in reference.d.ts"
+
+		copy {
+			from "$projectDir/build-tools/typings"
+			into "$projectDir/../../"
+		}
+	}
+}
+
+copyTypings.onlyIf({
+	generateTypescriptDefinitions.didWork;
+})
 
 task myMergeDex {
 	doLast {
@@ -688,7 +735,7 @@ task setProperties {
 	}
 } 
 
-setProperties.finalizedBy("asbg:generateBindings")
+setProperties.finalizedBy("asbg:generateBindings", generateTypescriptDefinitions)
 
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// EXECUTION ORDER /////////////////////////////////////
@@ -705,6 +752,7 @@ setProperties.finalizedBy("asbg:generateBindings")
 ensureMetadataOutDir.dependsOn(cleanLocalAarFiles)
 collectAllJars.dependsOn(ensureMetadataOutDir)
 buildMetadata.dependsOn(collectAllJars)
+generateTypescriptDefinitions.finalizedBy(copyTypings)
 
 //DO NOT UNCOMMENT
 // mergeAssets.dependsOn(copyMetadata) -> look in CONFIGURATIONS(top) in android.applicationVariants to see how it's done
@@ -747,4 +795,3 @@ deleteFlavors.dependsOn(deleteMetadata)
 clean.dependsOn(deleteFlavors)
 
 apply plugin: 'com.google.gms.google-services'
-

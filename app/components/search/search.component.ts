@@ -1,10 +1,10 @@
 // angular
-import {NgZone, ViewChild, OnDestroy, ElementRef, AfterViewInit, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {NgZone, ViewChild, ViewContainerRef, OnDestroy, ElementRef, AfterViewInit, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular";
 import {screen, isIOS} from 'platform';
 import {Animation} from 'ui/animation';
 import {topmost} from 'ui/frame';
@@ -25,8 +25,8 @@ import {IntegrationsComponent} from './integrations.component';
 @BaseComponent({
   // moduleId: module.id,
   selector: 'search',
-  templateUrl: './components/search/search.component.html',
-  providers: [ModalDialogService]
+  templateUrl: './components/search/search.component.html'
+  // providers: [ModalDialogService]
 })
 export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('searchbar') searchBarEl: ElementRef;
@@ -37,7 +37,7 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   private _sub: Subscription;
   private _sub2: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private ngZone: NgZone, private router: Router, private loc: Location, private coachmarks: CoachmarksService) {
+  constructor(private store: Store<any>, private logger: LogService, public authService: AuthService, public searchService: SearchService, public playlistService: PlaylistService, private modal: ModalDialogService, private vcRef: ViewContainerRef, private ngZone: NgZone, private router: Router, private loc: Location, private coachmarks: CoachmarksService) {
     logger.debug(`SearchComponent constructor`);
   }
 
@@ -103,7 +103,8 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
           this.logger.debug(`SearchComponent trying to show modal: PlaylistChooserComponent`);
           let options: ModalDialogOptions = {
             context: { promptMsg: "This is the prompt message!" },
-            fullscreen: false
+            fullscreen: false,
+            viewContainerRef: this.vcRef
           };
           this.modal.showModal(PlaylistChooserComponent, options).then((res: string) => {
             this.store.dispatch({ type: PLAYLIST_ACTIONS.CLOSE_PICKER });
@@ -123,7 +124,8 @@ export class SearchComponent implements AfterViewInit, OnInit, OnDestroy {
   public requestIntegration() {
     let options: ModalDialogOptions = {
       context: { promptMsg: "This is the prompt message!" },
-      fullscreen: false
+      fullscreen: false,
+      viewContainerRef: this.vcRef
     };
     this.modal.showModal(IntegrationsComponent, options).then((choices: any) => {
       if (choices) {

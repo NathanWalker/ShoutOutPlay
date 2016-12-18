@@ -1,6 +1,6 @@
 // libs
 import {Store} from '@ngrx/store';
-import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
+import {ModalDialogParams} from "nativescript-angular";
 
 // app
 import {LogService, BaseComponent} from '../../shared/core/index';

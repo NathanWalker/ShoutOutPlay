@@ -2,7 +2,7 @@ import {ElementRef, OnInit, ViewChild, AfterViewInit, ChangeDetectionStrategy} f
 import {Location} from '@angular/common';
 
 // libs
-import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
+import {ModalDialogParams} from "nativescript-angular";
 import {Subscription} from 'rxjs/Subscription';
 
 import {BaseComponent, Config, LogService} from '../../shared/core/index';

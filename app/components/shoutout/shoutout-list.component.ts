@@ -1,7 +1,7 @@
-import {OnDestroy, NgZone} from '@angular/core';
+import {OnDestroy, NgZone, ViewContainerRef} from '@angular/core';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions, ModalDialogHost} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular";
 import {isIOS} from 'platform';
 import * as utils from 'utils/utils';
 import {File} from 'file-system';
@@ -30,9 +30,8 @@ declare var zonedCallback: Function;
 @BaseComponent({
   // moduleId: module.id,
   selector: 'shoutout-list',
-  templateUrl: './components/shoutout/shoutout-list.component.html',
-  providers: [ModalDialogService],
-  directives: [ModalDialogHost]
+  templateUrl: './components/shoutout/shoutout-list.component.html'
+  // providers: [ModalDialogService]
 })
 export class ShoutOutListComponent implements OnDestroy {
   public shoutouts$: BehaviorSubject<Array<any>> = new BehaviorSubject([]);
@@ -41,7 +40,7 @@ export class ShoutOutListComponent implements OnDestroy {
   private _currentShoutOut: any;
   private _sub: Subscription;
 
-  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, public trackControl: TrackControlService, private fancyalert: FancyAlertService, private ngZone: NgZone, private modal: ModalDialogService) {
+  constructor(private store: Store<any>, private logger: LogService, private shoutoutService: ShoutoutService, public firebaseService: FirebaseService, public trackControl: TrackControlService, private fancyalert: FancyAlertService, private ngZone: NgZone, private modal: ModalDialogService, private vcRef: ViewContainerRef) {
 
     if (isIOS) {
       this._shoutOutPlayer = new TNSAudioPlayer(true);
@@ -129,7 +128,8 @@ export class ShoutOutListComponent implements OnDestroy {
     // should update playlist and shoutout in firebase
     
     // let options: ModalDialogOptions = {
-    //   fullscreen: false
+    //   fullscreen: false,
+    //   viewContainerRef: this.vcRef
     // };
     // this.modal.showModal(TrackChooserComponent, options).then(zonedCallback((track?: any) => {
     //   if (track) {

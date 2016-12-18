@@ -1,8 +1,5 @@
 // nativescript
-import { NativeScriptModule } from 'nativescript-angular/platform';
-import { NativeScriptFormsModule } from 'nativescript-angular/forms';
-import { NativeScriptHttpModule } from 'nativescript-angular/http';
-import { NativeScriptRouterModule } from 'nativescript-angular/router';
+import { NativeScriptModule, NativeScriptFormsModule, NativeScriptHttpModule, NativeScriptRouterModule } from 'nativescript-angular';
 import { SIDEDRAWER_DIRECTIVES } from "nativescript-telerik-ui-pro/sidedrawer/angular";
 import { LISTVIEW_DIRECTIVES } from 'nativescript-telerik-ui-pro/listview/angular';
 

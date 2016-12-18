@@ -1,10 +1,10 @@
-<ActionBar [title]="(firebaseService.state$ | async)?.playlists[playlistIndex].name">
-  <NavigationButton text="Playlists" android.systemIcon="ic_menu_back" class="action-btn" (tap)="androidBack()"></NavigationButton>
+<ActionBar [title]="(firebaseService.state$ | async)?.playlists[playlistIndex].name" class="action-bar">
+  <NavigationButton text="Playlists" android.systemIcon="ic_menu_back" class="action-item" (tap)="androidBack()"></NavigationButton>
   <ActionItem (tap)="editPlaylist()" ios.position="right" android.position="popup">
-    <Button class="fa action-btn" [text]="'fa-pencil' | fonticonPure"></Button>
+    <Button class="fa action-item" [text]="'fa-pencil' | fonticonPure"></Button>
   </ActionItem>
 </ActionBar>
-<StackLayout modal-dialog-host class="full-page-bar-match">  
+<StackLayout>  
   <EmptyView class="full-page-bar-match" *ngIf="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks.length==0" [icon]="'fa-frown-o'" [text]="'There are no tracks here.'"></EmptyView>
   
   <RadListView id="listview" [items]="(firebaseService.state$ | async)?.playlists[playlistIndex].tracks" row="1" colSpan="2" class="full-page pad-bottom"

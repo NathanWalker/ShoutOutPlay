@@ -1,10 +1,10 @@
 // angular
-import {Component, OnDestroy, ViewChild, ElementRef, AfterViewInit, NgZone} from '@angular/core';
+import {Component, OnDestroy, ViewChild, ViewContainerRef, ElementRef, AfterViewInit, NgZone} from '@angular/core';
 import {Router} from '@angular/router';
 import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular";
 import * as app from 'application';
 import * as dialogs from 'ui/dialogs';
 import * as fs from 'file-system';
@@ -93,7 +93,7 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
   private _glowiOSView;  
   private _sub: Subscription;
 
-  constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService, private ngZone: NgZone) {
+  constructor(private logger: LogService, private modal: ModalDialogService, private store: Store<any>, private shoutoutService: ShoutoutService, private searchService: SearchService, private location: Location, private fancyalert: FancyAlertService, private ngZone: NgZone, private vcRef: ViewContainerRef) {
 
     // set audio plot color based on active theme
     this.audioPlotColor = ColorService.Active.BRIGHT;
@@ -131,7 +131,8 @@ export class RecordComponent implements AfterViewInit, OnDestroy {
     this._sub = store.select('shoutout').subscribe((state: IShoutoutState) => {
       if (state.showTrackPicker) {
         let options: ModalDialogOptions = {
-          fullscreen: false
+          fullscreen: false,
+          viewContainerRef: this.vcRef
         };
         this.modal.showModal(TrackChooserComponent, options).then(zonedCallback((track?: TrackModel) => {
           this.store.dispatch({ type: SHOUTOUT_ACTIONS.CLOSE_PICKER });

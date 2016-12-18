@@ -6,7 +6,7 @@ import {SwipeDirection} from 'ui/gestures';
 
 // libs
 import {Store} from '@ngrx/store';
-import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
+import {ModalDialogParams} from "nativescript-angular";
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 

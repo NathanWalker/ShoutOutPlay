@@ -1,6 +1,6 @@
 <MainActionBar></MainActionBar>
 
-<StackLayout modal-dialog-host>
+<StackLayout>
 
   <!-- unauth -->
   <StackLayout class="full-page-bar-match" [visibility]="(authService.state$ | async)?.loggedIn ? 'collapsed': 'visible'">   

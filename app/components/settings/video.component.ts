@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy} from '@angular/core';
-import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
+import {ModalDialogParams} from "nativescript-angular";
 
 // app
 import {BaseComponent} from '../../shared/core/index';

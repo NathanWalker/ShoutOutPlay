@@ -5,12 +5,11 @@
     "**/.git": true,
     "**/.svn": true,
     "**/.DS_Store": true,
-    "**/*.js": false,
+    "**/*.js": true,
     "hooks": true,
     "lib": true,
     "platforms": true,
     "typings": true,
-    "webpack.config.js": false,
     "**/*.css": true
   },
   "search.exclude": {

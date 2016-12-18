@@ -1,3 +1,5 @@
+@import 'nativescript-theme-core/scss/light';
+
 $base: #010006;
 $complimentary: #010027;
 $primary: #6a2ecd;
@@ -7,3 +9,6 @@ $bright:#4EFF0B;
 $red: #BC1224;
 $yellow: #FFD110;
 $action-bar-match:#7C3FE8;
+
+$ab-background: $primary;
+$ab-color: $white;

@@ -2,7 +2,7 @@ import {OnDestroy} from '@angular/core';
 
 // libs
 import {Store} from '@ngrx/store';
-import {ModalDialogParams} from "nativescript-angular/directives/dialogs";
+import {ModalDialogParams} from "nativescript-angular";
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/take';
 

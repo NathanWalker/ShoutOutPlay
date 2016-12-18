@@ -1,8 +1,6 @@
 // require('nativescript-master-technology');
 // this import should be first in order to load some required settings (like globals and reflect-metadata)
-import { NativeScriptModule, platformNativeScriptDynamic, onAfterLivesync, onBeforeLivesync } from 'nativescript-angular/platform';
-import { NativeScriptFormsModule } from 'nativescript-angular/forms';
-import { NativeScriptRouterModule } from 'nativescript-angular/router';
+import { NativeScriptModule, NativeScriptFormsModule, NativeScriptRouterModule, platformNativeScriptDynamic, onAfterLivesync, onBeforeLivesync } from 'nativescript-angular';
 import {isIOS, device} from 'platform';
 import * as app from 'application';
 

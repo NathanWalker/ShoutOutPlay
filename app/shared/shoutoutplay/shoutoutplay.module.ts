@@ -2,9 +2,7 @@
 import { NgModule } from '@angular/core';
 
 // nativescript
-import { NativeScriptModule } from 'nativescript-angular/platform';
-import { NativeScriptHttpModule } from 'nativescript-angular/http';
-import { NativeScriptRouterModule } from 'nativescript-angular/router';
+import { NativeScriptModule, NativeScriptHttpModule, NativeScriptRouterModule } from 'nativescript-angular';
 
 // app
 import { SHOUTOUTPLAY_PROVIDERS } from './index';

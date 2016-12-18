@@ -1,19 +1,23 @@
-ActionBar {
-  background-color: $primary;
-  color:white;
-}
+// Import the theme’s main ruleset
+// core class definitions which will use the variables above :)
+@import 'nativescript-theme-core/scss/index';
+
+// ActionBar {
+//   background-color: $primary;
+//   color:white;
+// }
 
 // .action-image {
 //   padding:5;
 // }
 
-.m-b-10 {
-  margin-bottom:10;
-}
+// .m-b-10 {
+//   margin-bottom:10;
+// }
 
-.m-r-10 {
-  margin-right:10;
-}
+// .m-r-10 {
+//   margin-right:10;
+// }
 
 ScrollView {
   background-color:$base;
@@ -34,17 +38,17 @@ SearchBar {
   border-width:0;
 }
 
-.action-title {
-  color:#fff;
-  text-align: center;
-  vertical-align: center;
-  font-weight: bold;
-  font-size:17;
-}
+// .action-bar-title {
+//   color:#fff;
+//   text-align: center;
+//   vertical-align: center;
+//   font-weight: bold;
+//   font-size:17;
+// }
 
-.t-white {
-  color:#fff;
-}
+// .t-white {
+//   color:#fff;
+// }
 
 .white-label {
   font-size:12;
@@ -348,7 +352,7 @@ SearchBar {
 }
 
 .full-page {
-  height: 100%;
+  /*height: 100%;*/
   background-color:$base;
   // padding-bottom:50;
 }

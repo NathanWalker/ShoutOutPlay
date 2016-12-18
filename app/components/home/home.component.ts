@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, Inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ViewChild, ViewContainerRef, ElementRef, AfterViewInit, ChangeDetectorRef, Inject, OnInit} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 
 // app
@@ -7,7 +7,7 @@ import {AuthService, PlayerService, IPlayerState, FirebaseService, PlaylistServi
 import {PlayerFullComponent} from '../player/player-full.component';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions, ModalDialogHost} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular";
 import {RadSideDrawerComponent} from 'nativescript-telerik-ui-pro/sidedrawer/angular';
 import {PushTransition, DrawerTransitionBase, SlideInOnTopTransition} from 'nativescript-telerik-ui-pro/sidedrawer';
 import {Page} from "ui/page";
@@ -21,7 +21,7 @@ import {Subscription} from 'rxjs/Subscription';
   // moduleId: module.id,
   selector: 'home',
   templateUrl: './components/home/home.component.html',
-  providers: [ModalDialogService],
+  // providers: [ModalDialogService],
   changeDetection: ChangeDetectionStrategy.Default
 })
 export class HomeComponent implements AfterViewInit, OnInit {
@@ -30,7 +30,7 @@ export class HomeComponent implements AfterViewInit, OnInit {
   private _sideDrawerTransition: DrawerTransitionBase;
   private _playerControls: any;
   
-  constructor(private logger: LogService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public player: PlayerService, public authService: AuthService, public drawerService: DrawerService, public trackControl: TrackControlService, private modal: ModalDialogService) {
+  constructor(private logger: LogService, private firebaseService: FirebaseService, private playlistService: PlaylistService, @Inject(Page) private _page: Page, private vcRef: ViewContainerRef, private _changeDetectionRef: ChangeDetectorRef, private router: Router, public player: PlayerService, public authService: AuthService, public drawerService: DrawerService, public trackControl: TrackControlService, private modal: ModalDialogService) {
     ActionBarUtil.STATUSBAR_STYLE(1);
     this._page.on("loaded", this.onLoaded, this);
   }
@@ -45,7 +45,8 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
   public openFullPlayer() {
     let options: ModalDialogOptions = {
-      context: { },
+      context: {},
+      viewContainerRef: this.vcRef,
       fullscreen: true
     };
     this.modal.showModal(PlayerFullComponent, options).then(() => {

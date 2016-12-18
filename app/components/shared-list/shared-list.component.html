@@ -1,6 +1,6 @@
 <SharedListActionBar></SharedListActionBar>
 
-<StackLayout modal-dialog-host class="full-page-bar-match" [ngClass]="(trackControl.showControls$ | async) ? 'pad-bottom' : ''">  
+<StackLayout [ngClass]="(trackControl.showControls$ | async) ? 'pad-bottom' : ''">  
   <EmptyView class="full-page-bar-match" *ngIf="(firebaseService.state$ | async)?.sharedlist.length==0" [icon]="'fa-frown-o'" [text]="'You have not received any shared ShoutOuts yet.'"></EmptyView>
   
   <RadListView id="listview" [items]="(firebaseService.state$ | async)?.sharedlist" row="1" colSpan="2" class="full-page pad-bottom"

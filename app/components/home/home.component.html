@@ -37,7 +37,7 @@
       </GridLayout>
     </StackLayout>
   </GridLayout>
-  <GridLayout rows="*,auto" columns="*" tkMainContent class="page-bg" modal-dialog-host>
+  <GridLayout rows="*,auto" columns="*" tkMainContent class="page-bg">
     <router-outlet row="0" col="0"></router-outlet>
     <player-controls row="1" col="0" #playerControls class="player-controls" [currentTrack]="player.currentTrack$ | async" (expand)="openFullPlayer()" *ngIf="trackControl.showControls$ | async"></player-controls> <!--verticalAligment="bottom" [visibility]="(showControls$ | async) ? 'visible' : 'collapsed'"-->
   </GridLayout>

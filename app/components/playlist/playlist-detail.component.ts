@@ -1,10 +1,10 @@
 // angular
-import {NgZone, OnInit} from '@angular/core';
+import {NgZone, ViewContainerRef, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular";
 import * as dialogs from 'ui/dialogs';
 import {topmost} from 'ui/frame';
 import * as utils from 'utils/utils';
@@ -20,8 +20,8 @@ import {ShoutOutDetailComponent} from '../shoutout/shoutout-detail.component';
 @BaseComponent({
   // moduleId: module.id,
   selector: 'playlist-detail',
-  templateUrl: './components/playlist/playlist-detail.component.html',
-  providers: [ModalDialogService]
+  templateUrl: './components/playlist/playlist-detail.component.html'
+  // providers: [ModalDialogService]
 })
 export class PlaylistDetailComponent implements OnInit {
   public playlistIndex: number;
@@ -29,7 +29,7 @@ export class PlaylistDetailComponent implements OnInit {
   private _swipedView: any;
   private _currentIndex: number;
 
-  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location, private trackControl: TrackControlService, private searchService: SearchService) {
+  constructor(private store: Store<any>, private logger: LogService, public playlistService: PlaylistService, private firebaseService: FirebaseService, private ar: ActivatedRoute, private vcRef: ViewContainerRef, private modal: ModalDialogService, private fancyalert: FancyAlertService, private ngZone: NgZone, private router: Router, private shoutoutService: ShoutoutService, private location: Location, private trackControl: TrackControlService, private searchService: SearchService) {
     logger.debug(`PlaylistDetailComponent constructor`);
   }  
 
@@ -75,6 +75,7 @@ export class PlaylistDetailComponent implements OnInit {
     if (track.shoutoutId) {
       let options: ModalDialogOptions = {
         context: { track },
+        viewContainerRef: this.vcRef,
         fullscreen: true
       };
       this.modal.showModal(ShoutOutDetailComponent, options).then(() => {

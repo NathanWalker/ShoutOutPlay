@@ -1,10 +1,10 @@
-<ActionBar title="ShoutOutPlay">
+<ActionBar title="ShoutOutPlay" class="action-bar">
 
   <!-- Android -->
   <GridLayout rows="auto" columns="auto,*,auto" class="android-action-bar">
-    <Button class="fa android-btn" [text]="'fa-bars' | fonticonPure" row="0" col="0" (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn"></Button>
+    <Button class="fa action-item" [text]="'fa-bars' | fonticonPure" row="0" col="0" (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn"></Button>
     <Image src="res://logo" class="action-image" row="0" col="1" height="30"></Image>
-    <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure" nsRouterLink="/record" row="0" col="2" *ngIf="(authService.state$ | async)?.loggedIn"></Button>
+    <Button class="fa action-item microphone-btn" [text]="'fa-microphone' | fonticonPure" nsRouterLink="/record" row="0" col="2" *ngIf="(authService.state$ | async)?.loggedIn"></Button>
   </GridLayout>
 
   <!-- iOS -->
@@ -13,10 +13,10 @@
   </StackLayout>
 
   <ActionItem (tap)="drawerService.toggle()" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button class="fa" [text]="'fa-bars' | fonticonPure"></Button>
+    <Button class="fa action-item" [text]="'fa-bars' | fonticonPure"></Button>
   </ActionItem>
   <ActionItem nsRouterLink="/record" ios.position="right" android.position="popup" *ngIf="(authService.state$ | async)?.loggedIn">
-    <Button class="fa action-btn microphone-btn" [text]="'fa-microphone' | fonticonPure"></Button>
+    <Button class="fa action-item microphone-btn" [text]="'fa-microphone' | fonticonPure"></Button>
   </ActionItem>-->
   
 </ActionBar>

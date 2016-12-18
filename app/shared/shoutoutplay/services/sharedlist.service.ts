@@ -2,7 +2,7 @@
 import {Injectable, NgZone, forwardRef, Inject, Injector} from '@angular/core';
 
 // nativescript
-import {RouterExtensions} from "nativescript-angular/router";
+import {RouterExtensions} from "nativescript-angular";
 import {isIOS} from 'platform';
 import * as dialogs from 'ui/dialogs';
 import * as fs from 'file-system';

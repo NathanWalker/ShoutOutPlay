@@ -1,3 +1,10 @@
+@import 'nativescript-theme-core/scss/platforms/index.android';
+
+Button {
+  background-color: rgba(255, 0, 0, 0.0);
+  border-color:rgba(255, 0, 0, 0.0);
+  border-width: 1;
+}
 .android-action-bar {
   margin:0;
   padding:0;
@@ -18,7 +25,7 @@ SearchBar {
   color:#fff;
 }
 
-.action-title {
+.action-bar-title {
   font-weight: 500;
   font-size:20;
 }

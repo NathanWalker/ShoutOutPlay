@@ -1,7 +1,8 @@
-import {Router} from '@angular/router';
+import { ViewContainerRef } from '@angular/core';
+import { Router } from '@angular/router';
 
 // nativescript
-import {ModalDialogService, ModalDialogOptions} from "nativescript-angular/directives/dialogs";
+import {ModalDialogService, ModalDialogOptions} from "nativescript-angular";
 
 // app
 import {LogService, BaseComponent} from '../../shared/core/index';
@@ -15,14 +16,15 @@ import {VideoComponent} from './video.component';
 })
 export class HelpComponent {
 
-  constructor(private router: Router, private modal: ModalDialogService) {
+  constructor(private router: Router, private modal: ModalDialogService, private vcRef: ViewContainerRef) {
 
   }  
 
   public viewOverview() {
     let options: ModalDialogOptions = {
       context: { promptMsg: '' },
-      fullscreen: false
+      fullscreen: false,
+      viewContainerRef: this.vcRef
     };
     this.modal.showModal(VideoComponent, options).then((res: string) => {
       

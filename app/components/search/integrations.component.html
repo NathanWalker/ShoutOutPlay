@@ -1,9 +1,9 @@
 <ScrollView orientation="vertical">
   <StackLayout>
-    <GridLayout rows="auto" columns="100,*,100" class="modal-action-bar">
-        <Button text="Cancel" (tap)="close()" row="0" col="0" class="cancel-btn"></Button>
-        <Label text="Choices" row="0" col="1" class="modal-label modal-title centered"></Label>
-        <Button text="Save" (tap)="close(true)" row="0" col="2" class="modal-save-btn"></Button>
+    <GridLayout rows="auto" columns="100,*,100" class="action-bar">
+        <Button text="Cancel" (tap)="close()" row="0" col="0" class="action-item"></Button>
+        <Label text="Choices" row="0" col="1" class="action-bar-title"></Label>
+        <Button text="Save" (tap)="close(true)" row="0" col="2" class="action-item"></Button>
     </GridLayout>
     
     <StackLayout class="full-page settings-list pad-bottom">
@@ -11,31 +11,31 @@
       <StackLayout class="divider divider-margin"></StackLayout>
       <GridLayout rows="auto" columns="auto,*" verticalAlignment="center" class="m-b-10">
         <Switch name="switch1" [(ngModel)]="choices.apple" row="0" col="0" class="switch m-r-10" [attr.checked]="choices.apple"></Switch>
-        <Label text="Apple Music" textWrap="true" row="0" col="1" class="t-white" (tap)="choices.apple=!choices.apple;"></Label>
+        <Label text="Apple Music" textWrap="true" row="0" col="1" class="c-white" (tap)="choices.apple=!choices.apple;"></Label>
       </GridLayout>
       <GridLayout rows="auto" columns="auto,*" verticalAlignment="center" class="m-b-10">
         <Switch name="switch2" [(ngModel)]="choices.google" row="0" col="0" class="switch m-r-10" [attr.checked]="choices.google"></Switch>
-        <Label text="Google Play Music" textWrap="true" row="0" col="1" class="t-white" (tap)="choices.google=!choices.google;"></Label>
+        <Label text="Google Play Music" textWrap="true" row="0" col="1" class="c-white" (tap)="choices.google=!choices.google;"></Label>
       </GridLayout>
       <GridLayout rows="auto" columns="auto,*" verticalAlignment="center" class="m-b-10">
         <Switch name="switch3" [(ngModel)]="choices.soundcloud" row="0" col="0" class="switch m-r-10" [attr.checked]="choices.soundcloud"></Switch>
-        <Label text="SoundCloud" textWrap="true" row="0" col="1" class="t-white" (tap)="choices.soundcloud=!choices.soundcloud;"></Label>
+        <Label text="SoundCloud" textWrap="true" row="0" col="1" class="c-white" (tap)="choices.soundcloud=!choices.soundcloud;"></Label>
       </GridLayout>
       <GridLayout rows="auto" columns="auto,*" verticalAlignment="center" class="m-b-10">
         <Switch name="switch4" [(ngModel)]="choices.groove" row="0" col="0" class="switch m-r-10" [attr.checked]="choices.groove"></Switch>
-        <Label text="Groove" textWrap="true" row="0" col="1" class="t-white" (tap)="choices.groove=!choices.groove;"></Label>
+        <Label text="Groove" textWrap="true" row="0" col="1" class="c-white" (tap)="choices.groove=!choices.groove;"></Label>
       </GridLayout>
       <GridLayout rows="auto" columns="auto,*" verticalAlignment="center" class="m-b-10">
         <Switch name="switch5" [(ngModel)]="choices.pandora" row="0" col="0" class="switch m-r-10" [attr.checked]="choices.pandora"></Switch>
-        <Label text="Pandora" textWrap="true" row="0" col="1" class="t-white" (tap)="choices.pandora=!choices.pandora;"></Label>
+        <Label text="Pandora" textWrap="true" row="0" col="1" class="c-white" (tap)="choices.pandora=!choices.pandora;"></Label>
       </GridLayout>
       <GridLayout rows="auto" columns="auto,*" verticalAlignment="center" class="m-b-10">
         <Switch name="switch6" [(ngModel)]="choices.amazon" row="0" col="0" class="switch m-r-10" [attr.checked]="choices.amazon"></Switch>
-        <Label text="Amazon Prime Music" textWrap="true" row="0" col="1" class="t-white" (tap)="choices.amazon=!choices.amazon;"></Label>
+        <Label text="Amazon Prime Music" textWrap="true" row="0" col="1" class="c-white" (tap)="choices.amazon=!choices.amazon;"></Label>
       </GridLayout>
       <GridLayout rows="auto" columns="auto,*" verticalAlignment="center" class="m-b-10">
         <Switch name="switch7" [(ngModel)]="choices.plug" row="0" col="0" class="switch m-r-10" [attr.checked]="choices.plug"></Switch>
-        <Label text="Plug.dj" textWrap="true" row="0" col="1" class="t-white" (tap)="choices.plug=!choices.plug;"></Label>
+        <Label text="Plug.dj" textWrap="true" row="0" col="1" class="c-white" (tap)="choices.plug=!choices.plug;"></Label>
       </GridLayout>
     </StackLayout>
   </StackLayout>
