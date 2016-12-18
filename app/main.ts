@@ -80,10 +80,14 @@ ColorService.swapScheme(activeTheme.split('/').slice(-1)[0]);
 
 enableProdMode();
 
+export function cons() {
+  return console;
+}
+
 @NgModule({
   imports: [
     CoreModule.forRoot([
-      { provide: ConsoleService, useValue: console }
+      { provide: ConsoleService, useFactory: (cons) }
     ]),
     AnalyticsModule,
     StoreModule.provideStore({

@@ -5,7 +5,7 @@
     "**/.git": true,
     "**/.svn": true,
     "**/.DS_Store": true,
-    "**/*.js": true,
+    "**/app/**/*.js": true,
     "hooks": true,
     "lib": true,
     "platforms": true,
